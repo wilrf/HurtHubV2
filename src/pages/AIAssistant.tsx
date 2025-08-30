@@ -18,3 +18,4 @@ export function AIAssistant() {
     </div>
   )
 }
+export default AIAssistant

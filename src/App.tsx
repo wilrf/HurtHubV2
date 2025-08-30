@@ -13,15 +13,15 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 // Lazy load pages for code splitting
 import { lazy } from 'react'
 
-const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
-const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
-const CommunityPulse = lazy(() => import('@/pages/CommunityPulse').then(m => ({ default: m.CommunityPulse })))
-const BusinessIntelligence = lazy(() => import('@/pages/BusinessIntelligence').then(m => ({ default: m.BusinessIntelligence })))
-const AIAssistant = lazy(() => import('@/pages/AIAssistant').then(m => ({ default: m.AIAssistant })))
-const CompanyDetails = lazy(() => import('@/pages/CompanyDetails').then(m => ({ default: m.CompanyDetails })))
-const BusinessProfile = lazy(() => import('@/pages/BusinessProfile').then(m => ({ default: m.BusinessProfile })))
-const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
-const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })))
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
+const HomePage = lazy(() => import('@/pages/HomePage'))
+const CommunityPulse = lazy(() => import('@/pages/CommunityPulse'))
+const BusinessIntelligence = lazy(() => import('@/pages/BusinessIntelligence'))
+const AIAssistant = lazy(() => import('@/pages/AIAssistant'))
+const CompanyDetails = lazy(() => import('@/pages/CompanyDetails'))
+const BusinessProfile = lazy(() => import('@/pages/BusinessProfile'))
+const Settings = lazy(() => import('@/pages/Settings'))
+const NotFound = lazy(() => import('@/pages/NotFound'))
 
 function App() {
   return (

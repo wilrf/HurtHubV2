@@ -219,4 +219,4 @@ export function HomePage() {
       </Card>
     </div>
   )
-}
+}export default HomePage

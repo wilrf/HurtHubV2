@@ -511,3 +511,4 @@ export function BusinessIntelligence() {
     </div>
   )
 }
+export default BusinessIntelligence

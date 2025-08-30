@@ -444,3 +444,4 @@ export function CommunityPulse() {
     </div>
   )
 }
+export default CommunityPulse

@@ -583,3 +583,4 @@ export function BusinessProfile() {
     </div>
   )
 }
+export default BusinessProfile
