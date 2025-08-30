@@ -15,7 +15,14 @@
       "Bash(gh repo create:*)",
       "Bash(git push:*)",
       "Bash(git pull:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm install:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Bash(vercel:*)",
+      "Bash(node:*)",
+      "Bash(start:*)",
+      "Bash(set VERCEL_TOKEN=qAMDQ9VN9QdsNMm7yvvAVNiA)"
     ],
     "deny": [],
     "ask": []
