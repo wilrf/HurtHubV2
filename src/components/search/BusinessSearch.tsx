@@ -109,7 +109,7 @@ export function BusinessSearch({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          leftIcon={Search}
+          leftIcon={<Search className="h-4 w-4" />}
           className="pr-24"
         />
         
