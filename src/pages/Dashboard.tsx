@@ -50,7 +50,8 @@ export function Dashboard() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (amount == null || isNaN(amount)) return '$0'
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`
     } else if (amount >= 1000) {
@@ -59,7 +60,8 @@ export function Dashboard() {
     return `$${amount.toLocaleString()}`
   }
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined | null) => {
+    if (num == null || isNaN(num)) return '0'
     return num.toLocaleString()
   }
 
@@ -236,7 +238,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.topIndustries.slice(0, 6).map((industry, index) => (
+                {analytics.topIndustries?.slice(0, 6).map((industry, index) => (
                   <div key={industry.industry} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className={`w-2 h-2 rounded-full mr-3 ${
@@ -267,7 +269,7 @@ export function Dashboard() {
                             index === 4 ? 'bg-red-500' : 'bg-gray-500'
                           }`}
                           style={{ 
-                            width: `${(industry.totalRevenue / analytics.topIndustries[0].totalRevenue) * 100}%` 
+                            width: `${(industry.totalRevenue / (analytics.topIndustries?.[0]?.totalRevenue || 1)) * 100}%` 
                           }}
                         />
                       </div>
@@ -288,7 +290,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.topNeighborhoods.slice(0, 6).map((neighborhood, index) => (
+                {analytics.topNeighborhoods?.slice(0, 6).map((neighborhood, index) => (
                   <div key={neighborhood.neighborhood} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className={`w-2 h-2 rounded-full mr-3 ${
@@ -303,7 +305,7 @@ export function Dashboard() {
                         <p className="text-xs text-muted-foreground flex items-center">
                           {neighborhood.count} businesses • 
                           <Star className="h-3 w-3 text-yellow-400 ml-1 mr-1" />
-                          {neighborhood.avgRating.toFixed(1)}
+                          {neighborhood.avgRating?.toFixed(1) || '0.0'}
                         </p>
                       </div>
                     </div>
@@ -321,7 +323,7 @@ export function Dashboard() {
                             index === 4 ? 'bg-yellow-500' : 'bg-gray-500'
                           }`}
                           style={{ 
-                            width: `${(neighborhood.totalRevenue / analytics.topNeighborhoods[0].totalRevenue) * 100}%` 
+                            width: `${(neighborhood.totalRevenue / (analytics.topNeighborhoods?.[0]?.totalRevenue || 1)) * 100}%` 
                           }}
                         />
                       </div>
@@ -347,7 +349,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.revenueDistribution.map((range, index) => (
+                {analytics.revenueDistribution?.map((range, index) => (
                   <div key={range.range} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="text-sm font-medium min-w-[120px]">{range.range}</span>
@@ -359,7 +361,7 @@ export function Dashboard() {
                         <div 
                           className="h-3 bg-gradient-to-r from-green-400 to-green-600 rounded-full"
                           style={{ 
-                            width: `${(range.count / Math.max(...analytics.revenueDistribution.map(r => r.count))) * 100}%` 
+                            width: `${(range.count / Math.max(...(analytics.revenueDistribution?.map(r => r.count) || [1]))) * 100}%` 
                           }}
                         />
                       </div>
@@ -383,7 +385,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.businessAgeDistribution.map((age, index) => (
+                {analytics.businessAgeDistribution?.map((age, index) => (
                   <div key={age.ageRange} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="text-sm font-medium min-w-[100px]">{age.ageRange}</span>
@@ -395,7 +397,7 @@ export function Dashboard() {
                         <div 
                           className="h-3 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
                           style={{ 
-                            width: `${(age.count / Math.max(...analytics.businessAgeDistribution.map(a => a.count))) * 100}%` 
+                            width: `${(age.count / Math.max(...(analytics.businessAgeDistribution?.map(a => a.count) || [1]))) * 100}%` 
                           }}
                         />
                       </div>

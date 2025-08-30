@@ -11,20 +11,17 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
 // Lazy load pages for code splitting
-import { lazyImport } from '@/utils/lazyImport'
+import { lazy } from 'react'
 
-const { Dashboard } = lazyImport(() => import('@/pages/Dashboard'), 'Dashboard')
-const { HomePage } = lazyImport(() => import('@/pages/HomePage'), 'HomePage')
-const { CommunityPulse } = lazyImport(() => import('@/pages/CommunityPulse'), 'CommunityPulse')
-const { BusinessIntelligence } = lazyImport(
-  () => import('@/pages/BusinessIntelligence'),
-  'BusinessIntelligence'
-)
-const { AIAssistant } = lazyImport(() => import('@/pages/AIAssistant'), 'AIAssistant')
-const { CompanyDetails } = lazyImport(() => import('@/pages/CompanyDetails'), 'CompanyDetails')
-const { BusinessProfile } = lazyImport(() => import('@/pages/BusinessProfile'), 'BusinessProfile')
-const { Settings } = lazyImport(() => import('@/pages/Settings'), 'Settings')
-const { NotFound } = lazyImport(() => import('@/pages/NotFound'), 'NotFound')
+const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
+const CommunityPulse = lazy(() => import('@/pages/CommunityPulse').then(m => ({ default: m.CommunityPulse })))
+const BusinessIntelligence = lazy(() => import('@/pages/BusinessIntelligence').then(m => ({ default: m.BusinessIntelligence })))
+const AIAssistant = lazy(() => import('@/pages/AIAssistant').then(m => ({ default: m.AIAssistant })))
+const CompanyDetails = lazy(() => import('@/pages/CompanyDetails').then(m => ({ default: m.CompanyDetails })))
+const BusinessProfile = lazy(() => import('@/pages/BusinessProfile').then(m => ({ default: m.BusinessProfile })))
+const Settings = lazy(() => import('@/pages/Settings').then(m => ({ default: m.Settings })))
+const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })))
 
 function App() {
   return (
@@ -36,10 +33,10 @@ function App() {
               <div className='min-h-screen transition-all duration-300'>
                 <Routes>
                   {/* Main application routes */}
-                  <Route
-                    path='/'
-                    element={
-                      <MainLayout>
+                  <Route path='/' element={<MainLayout />}>
+                    <Route
+                      index
+                      element={
                         <Suspense
                           fallback={
                             <div className='flex h-96 items-center justify-center'>
@@ -47,20 +44,109 @@ function App() {
                             </div>
                           }
                         >
-                          <Routes>
-                            <Route index element={<Dashboard />} />
-                            <Route path='home' element={<HomePage />} />
-                            <Route path='community' element={<CommunityPulse />} />
-                            <Route path='business-intelligence' element={<BusinessIntelligence />} />
-                            <Route path='ai-assistant' element={<AIAssistant />} />
-                            <Route path='company/:id' element={<CompanyDetails />} />
-                            <Route path='business/:id' element={<BusinessProfile />} />
-                            <Route path='settings' element={<Settings />} />
-                          </Routes>
+                          <Dashboard />
                         </Suspense>
-                      </MainLayout>
-                    }
-                  />
+                      }
+                    />
+                    <Route
+                      path='home'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <HomePage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='community'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <CommunityPulse />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='business-intelligence'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <BusinessIntelligence />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='ai-assistant'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <AIAssistant />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='company/:id'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <CompanyDetails />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='business/:id'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <BusinessProfile />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path='settings'
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className='flex h-96 items-center justify-center'>
+                              <LoadingSpinner size='lg' />
+                            </div>
+                          }
+                        >
+                          <Settings />
+                        </Suspense>
+                      }
+                    />
+                  </Route>
 
                   {/* Redirect old routes */}
                   <Route path='/dashboard' element={<Navigate to='/' replace />} />

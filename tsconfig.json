@@ -36,11 +36,13 @@
       "@/styles/*": ["src/styles/*"]
     }
   },
-  "include": [
-    "src",
-    "vite.config.ts",
-    "vitest.config.ts",
-    "playwright.config.ts"
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.config.ts",
+    "**/*.config.js",
+    "tests"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

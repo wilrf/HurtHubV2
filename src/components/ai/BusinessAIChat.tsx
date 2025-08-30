@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, MessageSquare, Bot, User, Sparkles, TrendingUp, BarChart3, MapPin } from 'lucide-react'
+import { Send, MessageSquare, Bot, User, Sparkles, BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -117,21 +117,21 @@ How can I help you understand Charlotte's business community today?`
     // Business Intelligence responses
     if (module === 'business-intelligence') {
       if (messageLower.includes('top') && (messageLower.includes('industry') || messageLower.includes('industries'))) {
-        const topIndustries = analytics?.topIndustries.slice(0, 5) || []
+        const topIndustries = analytics?.topIndustries?.slice(0, 5) || []
         return `📊 **Top Performing Industries in Charlotte:**
 
 ${topIndustries.map((industry, index) => 
   `${index + 1}. **${industry.industry}**
    • ${industry.count} businesses
-   • $${(industry.revenue / 1000000).toFixed(1)}M total revenue
-   • ${industry.employees.toLocaleString()} employees`
+   • $${(industry.totalRevenue / 1000000).toFixed(1)}M total revenue
+   • ${industry.totalEmployees?.toLocaleString() || '0'} employees`
 ).join('\n\n')}
 
-The ${topIndustries[0]?.industry} sector leads with $${(topIndustries[0]?.revenue / 1000000).toFixed(1)}M in revenue across ${topIndustries[0]?.count} businesses.`
+The ${topIndustries?.[0]?.industry} sector leads with $${(topIndustries?.[0]?.totalRevenue / 1000000)?.toFixed(1) || '0'}M in revenue across ${topIndustries?.[0]?.count || 0} businesses.`
       }
 
       if (messageLower.includes('neighborhood') && messageLower.includes('revenue')) {
-        const topNeighborhoods = analytics?.topNeighborhoods.slice(0, 5) || []
+        const topNeighborhoods = analytics?.topNeighborhoods?.slice(0, 5) || []
         return `🏘️ **Top Revenue-Generating Neighborhoods:**
 
 ${topNeighborhoods.map((neighborhood, index) => 
@@ -141,13 +141,13 @@ ${topNeighborhoods.map((neighborhood, index) =>
    • ⭐ ${neighborhood.avgRating.toFixed(1)} avg rating`
 ).join('\n\n')}
 
-${topNeighborhoods[0]?.neighborhood} leads with the highest business revenue concentration.`
+${topNeighborhoods?.[0]?.neighborhood || 'Unknown'} leads with the highest business revenue concentration.`
       }
 
       if (messageLower.includes('growth') && messageLower.includes('revenue')) {
-        const highGrowthBusinesses = businesses
-          .filter(b => b.revenueGrowth > 0.15)
-          .sort((a, b) => b.revenueGrowth - a.revenueGrowth)
+        const highGrowthBusinesses = (businesses || [])
+          .filter(b => b?.revenueGrowth > 0.15)
+          .sort((a, b) => (b?.revenueGrowth || 0) - (a?.revenueGrowth || 0))
           .slice(0, 5)
 
         return `🚀 **High Revenue Growth Companies (15%+ growth):**
@@ -164,9 +164,9 @@ These companies are significantly outperforming the market average growth rate.`
       }
 
       if (messageLower.includes('employee') && messageLower.includes('industry')) {
-        const industryEmployees = analytics?.topIndustries.slice(0, 5).map(industry => ({
+        const industryEmployees = analytics?.topIndustries?.slice(0, 5)?.map(industry => ({
           industry: industry.industry,
-          avgEmployees: Math.round(industry.employees / industry.count),
+          avgEmployees: Math.round((industry.employees || 0) / (industry.count || 1)),
           totalEmployees: industry.employees
         })) || []
 
@@ -175,7 +175,7 @@ These companies are significantly outperforming the market average growth rate.`
 ${industryEmployees.map((data, index) => 
   `${index + 1}. **${data.industry}**
    • Average: ${data.avgEmployees} employees per business
-   • Total: ${data.totalEmployees.toLocaleString()} employees
+   • Total: ${data.totalEmployees?.toLocaleString() || '0'} employees
    • Employment efficiency: ${data.avgEmployees > 20 ? 'High' : data.avgEmployees > 10 ? 'Medium' : 'Small-scale'}`
 ).join('\n\n')}
 

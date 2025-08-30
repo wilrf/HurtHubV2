@@ -11,6 +11,16 @@ interface CompaniesState {
   recentSearches: string[]
 }
 
+const getRecentSearches = (): string[] => {
+  try {
+    const stored = localStorage.getItem('charlotte-econdev-recent-searches')
+    return stored ? JSON.parse(stored) : []
+  } catch (error) {
+    console.warn('Failed to parse recent searches from localStorage:', error)
+    return []
+  }
+}
+
 const initialState: CompaniesState = {
   companies: [],
   selectedCompany: null,
@@ -18,9 +28,7 @@ const initialState: CompaniesState = {
   filters: {},
   isLoading: false,
   error: null,
-  recentSearches: JSON.parse(
-    localStorage.getItem('charlotte-econdev-recent-searches') || '[]'
-  ),
+  recentSearches: getRecentSearches(),
 }
 
 export const companiesSlice = createSlice({
@@ -99,10 +107,14 @@ export const companiesSlice = createSlice({
           query,
           ...state.recentSearches.filter(s => s !== query),
         ].slice(0, 10)
-        localStorage.setItem(
-          'charlotte-econdev-recent-searches',
-          JSON.stringify(state.recentSearches)
-        )
+        try {
+          localStorage.setItem(
+            'charlotte-econdev-recent-searches',
+            JSON.stringify(state.recentSearches)
+          )
+        } catch (error) {
+          console.warn('Failed to save recent searches to localStorage:', error)
+        }
       }
     },
     clearRecentSearches: state => {

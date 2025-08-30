@@ -221,7 +221,7 @@ export function BusinessSearch({
                     value={filters.employeeRange?.min || ''}
                     onChange={(e) => handleFilterChange('employeeRange', {
                       ...filters.employeeRange,
-                      min: e.target.value ? parseInt(e.target.value) : undefined
+                      min: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                   <Input
@@ -230,7 +230,7 @@ export function BusinessSearch({
                     value={filters.employeeRange?.max || ''}
                     onChange={(e) => handleFilterChange('employeeRange', {
                       ...filters.employeeRange,
-                      max: e.target.value ? parseInt(e.target.value) : undefined
+                      max: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                 </div>
@@ -246,7 +246,7 @@ export function BusinessSearch({
                     value={filters.revenueRange?.min || ''}
                     onChange={(e) => handleFilterChange('revenueRange', {
                       ...filters.revenueRange,
-                      min: e.target.value ? parseInt(e.target.value) : undefined
+                      min: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                   <Input
@@ -255,7 +255,7 @@ export function BusinessSearch({
                     value={filters.revenueRange?.max || ''}
                     onChange={(e) => handleFilterChange('revenueRange', {
                       ...filters.revenueRange,
-                      max: e.target.value ? parseInt(e.target.value) : undefined
+                      max: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                 </div>
@@ -271,7 +271,7 @@ export function BusinessSearch({
                     value={filters.yearEstablished?.min || ''}
                     onChange={(e) => handleFilterChange('yearEstablished', {
                       ...filters.yearEstablished,
-                      min: e.target.value ? parseInt(e.target.value) : undefined
+                      min: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                   <Input
@@ -280,7 +280,7 @@ export function BusinessSearch({
                     value={filters.yearEstablished?.max || ''}
                     onChange={(e) => handleFilterChange('yearEstablished', {
                       ...filters.yearEstablished,
-                      max: e.target.value ? parseInt(e.target.value) : undefined
+                      max: e.target.value ? (isNaN(parseInt(e.target.value)) ? undefined : parseInt(e.target.value)) : undefined
                     })}
                   />
                 </div>
@@ -404,7 +404,7 @@ export function BusinessSearch({
             </div>
           ) : (
             <div className="space-y-3">
-              {results.businesses.map(business => (
+              {results?.businesses?.map(business => (
                 <Card
                   key={business.id}
                   variant={isDarkMode ? 'glass' : 'elevated'}
@@ -430,11 +430,11 @@ export function BusinessSearch({
                             {business.employees} employees
                           </Badge>
                           <Badge variant="outline" className="text-xs">
-                            ${(business.revenue / 1000000).toFixed(1)}M revenue
+                            ${business.revenue ? (business.revenue / 1000000).toFixed(1) : '0'}M revenue
                           </Badge>
-                          {business.rating && (
+                          {business?.rating && (
                             <Badge variant="outline" className="text-xs">
-                              ⭐ {business.rating.toFixed(1)}
+                              ⭐ {business.rating?.toFixed(1) || '0.0'}
                             </Badge>
                           )}
                         </div>

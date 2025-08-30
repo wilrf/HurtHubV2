@@ -50,7 +50,8 @@ export function CommunityPulse() {
     }
   }
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined | null) => {
+    if (num == null || isNaN(num)) return '0'
     return num.toLocaleString()
   }
 
@@ -58,18 +59,18 @@ export function CommunityPulse() {
     if (!businesses.length) return null
 
     // Community engagement metrics based on business data
-    const highEngagementBusinesses = businesses.filter(b => b.rating >= 4.0).length
-    const communityParticipation = Math.round((highEngagementBusinesses / businesses.length) * 100)
+    const highEngagementBusinesses = businesses.filter(b => b?.rating >= 4.0).length
+    const communityParticipation = businesses.length > 0 ? Math.round((highEngagementBusinesses / businesses.length) * 100) : 0
     
-    const localBusinesses = businesses.filter(b => b.businessType === 'Local').length
+    const localBusinesses = businesses.filter(b => b?.businessType === 'Local').length
     const neighborhoodDiversity = analytics?.topNeighborhoods.length || 0
     
-    const averageBusinessAge = businesses.reduce((sum, b) => sum + b.businessAge, 0) / businesses.length
+    const averageBusinessAge = businesses.length > 0 ? businesses.reduce((sum, b) => sum + (b?.businessAge || 0), 0) / businesses.length : 0
     const establishmentStability = Math.round(averageBusinessAge * 10) / 10
 
     return {
       communityParticipation,
-      localBusinessRatio: Math.round((localBusinesses / businesses.length) * 100),
+      localBusinessRatio: businesses.length > 0 ? Math.round((localBusinesses / businesses.length) * 100) : 0,
       neighborhoodDiversity,
       establishmentStability,
       totalEngagement: highEngagementBusinesses,
@@ -82,7 +83,7 @@ export function CommunityPulse() {
   const getNeighborhoodPulse = () => {
     return analytics?.topNeighborhoods.map(neighborhood => ({
       ...neighborhood,
-      pulseScore: Math.round((neighborhood.avgRating * 20) + Math.random() * 10),
+      pulseScore: Math.round(((neighborhood.avgRating || 0) * 20) + Math.random() * 10),
       trendDirection: Math.random() > 0.3 ? 'up' : Math.random() > 0.5 ? 'down' : 'stable',
       communityEvents: Math.floor(Math.random() * 8) + 2,
       businessGrowth: Math.random() > 0.4
@@ -328,7 +329,7 @@ export function CommunityPulse() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {neighborhoodPulse.slice(0, 8).map((neighborhood, index) => {
+                {neighborhoodPulse?.slice(0, 8).map((neighborhood, index) => {
                   const getTrendIcon = () => {
                     if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />
                     if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
@@ -355,7 +356,7 @@ export function CommunityPulse() {
                           <p className="text-sm font-semibold">Pulse Score: {neighborhood.pulseScore}</p>
                           <div className="flex items-center text-xs">
                             <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                            <span>{neighborhood.avgRating.toFixed(1)}</span>
+                            <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
                             {getTrendIcon()}
                           </div>
                         </div>

@@ -71,7 +71,7 @@
 
 /* Base styles */
 * {
-  @apply border-border;
+  border-color: hsl(var(--border));
 }
 
 html {
@@ -90,19 +90,20 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  @apply w-2;
+  width: 0.5rem;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-secondary;
+  background: hsl(var(--secondary));
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full;
+  background: hsl(var(--border));
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground;
+  background: hsl(var(--muted-foreground));
 }
 
 /* Custom utility classes */
@@ -195,7 +196,8 @@ body {
 
 /* Loading states */
 .skeleton {
-  @apply animate-pulse bg-muted;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: hsl(var(--muted));
 }
 
 .shimmer {
@@ -220,11 +222,16 @@ body {
 
 /* Chart and visualization styles */
 .recharts-tooltip-wrapper {
-  @apply pointer-events-none;
+  pointer-events: none;
 }
 
 .recharts-tooltip-content {
-  @apply rounded-lg border bg-card p-3 text-card-foreground shadow-md;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--card));
+  padding: 0.75rem;
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* Print styles */

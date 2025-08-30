@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { useLocation, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { 
   Menu, 
@@ -25,10 +25,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/utils'
 import type { RootState } from '@/store'
 
-interface MainLayoutProps {
-  children: ReactNode
-}
-
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Community Pulse', href: '/community', icon: Users },
@@ -36,7 +32,7 @@ const navigation = [
   { name: 'AI Assistant', href: '/ai-assistant', icon: MessageSquare },
 ]
 
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout() {
   const location = useLocation()
   const { user } = useAuth()
   const { isDarkMode, toggleTheme } = useTheme()
@@ -257,7 +253,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Page content */}
         <main className='flex-1'>
           <div className='h-[calc(100vh-4rem)] overflow-auto'>
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>

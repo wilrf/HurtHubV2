@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(npm install)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npm run build:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

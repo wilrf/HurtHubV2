@@ -15,7 +15,7 @@ import {
   Star,
   Wifi,
   Car,
-  Wheelchair,
+  Accessibility,
   Utensils,
   Truck,
   Download,
@@ -58,7 +58,8 @@ export function BusinessProfile() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (amount == null || isNaN(amount)) return '$0'
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`
     } else if (amount >= 1000) {
@@ -67,7 +68,8 @@ export function BusinessProfile() {
     return `$${amount.toLocaleString()}`
   }
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined | null) => {
+    if (num == null || isNaN(num)) return '0'
     return num.toLocaleString()
   }
 
@@ -79,7 +81,7 @@ export function BusinessProfile() {
     switch (feature) {
       case 'wifi': return <Wifi className="h-4 w-4" />
       case 'parking': return <Car className="h-4 w-4" />
-      case 'wheelchairAccessible': return <Wheelchair className="h-4 w-4" />
+      case 'wheelchairAccessible': return <Accessibility className="h-4 w-4" />
       case 'outdoorSeating': return <Utensils className="h-4 w-4" />
       case 'delivery': return <Truck className="h-4 w-4" />
       default: return <Target className="h-4 w-4" />
@@ -264,7 +266,7 @@ export function BusinessProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {Object.entries(business.features)
+                    {business.features && Object.entries(business.features)
                       .filter(([_, value]) => value)
                       .map(([feature, _]) => (
                         <div key={feature} className="flex items-center p-3 border rounded-lg">
@@ -323,7 +325,7 @@ export function BusinessProfile() {
                   <div>
                     <h4 className="font-semibold mb-3">Operating Costs Breakdown</h4>
                     <div className="space-y-3">
-                      {Object.entries(business.operatingCosts).map(([category, amount]) => (
+                      {business.operatingCosts && Object.entries(business.operatingCosts).map(([category, amount]) => (
                         <div key={category} className="flex items-center justify-between">
                           <span className="text-sm font-medium capitalize">{category}</span>
                           <div className="flex items-center">
@@ -333,7 +335,7 @@ export function BusinessProfile() {
                               <div
                                 className="h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
                                 style={{
-                                  width: `${(amount / Math.max(...Object.values(business.operatingCosts))) * 100}%`
+                                  width: `${(amount / Math.max(...(Object.values(business.operatingCosts || {}) || [1]))) * 100}%`
                                 }}
                               />
                             </div>
@@ -349,7 +351,7 @@ export function BusinessProfile() {
                   <div>
                     <h4 className="font-semibold mb-3">Monthly Revenue Trend</h4>
                     <div className="grid grid-cols-6 gap-2">
-                      {business.monthlyRevenue.map((revenue, index) => (
+                      {business.monthlyRevenue?.map((revenue, index) => (
                         <div key={index} className="text-center p-2 border rounded">
                           <p className="text-xs text-muted-foreground">{monthNames[index]}</p>
                           <p className="text-xs font-semibold">{formatCurrency(revenue)}</p>
@@ -374,7 +376,7 @@ export function BusinessProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(business.hours).map(([day, hours]) => (
+                    {business.hours && Object.entries(business.hours).map(([day, hours]) => (
                       <div key={day} className="flex items-center justify-between py-2 border-b last:border-0">
                         <span className="font-medium capitalize">{day}</span>
                         {hours === 'Closed' ? (
@@ -559,13 +561,13 @@ export function BusinessProfile() {
           </Card>
 
           {/* Industry Metrics */}
-          {business.industryMetrics && Object.keys(business.industryMetrics).length > 0 && (
+          {business.industryMetrics && Object.keys(business.industryMetrics || {}).length > 0 && (
             <Card variant={isDarkMode ? 'glass' : 'elevated'}>
               <CardHeader>
                 <CardTitle>Industry Metrics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {Object.entries(business.industryMetrics).map(([key, value]) => (
+                {Object.entries(business.industryMetrics || {}).map(([key, value]) => (
                   <div key={key} className="flex justify-between">
                     <span className="text-sm text-muted-foreground capitalize">
                       {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}

@@ -50,7 +50,8 @@ export function BusinessIntelligence() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (amount == null || isNaN(amount)) return '$0'
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`
     } else if (amount >= 1000) {
@@ -59,7 +60,8 @@ export function BusinessIntelligence() {
     return `$${amount.toLocaleString()}`
   }
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined | null) => {
+    if (num == null || isNaN(num)) return '0'
     return num.toLocaleString()
   }
 
@@ -372,7 +374,7 @@ export function BusinessIntelligence() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analytics.monthlyTrends.slice(0, 6).map((trend, index) => (
+                {analytics.monthlyTrends?.slice(0, 6).map((trend, index) => (
                   <div key={trend.month} className="flex items-center justify-between">
                     <span className="text-sm font-medium">{trend.month}</span>
                     <div className="flex items-center">
@@ -382,7 +384,7 @@ export function BusinessIntelligence() {
                         <div
                           className="h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
                           style={{
-                            width: `${(trend.totalRevenue / Math.max(...analytics.monthlyTrends.map(t => t.totalRevenue))) * 100}%`
+                            width: `${(trend.totalRevenue / Math.max(...(analytics.monthlyTrends?.map(t => t.totalRevenue) || [1]))) * 100}%`
                           }}
                         />
                       </div>
@@ -406,7 +408,7 @@ export function BusinessIntelligence() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analytics.topNeighborhoods.slice(0, 6).map((neighborhood) => (
+                {analytics.topNeighborhoods?.slice(0, 6).map((neighborhood) => (
                   <div key={neighborhood.neighborhood} className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">{neighborhood.neighborhood}</p>
@@ -416,7 +418,7 @@ export function BusinessIntelligence() {
                       <p className="text-sm font-semibold">{formatCurrency(neighborhood.totalRevenue)}</p>
                       <div className="flex items-center text-xs">
                         <span className="text-yellow-400 mr-1">⭐</span>
-                        <span>{neighborhood.avgRating.toFixed(1)}</span>
+                        <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
                       </div>
                     </div>
                   </div>
@@ -435,7 +437,7 @@ export function BusinessIntelligence() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analytics.businessAgeDistribution.map((age) => (
+                {analytics.businessAgeDistribution?.map((age) => (
                   <div key={age.ageRange} className="flex items-center justify-between">
                     <span className="text-sm font-medium">{age.ageRange}</span>
                     <div className="flex items-center">
@@ -445,7 +447,7 @@ export function BusinessIntelligence() {
                         <div
                           className="h-2 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
                           style={{
-                            width: `${(age.count / Math.max(...analytics.businessAgeDistribution.map(a => a.count))) * 100}%`
+                            width: `${(age.count / Math.max(...(analytics.businessAgeDistribution?.map(a => a.count) || [1]))) * 100}%`
                           }}
                         />
                       </div>
