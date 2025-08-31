@@ -4,17 +4,17 @@ import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '@/utils'
 
 const cardVariants = cva(
-  'rounded-xl transition-all duration-300 ease-out',
+  'rounded-xl transition-all duration-300 ease-out micro-hover card-stack',
   {
     variants: {
       variant: {
-        default: 'glass border border-gray-800/50 hover:border-gray-700/60 hover:shadow-md hover:shadow-sapphire-500/5',
-        elevated: 'glass-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5',
-        glass: 'glass glass-shimmer hover:shadow-lg hover:shadow-sapphire-500/10',
-        midnight: 'glass-dark border-sapphire-900/50 shadow-midnight hover:border-sapphire-800/60',
-        flat: 'bg-midnight-900/90 border border-gray-800/30 hover:border-gray-700/40',
-        interactive: 'glass hover:shadow-lg hover:-translate-y-1 cursor-pointer active:scale-[0.99] active:translate-y-0',
-        outline: 'border border-gray-800/50 hover:border-sapphire-700/50 hover:bg-sapphire-950/20',
+        default: 'glass border border-gray-800/50 hover:border-gray-700/60 hover:shadow-md hover:shadow-sapphire-500/5 border-pulse',
+        elevated: 'glass-dark shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]',
+        glass: 'glass-card-interactive glass-shimmer hover:shadow-lg hover:shadow-sapphire-500/10',
+        midnight: 'glass-dark border-sapphire-900/50 shadow-midnight hover:border-sapphire-800/60 border-pulse',
+        flat: 'bg-midnight-900/90 border border-gray-800/30 hover:border-gray-700/40 hover:bg-midnight-800/90',
+        interactive: 'glass-card-interactive hover:shadow-lg hover:-translate-y-1 cursor-pointer active:scale-[0.99] active:translate-y-0',
+        outline: 'border border-gray-800/50 hover:border-sapphire-700/50 hover:bg-sapphire-950/20 border-pulse',
       },
       padding: {
         none: 'p-0',
@@ -62,7 +62,7 @@ const CardTitle = forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn('font-semibold leading-none tracking-tight text-lg', className)}
+    className={cn('font-semibold leading-none tracking-tight text-lg text-gradient-hover', className)}
     {...props}
   />
 ))

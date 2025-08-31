@@ -80,9 +80,9 @@ export function MainLayout() {
             variant='ghost'
             size='icon-sm'
             onClick={() => setSidebarOpen(false)}
-            className='lg:hidden'
+            className='lg:hidden micro-hover border border-transparent hover:border-border/50'
           >
-            <X className='h-4 w-4' />
+            <X className='h-4 w-4 icon-bounce' />
           </Button>
         </div>
 
@@ -166,9 +166,9 @@ export function MainLayout() {
               variant='ghost'
               size='icon'
               onClick={() => setSidebarOpen(true)}
-              className='lg:hidden'
+              className='lg:hidden micro-hover border border-transparent hover:border-border/50'
             >
-              <Menu className='h-5 w-5' />
+              <Menu className='h-5 w-5 icon-bounce' />
             </Button>
 
             {/* Search bar */}
@@ -188,14 +188,14 @@ export function MainLayout() {
               <Button
                 variant='ghost'
                 size='icon'
-                className='relative'
+                className='relative micro-hover border border-transparent hover:border-primary/20'
                 aria-label='Notifications'
               >
-                <Bell className='h-5 w-5' />
+                <Bell className='h-5 w-5 icon-bounce' />
                 {unreadCount > 0 && (
                   <Badge 
                     variant='destructive' 
-                    className='absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs'
+                    className='absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs badge-interactive'
                   >
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </Badge>

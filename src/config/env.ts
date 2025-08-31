@@ -73,7 +73,9 @@ class Environment {
 
   private parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
     if (value === undefined) return defaultValue
-    return value.toLowerCase() === 'true'
+    // Trim whitespace and remove any quotes or special characters
+    const cleanValue = value.trim().replace(/["'\r\n]/g, '').toLowerCase()
+    return cleanValue === 'true'
   }
 
   private validateConfig(): void {
