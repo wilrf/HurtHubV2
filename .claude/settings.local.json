@@ -27,7 +27,8 @@
       "Bash(pkill:*)",
       "Bash(taskkill:*)",
       "Bash(mkdir:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": [],
     "ask": []

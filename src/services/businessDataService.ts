@@ -311,7 +311,12 @@ class BusinessDataService {
     })
 
     const topIndustries = Array.from(industryMap.entries())
-      .map(([industry, data]) => ({ industry, ...data }))
+      .map(([industry, data]) => ({ 
+        industry, 
+        count: data.count,
+        totalRevenue: data.revenue,
+        totalEmployees: data.employees
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
 

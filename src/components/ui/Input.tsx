@@ -44,7 +44,21 @@ const InputAdornment = ({ position, children }: { position: 'left' | 'right', ch
   </div>
 );
 
-const RightAdornment = ({ showPasswordToggle, type, rightIcon, hasError, showPassword, setShowPassword }) => {
+const RightAdornment = ({ 
+  showPasswordToggle, 
+  type, 
+  rightIcon, 
+  hasError, 
+  showPassword, 
+  setShowPassword 
+}: {
+  showPasswordToggle?: boolean;
+  type?: string;
+  rightIcon?: React.ReactNode;
+  hasError?: boolean;
+  showPassword: boolean;
+  setShowPassword: (value: boolean) => void;
+}) => {
   if (showPasswordToggle && type === 'password') {
     return (
       <InputAdornment position="right">
