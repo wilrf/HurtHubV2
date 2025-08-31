@@ -37,7 +37,7 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
 
   return (
     <Card variant={isDarkMode ? 'glass' : 'elevated'} className={`h-[600px] flex flex-col ${className}`}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="flex items-center text-lg">
           {module === 'business-intelligence' ? (
             <>
@@ -52,13 +52,13 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
           )}
           <Badge variant="secondary" className="ml-2 text-xs">
             <Sparkles className="h-3 w-3 mr-1" />
-            Powered by GPT-4
+            Enhanced with DB Context
           </Badge>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4">
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
+      <CardContent className="flex-1 flex flex-col p-4 min-h-0">
+        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -88,14 +88,16 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
           <div ref={messagesEndRef} />
         </div>
 
-        <ChatInput
-          input={input}
-          setInput={setInput}
-          handleSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          isDarkMode={isDarkMode}
-          module={module}
-        />
+        <div className="flex-shrink-0 mt-auto">
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            handleSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            isDarkMode={isDarkMode}
+            module={module}
+          />
+        </div>
       </CardContent>
     </Card>
   );

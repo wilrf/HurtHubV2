@@ -415,49 +415,79 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Recent Businesses */}
-      <Card variant={true ? 'glass' : 'elevated'}>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Building2 className="h-5 w-5 mr-2" />
+      {/* Featured Businesses */}
+      <Card variant={true ? 'glass' : 'elevated'} className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-sapphire-950/50 to-transparent border-b border-sapphire-800/30">
+          <CardTitle className="flex items-center text-sapphire-100">
+            <Building2 className="h-5 w-5 mr-2 text-sapphire-400" />
             Featured Businesses
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {recentBusinesses.map(business => (
-              <Card 
-                key={business.id} 
-                variant="outline" 
-                className="cursor-pointer hover:shadow-lg transition-all duration-200"
-                onClick={() => navigate(`/business/${business.id}`)}
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {recentBusinesses.map((business, index) => (
+              <div
+                key={business.id}
+                className="group relative"
+                style={{
+                  animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
+                }}
               >
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-sm line-clamp-1">{business.name}</h3>
-                      <p className="text-xs text-muted-foreground">{business.industry}</p>
+                <div 
+                  className="absolute inset-0 bg-gradient-to-br from-sapphire-500/10 to-sapphire-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
+                />
+                <Card 
+                  variant="outline" 
+                  className="relative cursor-pointer border-sapphire-800/30 bg-sapphire-950/30 backdrop-blur-sm
+                    hover:border-sapphire-600/50 hover:bg-sapphire-900/40 
+                    transform transition-all duration-300 ease-out
+                    hover:translate-y-[-4px] hover:shadow-xl hover:shadow-sapphire-500/10
+                    group-hover:scale-[1.02]"
+                  onClick={() => navigate(`/business/${business.id}`)}
+                >
+                  <CardContent className="p-5">
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-sm line-clamp-1 text-sapphire-50 group-hover:text-sapphire-100 transition-colors">
+                          {business.name}
+                        </h3>
+                        <p className="text-xs text-sapphire-300/70 group-hover:text-sapphire-300 transition-colors">
+                          {business.industry}
+                        </p>
+                      </div>
+                      
+                      {/* Stats Row */}
+                      <div className="flex items-center justify-between">
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs px-2.5 py-0.5 border-sapphire-700/50 bg-sapphire-900/30 text-sapphire-200
+                            group-hover:border-sapphire-600/70 group-hover:bg-sapphire-800/40 transition-all"
+                        >
+                          {business.employees} emp
+                        </Badge>
+                        {business.rating && (
+                          <div className="flex items-center bg-sapphire-900/30 px-2 py-0.5 rounded-md
+                            group-hover:bg-sapphire-800/40 transition-colors">
+                            <Star className="h-3 w-3 text-sapphire-400 mr-1 group-hover:text-sapphire-300 transition-colors" />
+                            <span className="text-xs font-medium text-sapphire-200">{business.rating.toFixed(1)}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Footer */}
+                      <div className="pt-3 border-t border-sapphire-800/20">
+                        <p className="text-sm font-semibold text-sapphire-100 group-hover:text-sapphire-50 transition-colors">
+                          {formatCurrency(business.revenue)}
+                        </p>
+                        <p className="text-xs text-sapphire-400/70 mt-1 group-hover:text-sapphire-400 transition-colors">
+                          {business.neighborhood}
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center justify-between text-xs">
-                      <Badge variant="outline" className="text-xs px-2">
-                        {business.employees} emp
-                      </Badge>
-                      {business.rating && (
-                        <div className="flex items-center">
-                          <Star className="h-3 w-3 text-sapphire-300 mr-1" />
-                          <span>{business.rating.toFixed(1)}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <p className="text-xs font-medium">{formatCurrency(business.revenue)}</p>
-                      <p className="text-xs text-muted-foreground">{business.neighborhood}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </CardContent>

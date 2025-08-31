@@ -8,59 +8,37 @@ const openaiApiKey = process.env.OPENAI_API_KEY || ''
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+// Import enhanced embeddings service and domain knowledge
+import { getEnhancedDatabaseContext } from './embeddings-service'
+import { generateDomainAwarePrompt, getIndustryContext } from './ai-domain-knowledge'
+
 // Function to fetch relevant context from database
 async function getDatabaseContext(query: string) {
-  const context: string[] = []
-  
   try {
-    // Search for relevant companies
+    // Try enhanced semantic search first
+    return await getEnhancedDatabaseContext(query)
+  } catch (error) {
+    console.error('Enhanced context failed, using fallback:', error)
+    
+    // Fallback to basic search
+    const context: string[] = []
+    
+    // Search for relevant businesses
     const { data: companies } = await supabase
-      .from('companies')
-      .select('name, industry, description, employees_count, revenue')
-      .or(`name.ilike.%${query}%,industry.ilike.%${query}%,description.ilike.%${query}%`)
+      .from('businesses')
+      .select('name, industry, naics, employees, revenue, neighborhood, cluster')
+      .or(`name.ilike.%${query}%,industry.ilike.%${query}%,naics.ilike.%${query}%,neighborhood.ilike.%${query}%,cluster.ilike.%${query}%`)
       .limit(5)
     
     if (companies && companies.length > 0) {
-      context.push('Relevant Companies in Charlotte:')
+      context.push('Relevant Businesses in Charlotte:')
       companies.forEach(company => {
-        context.push(`- ${company.name} (${company.industry}): ${company.description || 'No description'}. Employees: ${company.employees_count || 'N/A'}, Revenue: $${company.revenue ? `${(company.revenue / 1000000).toFixed(1)}M` : 'N/A'}`)
+        context.push(`- ${company.name} (${company.industry || company.naics}): Located in ${company.neighborhood || 'Charlotte'}. Employees: ${company.employees || 'N/A'}, Revenue: $${company.revenue ? `${(company.revenue / 1000000).toFixed(1)}M` : 'N/A'}. Business cluster: ${company.cluster || 'General'}`)
       })
     }
     
-    // Get recent developments
-    const { data: developments } = await supabase
-      .from('developments')
-      .select('title, content, source, published_at')
-      .order('published_at', { ascending: false })
-      .limit(3)
-    
-    if (developments && developments.length > 0) {
-      context.push('\nRecent Developments:')
-      developments.forEach(dev => {
-        context.push(`- ${dev.title} (${new Date(dev.published_at).toLocaleDateString()}): ${dev.content.substring(0, 200)}...`)
-      })
-    }
-    
-    // Get current economic indicators
-    const { data: indicators } = await supabase
-      .from('economic_indicators')
-      .select('*')
-      .order('date', { ascending: false })
-      .limit(1)
-      .single()
-    
-    if (indicators) {
-      context.push('\nCurrent Economic Indicators for Charlotte:')
-      context.push(`- Unemployment Rate: ${indicators.unemployment_rate}%`)
-      context.push(`- GDP Growth: ${indicators.gdp_growth}%`)
-      context.push(`- Job Growth: ${indicators.job_growth} jobs`)
-      context.push(`- Median Income: $${indicators.median_income}`)
-    }
-  } catch (error) {
-    console.error('Error fetching database context:', error)
+    return context.join('\n')
   }
-  
-  return context.join('\n')
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -94,14 +72,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Fetch relevant context from database
     const databaseContext = await getDatabaseContext(userMessage)
     
-    // Create enhanced system message with database context
+    // Determine module context from messages
+    const moduleContext = messages.find(m => m.role === 'system')?.content || ''
+    const module = moduleContext.includes('Business Intelligence') ? 'business-intelligence' : 'community-pulse'
+    
+    // Create enhanced system message with domain knowledge
+    const enhancedPrompt = generateDomainAwarePrompt(module, databaseContext)
+    
+    // Add industry-specific context if relevant
+    const industryKeywords = ['financial', 'tech', 'healthcare', 'manufacturing', 'banking', 'fintech']
+    const detectedIndustry = industryKeywords.find(keyword => 
+      userMessage.toLowerCase().includes(keyword)
+    )
+    
+    let finalPrompt = enhancedPrompt
+    if (detectedIndustry) {
+      const industryContext = getIndustryContext(detectedIndustry)
+      if (industryContext) {
+        finalPrompt += `\n\nINDUSTRY-SPECIFIC CONTEXT:\n${industryContext}`
+      }
+    }
+    
     const systemMessage = {
       role: 'system',
-      content: `You are an AI assistant for the Charlotte Economic Development Platform. You have access to real-time data about Charlotte's business ecosystem, economic indicators, and recent developments.
-
-${databaseContext}
-
-Please provide helpful, accurate information based on the data available. If specific data is not available, provide general insights about Charlotte's economic landscape. Always be professional and informative.`
+      content: finalPrompt
     }
     
     // Prepare messages for OpenAI
