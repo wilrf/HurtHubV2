@@ -9,10 +9,10 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-border shadow-sleek hover:shadow-sleek-lg focus:shadow-sleek-lg',
+        default: 'border-border shadow-sm hover:shadow-md hover:border-sapphire-700/50 focus:shadow-lg focus:shadow-sapphire-500/10 focus:-translate-y-0.5',
         ghost: 'border-transparent bg-transparent hover:bg-accent focus:bg-background focus:border-border',
-        glass: 'border-glass-border bg-glass backdrop-blur-md shadow-glow',
-        midnight: 'border-midnight-700 bg-midnight-800 text-white placeholder:text-midnight-400',
+        glass: 'border-glass-border bg-glass backdrop-blur-md hover:border-sapphire-600/30 focus:shadow-lg focus:shadow-sapphire-500/10',
+        midnight: 'border-midnight-700 bg-midnight-800 text-white placeholder:text-midnight-400 hover:border-midnight-600 focus:border-sapphire-600',
       },
       inputSize: {
         default: 'h-12',

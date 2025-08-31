@@ -434,15 +434,15 @@ export function Dashboard() {
                 }}
               >
                 <div 
-                  className="absolute inset-0 bg-gradient-to-br from-sapphire-500/10 to-sapphire-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
+                  className="absolute inset-0 bg-gradient-to-br from-sapphire-500/5 to-sapphire-600/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
                 />
                 <Card 
                   variant="outline" 
                   className="relative cursor-pointer border-sapphire-800/30 bg-sapphire-950/30 backdrop-blur-sm
-                    hover:border-sapphire-600/50 hover:bg-sapphire-900/40 
+                    hover:border-sapphire-600/40 hover:bg-sapphire-900/30 
                     transform transition-all duration-300 ease-out
-                    hover:translate-y-[-4px] hover:shadow-xl hover:shadow-sapphire-500/10
-                    group-hover:scale-[1.02]"
+                    hover:translate-y-[-2px] hover:shadow-lg hover:shadow-sapphire-500/5
+                    active:scale-[0.99] active:translate-y-0"
                   onClick={() => navigate(`/business/${business.id}`)}
                 >
                   <CardContent className="p-5">

@@ -4,16 +4,17 @@ import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '@/utils'
 
 const cardVariants = cva(
-  'rounded-xl transition-all duration-200',
+  'rounded-xl transition-all duration-300 ease-out',
   {
     variants: {
       variant: {
-        default: 'glass border border-gray-800/50',
-        elevated: 'glass-dark shadow-lg hover:shadow-xl',
-        glass: 'glass glass-shimmer',
-        midnight: 'glass-dark border-sapphire-900/50 shadow-midnight',
-        flat: 'bg-midnight-900/90 border border-gray-800/30',
-        interactive: 'glass hover:shadow-lg hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
+        default: 'glass border border-gray-800/50 hover:border-gray-700/60 hover:shadow-md hover:shadow-sapphire-500/5',
+        elevated: 'glass-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5',
+        glass: 'glass glass-shimmer hover:shadow-lg hover:shadow-sapphire-500/10',
+        midnight: 'glass-dark border-sapphire-900/50 shadow-midnight hover:border-sapphire-800/60',
+        flat: 'bg-midnight-900/90 border border-gray-800/30 hover:border-gray-700/40',
+        interactive: 'glass hover:shadow-lg hover:-translate-y-1 cursor-pointer active:scale-[0.99] active:translate-y-0',
+        outline: 'border border-gray-800/50 hover:border-sapphire-700/50 hover:bg-sapphire-950/20',
       },
       padding: {
         none: 'p-0',

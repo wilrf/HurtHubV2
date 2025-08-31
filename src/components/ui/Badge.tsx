@@ -3,18 +3,18 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:scale-105 active:scale-100',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground shadow-sleek',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground shadow-sleek',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground shadow-sleek',
-        success: 'border-transparent bg-sapphire-500 text-white shadow-sleek',
-        warning: 'border-transparent bg-sapphire-400 text-white shadow-sleek',
-        outline: 'border-border text-foreground bg-background shadow-sleek',
-        glass: 'border-glass-border bg-glass backdrop-blur-md text-foreground shadow-glow',
-        midnight: 'border-midnight-700 bg-midnight-800 text-white shadow-midnight',
+        default: 'border-transparent bg-primary text-primary-foreground shadow-sm hover:shadow-md hover:bg-primary/90',
+        secondary: 'border-transparent bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+        destructive: 'border-transparent bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        success: 'border-transparent bg-sapphire-500 text-white shadow-sm hover:bg-sapphire-400 hover:shadow-md',
+        warning: 'border-transparent bg-sapphire-400 text-white shadow-sm hover:bg-sapphire-300',
+        outline: 'border-border text-foreground bg-background/50 hover:bg-background/80 hover:border-foreground/20',
+        glass: 'border-glass-border bg-glass backdrop-blur-md text-foreground hover:bg-glass/80 hover:shadow-sm',
+        midnight: 'border-midnight-700 bg-midnight-800 text-white hover:bg-midnight-700',
       },
       size: {
         default: 'px-2.5 py-0.5 text-xs',

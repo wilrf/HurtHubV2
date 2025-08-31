@@ -227,6 +227,71 @@ body {
     0 10px 40px -10px hsla(217, 91%, 60%, 0.3);
 }
 
+/* Microinteractions for buttons */
+button, [role="button"] {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:not(:disabled):hover, [role="button"]:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+button:not(:disabled):active, [role="button"]:not(:disabled):active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* Ripple effect for clicks */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Subtle microinteractions for all interactive elements */
+a, button, [role="button"], input, textarea, select, [tabindex]:not([tabindex="-1"]) {
+  transition: all 0.2s ease-out;
+}
+
+/* Focus improvements */
+input:focus, textarea:focus, select:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px hsla(217, 91%, 60%, 0.15);
+}
+
+/* Checkbox and radio animations */
+input[type="checkbox"], input[type="radio"] {
+  transition: all 0.2s ease-out;
+}
+
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  animation: checkBounce 0.3s ease-out;
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
 /* Animation classes */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-in-out;
@@ -317,10 +382,71 @@ body {
   }
 }
 
+/* List item interactions */
+li {
+  transition: all 0.2s ease-out;
+}
+
+li:hover {
+  padding-left: 0.25rem;
+}
+
+/* Table row interactions */
+tr {
+  transition: all 0.2s ease-out;
+}
+
+tbody tr:hover {
+  background-color: hsla(217, 91%, 60%, 0.05);
+  transform: scale(1.005);
+}
+
+/* Link microinteractions */
+a:not(button) {
+  position: relative;
+  transition: color 0.2s ease-out;
+}
+
+a:not(button):hover {
+  color: hsl(var(--primary));
+}
+
+/* Smooth scroll behavior with offset */
+html {
+  scroll-padding-top: 5rem;
+}
+
 /* Loading states */
 .skeleton {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   background-color: hsl(var(--muted));
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(217, 91%, 60%, 0.1),
+    transparent
+  );
+  animation: skeleton-shimmer 2s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 .shimmer {

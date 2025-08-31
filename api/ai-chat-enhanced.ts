@@ -8,37 +8,85 @@ const openaiApiKey = process.env.OPENAI_API_KEY || ''
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Import enhanced embeddings service and domain knowledge
-import { getEnhancedDatabaseContext } from './embeddings-service'
-import { generateDomainAwarePrompt, getIndustryContext } from './ai-domain-knowledge'
+// Note: Importing from same file to avoid Vercel deployment issues
+// import { getEnhancedDatabaseContext } from './embeddings-service'
+// import { generateDomainAwarePrompt, getIndustryContext } from './ai-domain-knowledge'
 
 // Function to fetch relevant context from database
 async function getDatabaseContext(query: string) {
+  const context: string[] = []
+  
   try {
-    // Try enhanced semantic search first
-    return await getEnhancedDatabaseContext(query)
-  } catch (error) {
-    console.error('Enhanced context failed, using fallback:', error)
-    
-    // Fallback to basic search
-    const context: string[] = []
-    
     // Search for relevant businesses
     const { data: companies } = await supabase
       .from('businesses')
-      .select('name, industry, naics, employees, revenue, neighborhood, cluster')
+      .select('name, industry, naics, employees, revenue, neighborhood, cluster, business_type, year_established')
       .or(`name.ilike.%${query}%,industry.ilike.%${query}%,naics.ilike.%${query}%,neighborhood.ilike.%${query}%,cluster.ilike.%${query}%`)
-      .limit(5)
+      .limit(8)
     
     if (companies && companies.length > 0) {
-      context.push('Relevant Businesses in Charlotte:')
+      context.push('Relevant Charlotte Businesses:')
+      
+      // Group by industry for better context
+      const industriesMapped = new Map()
       companies.forEach(company => {
-        context.push(`- ${company.name} (${company.industry || company.naics}): Located in ${company.neighborhood || 'Charlotte'}. Employees: ${company.employees || 'N/A'}, Revenue: $${company.revenue ? `${(company.revenue / 1000000).toFixed(1)}M` : 'N/A'}. Business cluster: ${company.cluster || 'General'}`)
+        const industry = company.industry || 'Other'
+        if (!industriesMapped.has(industry)) {
+          industriesMapped.set(industry, [])
+        }
+        industriesMapped.get(industry).push(company)
+      })
+      
+      // Add businesses grouped by industry
+      for (const [industry, businessList] of industriesMapped) {
+        context.push(`\n${industry} Sector:`)
+        businessList.forEach((business) => {
+          const revenue = business.revenue ? `$${(business.revenue / 1000000).toFixed(1)}M` : 'N/A'
+          const employees = business.employees || 'N/A'
+          const established = business.year_established || 'N/A'
+          
+          context.push(`  • ${business.name} (${business.neighborhood || 'Charlotte'})`)
+          context.push(`    Revenue: ${revenue} | Employees: ${employees} | Est: ${established}`)
+          context.push(`    Cluster: ${business.cluster || 'General'} | Type: ${business.business_type || 'Local'}`)
+        })
+      }
+    }
+    
+    // Get recent developments
+    const { data: developments } = await supabase
+      .from('developments')
+      .select('title, content, source, published_at')
+      .order('published_at', { ascending: false })
+      .limit(3)
+    
+    if (developments && developments.length > 0) {
+      context.push('\nRecent Developments:')
+      developments.forEach(dev => {
+        context.push(`- ${dev.title} (${new Date(dev.published_at).toLocaleDateString()}): ${dev.content.substring(0, 200)}...`)
       })
     }
     
-    return context.join('\n')
+    // Get current economic indicators
+    const { data: indicators } = await supabase
+      .from('economic_indicators')
+      .select('*')
+      .order('date', { ascending: false })
+      .limit(1)
+      .single()
+    
+    if (indicators) {
+      context.push('\nCurrent Economic Indicators for Charlotte:')
+      context.push(`- Unemployment Rate: ${indicators.unemployment_rate}%`)
+      context.push(`- GDP Growth: ${indicators.gdp_growth}%`)
+      context.push(`- Job Growth: ${indicators.job_growth} jobs`)
+      context.push(`- Median Income: $${indicators.median_income}`)
+    }
+  } catch (error) {
+    console.error('Error fetching database context:', error)
+    context.push('Note: Some data temporarily unavailable.')
   }
+  
+  return context.join('\n')
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -76,26 +124,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const moduleContext = messages.find(m => m.role === 'system')?.content || ''
     const module = moduleContext.includes('Business Intelligence') ? 'business-intelligence' : 'community-pulse'
     
-    // Create enhanced system message with domain knowledge
-    const enhancedPrompt = generateDomainAwarePrompt(module, databaseContext)
-    
-    // Add industry-specific context if relevant
-    const industryKeywords = ['financial', 'tech', 'healthcare', 'manufacturing', 'banking', 'fintech']
-    const detectedIndustry = industryKeywords.find(keyword => 
-      userMessage.toLowerCase().includes(keyword)
-    )
-    
-    let finalPrompt = enhancedPrompt
-    if (detectedIndustry) {
-      const industryContext = getIndustryContext(detectedIndustry)
-      if (industryContext) {
-        finalPrompt += `\n\nINDUSTRY-SPECIFIC CONTEXT:\n${industryContext}`
-      }
-    }
-    
+    // Create enhanced system message with Charlotte business knowledge
+    const basePrompt = `You are an expert AI assistant specializing in Charlotte, North Carolina's business ecosystem and economic development.
+
+CHARLOTTE BUSINESS ECOSYSTEM:
+• Second-largest banking center in US (Bank of America HQ, Wells Fargo operations)
+• Major sectors: Financial Services, Technology/Fintech, Healthcare, Manufacturing, Transportation
+• Key areas: Uptown (corporate HQ), SouthEnd (mixed-use, tech), NoDa (arts/creative), University Research Park
+• Growth patterns: 70%+ small businesses (<50 employees), strong public-private partnerships
+
+CURRENT DATA CONTEXT:
+${databaseContext}
+
+RESPONSE GUIDELINES:
+${module === 'business-intelligence' 
+  ? '• Focus on market analysis, competitive insights, and data-driven business intelligence\n• Consider Charlotte\'s banking hub advantages and regional competition\n• Provide actionable insights for business growth and opportunities'
+  : '• Focus on community engagement, local business relationships, and neighborhood economic patterns\n• Emphasize social impact and community development\n• Highlight collaboration opportunities and business networking'
+}
+
+Always ground responses in the provided data while leveraging Charlotte's unique economic position. Be specific and actionable.`
+
     const systemMessage = {
       role: 'system',
-      content: finalPrompt
+      content: basePrompt
     }
     
     // Prepare messages for OpenAI

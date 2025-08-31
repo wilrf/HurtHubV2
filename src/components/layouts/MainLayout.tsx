@@ -97,15 +97,27 @@ export function MainLayout() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
+                  'group flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 relative overflow-hidden',
                   isActive
-                    ? 'glass text-white shadow-glow'
-                    : 'text-gray-400 hover:bg-sapphire-900/30 hover:text-white'
+                    ? 'glass text-white shadow-md shadow-sapphire-500/10 bg-sapphire-900/30'
+                    : 'text-gray-400 hover:bg-sapphire-900/20 hover:text-white hover:translate-x-1'
                 )}
                 onClick={() => setSidebarOpen(false)}
               >
-                <Icon className='h-5 w-5' />
-                <span>{item.name}</span>
+                <div className={cn(
+                  'absolute left-0 top-0 h-full w-1 transition-all duration-200',
+                  isActive ? 'bg-sapphire-400' : 'bg-transparent group-hover:bg-sapphire-600'
+                )} />
+                <Icon className={cn(
+                  'h-5 w-5 transition-all duration-200',
+                  isActive ? 'text-sapphire-300' : 'group-hover:scale-110 group-hover:text-sapphire-400'
+                )} />
+                <span className='relative'>
+                  {item.name}
+                  {isActive && (
+                    <div className='absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gradient-to-r from-sapphire-400 to-transparent' />
+                  )}
+                </span>
               </a>
             )
           })}
