@@ -41,8 +41,6 @@ class BusinessDataService {
       
       // Build search index
       this.buildSearchIndex()
-      
-      console.log(`✅ Loaded ${this.businesses.length} businesses from demo data`)
     } catch (error) {
       console.error('❌ Failed to load demo data:', error)
       throw error
