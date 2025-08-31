@@ -51,22 +51,36 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
 
   const loadDataAndInitialize = useCallback(async () => {
     try {
-      const [analyticsData, businessData] = await Promise.all([
-        businessDataService.getAnalytics(),
-        businessDataService.getAllBusinesses()
-      ]);
+      // Stagger the data loading to reduce blocking
+      await businessDataService.ensureLoaded();
       
-      setAnalytics(analyticsData);
-      setBusinesses(businessData);
-
-      const welcomeMessage: Message = {
-        id: '1',
-        role: 'assistant',
-        content: getWelcomeMessage(),
-        timestamp: new Date(),
-        suggestions: getSuggestedQuestions()
+      // Use requestIdleCallback if available, otherwise setTimeout
+      const scheduleWork = (callback: () => void) => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(callback);
+        } else {
+          setTimeout(callback, 0);
+        }
       };
-      setMessages([welcomeMessage]);
+      
+      scheduleWork(async () => {
+        const [analyticsData, businessData] = await Promise.all([
+          businessDataService.getAnalytics(),
+          businessDataService.getAllBusinesses()
+        ]);
+        
+        setAnalytics(analyticsData);
+        setBusinesses(businessData);
+
+        const welcomeMessage: Message = {
+          id: '1',
+          role: 'assistant',
+          content: getWelcomeMessage(),
+          timestamp: new Date(),
+          suggestions: getSuggestedQuestions()
+        };
+        setMessages([welcomeMessage]);
+      });
     } catch (err) {
       console.error('Failed to load data for AI chat:', err);
     }

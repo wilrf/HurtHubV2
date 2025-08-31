@@ -48,31 +48,51 @@ class BusinessDataService {
   }
 
   /**
-   * Build search index for fast text search
+   * Build search index for fast text search (optimized with chunking)
    */
   private buildSearchIndex(): void {
-    this.businesses.forEach((business, index) => {
-      const searchTerms = [
-        business.name.toLowerCase(),
-        business.industry.toLowerCase(),
-        business.cluster.toLowerCase(),
-        business.neighborhood.toLowerCase(),
-        business.businessType.toLowerCase(),
-        business.owner.toLowerCase(),
-        business.naics,
-        ...business.name.toLowerCase().split(' '),
-        ...business.industry.toLowerCase().split(' '),
-      ]
+    // Process in chunks to avoid blocking the main thread
+    const chunkSize = 50
+    let currentIndex = 0
+    
+    const processChunk = () => {
+      const endIndex = Math.min(currentIndex + chunkSize, this.businesses.length)
+      
+      for (let i = currentIndex; i < endIndex; i++) {
+        const business = this.businesses[i]
+        const searchTerms = [
+          business.name.toLowerCase(),
+          business.industry.toLowerCase(),
+          business.cluster.toLowerCase(),
+          business.neighborhood.toLowerCase(),
+          business.businessType.toLowerCase(),
+          business.owner.toLowerCase(),
+          business.naics,
+          ...business.name.toLowerCase().split(' '),
+          ...business.industry.toLowerCase().split(' '),
+        ]
 
-      searchTerms.forEach(term => {
-        if (!term.trim()) return
-        
-        if (!this.searchIndex.has(term)) {
-          this.searchIndex.set(term, new Set())
-        }
-        this.searchIndex.get(term)!.add(index)
-      })
-    })
+        searchTerms.forEach(term => {
+          if (!term.trim()) return
+          
+          if (!this.searchIndex.has(term)) {
+            this.searchIndex.set(term, new Set())
+          }
+          this.searchIndex.get(term)!.add(i)
+        })
+      }
+      
+      currentIndex = endIndex
+      
+      // Continue processing if more chunks remain
+      if (currentIndex < this.businesses.length) {
+        // Use setTimeout to yield control back to the browser
+        setTimeout(processChunk, 0)
+      }
+    }
+    
+    // Start processing
+    processChunk()
   }
 
   /**
@@ -85,11 +105,20 @@ class BusinessDataService {
   }
 
   /**
-   * Get all businesses
+   * Get all businesses (cached copy)
    */
   async getAllBusinesses(): Promise<Business[]> {
     await this.ensureLoaded()
-    return [...this.businesses]
+    
+    const cacheKey = 'allBusinesses'
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey)
+    }
+    
+    // Cache the businesses array to avoid repeated copying
+    const businessesCopy = [...this.businesses]
+    this.cache.set(cacheKey, businessesCopy)
+    return businessesCopy
   }
 
   /**
