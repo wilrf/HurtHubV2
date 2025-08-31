@@ -22,7 +22,12 @@
       "Bash(vercel:*)",
       "Bash(node:*)",
       "Bash(start:*)",
-      "Bash(set VERCEL_TOKEN=qAMDQ9VN9QdsNMm7yvvAVNiA)"
+      "Bash(set VERCEL_TOKEN=qAMDQ9VN9QdsNMm7yvvAVNiA)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,17 +1,16 @@
-import { Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { Provider } from 'react-redux'
+import { Suspense , lazy } from 'react'
 import { Toaster } from 'react-hot-toast'
+import { Provider } from 'react-redux'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
-import { store } from '@/store'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { MainLayout } from '@/components/layouts/MainLayout'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { store } from '@/store'
 
 // Lazy load pages for code splitting
-import { lazy } from 'react'
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const HomePage = lazy(() => import('@/pages/HomePage'))

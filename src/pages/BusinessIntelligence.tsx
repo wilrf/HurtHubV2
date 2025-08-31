@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -14,16 +13,19 @@ import {
   ArrowDownRight,
   Minus
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { useState, useEffect } from 'react'
+
 import { BusinessAIChat } from '@/components/ai/BusinessAIChat'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
+
 import type { BusinessAnalytics, Business } from '@/types/business'
-import { useTheme } from '@/contexts/ThemeContext'
+// Dark mode only - no theme switching
 
 export function BusinessIntelligence() {
-  const { isDarkMode } = useTheme()
+  // Dark mode only
+  const isDarkMode = true
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -67,9 +69,9 @@ export function BusinessIntelligence() {
 
   const getPerformanceIndicator = (current: number, benchmark: number) => {
     const diff = ((current - benchmark) / benchmark) * 100
-    if (diff > 5) return { icon: ArrowUpRight, color: 'text-green-500', text: `+${diff.toFixed(1)}%` }
-    if (diff < -5) return { icon: ArrowDownRight, color: 'text-red-500', text: `${diff.toFixed(1)}%` }
-    return { icon: Minus, color: 'text-yellow-500', text: `${diff.toFixed(1)}%` }
+    if (diff > 5) return { icon: ArrowUpRight, color: 'text-sapphire-400', text: `+${diff.toFixed(1)}%` }
+    if (diff < -5) return { icon: ArrowDownRight, color: 'text-gray-500', text: `${diff.toFixed(1)}%` }
+    return { icon: Minus, color: 'text-gray-400', text: `${diff.toFixed(1)}%` }
   }
 
   const getTopPerformers = (metric: 'revenue' | 'employees' | 'revenueGrowth' | 'grossMargin') => {
@@ -112,7 +114,7 @@ export function BusinessIntelligence() {
       avgEmployees: data.totalEmployees / data.count,
       avgRating: data.totalRatings / data.count,
       avgAge: data.avgAge / data.count,
-      avgGrowth: data.growthRates.reduce((sum, rate) => sum + rate, 0) / data.growthRates.length
+      avgGrowth: data.growthRates.reduce((sum: number, rate: number) => sum + rate, 0) / data.growthRates.length
     })).sort((a, b) => b.avgRevenue - a.avgRevenue)
   }
 
@@ -154,6 +156,22 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
+      {/* AI Assistant - Prominent Position */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="text-xl font-bold flex items-center">
+              <Activity className="h-6 w-6 mr-2 text-sapphire-400" />
+              AI Business Intelligence Assistant
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ask questions about market trends, company performance, or get strategic insights
+            </p>
+          </div>
+        </div>
+        <BusinessAIChat module="business-intelligence" />
+      </div>
+
       {/* Key Performance Indicators */}
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -167,16 +185,16 @@ export function BusinessIntelligence() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-blue-50'
+                  isDarkMode ? 'bg-sapphire-900/20' : 'bg-sapphire-900/20'
                 }`}>
                   <DollarSign className={`h-6 w-6 ${
-                    isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                    isDarkMode ? 'text-sapphire-400' : 'text-sapphire-500'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+12.3% YoY growth</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+12.3% YoY growth</span>
               </div>
             </CardContent>
           </Card>
@@ -191,16 +209,16 @@ export function BusinessIntelligence() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-green-50'
+                  'bg-sapphire-900/20'
                 }`}>
                   <Users className={`h-6 w-6 ${
-                    isDarkMode ? 'text-green-400' : 'text-green-600'
+                    'text-sapphire-400'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+8.7% job growth</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+8.7% job growth</span>
               </div>
             </CardContent>
           </Card>
@@ -215,10 +233,10 @@ export function BusinessIntelligence() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-purple-50'
+                  'bg-sapphire-800/20'
                 }`}>
                   <Target className={`h-6 w-6 ${
-                    isDarkMode ? 'text-purple-400' : 'text-purple-600'
+                    'text-sapphire-500'
                   }`} />
                 </div>
               </div>
@@ -238,16 +256,16 @@ export function BusinessIntelligence() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-orange-50'
+                  'bg-sapphire-700/20'
                 }`}>
                   <BarChart3 className={`h-6 w-6 ${
-                    isDarkMode ? 'text-orange-400' : 'text-orange-600'
+                    'text-sapphire-300'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">Above national avg</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">Above national avg</span>
               </div>
             </CardContent>
           </Card>
@@ -294,10 +312,10 @@ export function BusinessIntelligence() {
                 <div key={business.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 ${
-                      index === 0 ? 'bg-yellow-500 text-yellow-900' :
+                      index === 0 ? 'bg-sapphire-400 text-white' :
                       index === 1 ? 'bg-gray-400 text-gray-900' :
-                      index === 2 ? 'bg-orange-400 text-orange-900' :
-                      isDarkMode ? 'bg-midnight-800 text-midnight-400' : 'bg-gray-100 text-gray-600'
+                      index === 2 ? 'bg-sapphire-600 text-white' :
+                      isDarkMode ? 'bg-sapphire-900/20 text-midnight-400' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {index + 1}
                     </div>
@@ -331,7 +349,7 @@ export function BusinessIntelligence() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {industryInsights.slice(0, 8).map((industry, index) => (
+              {industryInsights.slice(0, 8).map((industry) => (
                 <div key={industry.industry} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <p className="font-medium text-sm">{industry.industry}</p>
@@ -379,7 +397,7 @@ export function BusinessIntelligence() {
                     <span className="text-sm font-medium">{trend.month}</span>
                     <div className="flex items-center">
                       <div className={`w-16 h-2 rounded-full mr-3 ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div
                           className="h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
@@ -417,7 +435,7 @@ export function BusinessIntelligence() {
                     <div className="text-right">
                       <p className="text-sm font-semibold">{formatCurrency(neighborhood.totalRevenue)}</p>
                       <div className="flex items-center text-xs">
-                        <span className="text-yellow-400 mr-1">⭐</span>
+                        <span className="text-sapphire-300 mr-1">⭐</span>
                         <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
                       </div>
                     </div>
@@ -442,10 +460,10 @@ export function BusinessIntelligence() {
                     <span className="text-sm font-medium">{age.ageRange}</span>
                     <div className="flex items-center">
                       <div className={`w-16 h-2 rounded-full mr-3 ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div
-                          className="h-2 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
+                          className="h-2 bg-gradient-to-r from-sapphire-400 to-sapphire-600 rounded-full"
                           style={{
                             width: `${(age.count / Math.max(...(analytics.businessAgeDistribution?.map(a => a.count) || [1]))) * 100}%`
                           }}
@@ -477,7 +495,7 @@ export function BusinessIntelligence() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Market Leaders</h4>
-                  <p className="text-2xl font-bold text-blue-500">
+                  <p className="text-2xl font-bold text-sapphire-500">
                     {businesses.filter(b => b.revenue > 5000000).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">Companies with $5M+ revenue</p>
@@ -485,7 +503,7 @@ export function BusinessIntelligence() {
                 
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Growth Champions</h4>
-                  <p className="text-2xl font-bold text-green-500">
+                  <p className="text-2xl font-bold text-sapphire-400">
                     {businesses.filter(b => b.revenueGrowth > 0.2).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">20%+ revenue growth</p>
@@ -493,7 +511,7 @@ export function BusinessIntelligence() {
                 
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">High Efficiency</h4>
-                  <p className="text-2xl font-bold text-purple-500">
+                  <p className="text-2xl font-bold text-sapphire-500">
                     {businesses.filter(b => b.revenuePerEmployee > 100000).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">$100K+ revenue per employee</p>
@@ -503,10 +521,6 @@ export function BusinessIntelligence() {
           </Card>
         </div>
 
-        {/* AI Assistant */}
-        <div>
-          <BusinessAIChat module="business-intelligence" />
-        </div>
       </div>
     </div>
   )

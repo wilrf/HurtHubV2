@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
 import { 
   ArrowLeft,
   Building2, 
@@ -25,17 +23,22 @@ import {
   Target,
   Award
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
+
 import type { Business } from '@/types/business'
-import { useTheme } from '@/contexts/ThemeContext'
+// Dark mode only - no theme switching
 
 export function BusinessProfile() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { isDarkMode } = useTheme()
+  // Dark mode only
+  const isDarkMode = true
   const [business, setBusiness] = useState<Business | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState<'overview' | 'financial' | 'operations' | 'reviews'>('overview')
@@ -203,22 +206,22 @@ export function BusinessProfile() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center p-4 border rounded-lg">
-                      <DollarSign className="h-6 w-6 mx-auto mb-2 text-green-500" />
+                      <DollarSign className="h-6 w-6 mx-auto mb-2 text-sapphire-400" />
                       <p className="text-2xl font-bold">{formatCurrency(business.revenue)}</p>
                       <p className="text-xs text-muted-foreground">Annual Revenue</p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
-                      <Users className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                      <Users className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">{formatNumber(business.employees)}</p>
                       <p className="text-xs text-muted-foreground">Employees</p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
-                      <Calendar className="h-6 w-6 mx-auto mb-2 text-purple-500" />
+                      <Calendar className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">{new Date().getFullYear() - business.yearEstablished}</p>
                       <p className="text-xs text-muted-foreground">Years Old</p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
-                      <Star className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                      <Star className="h-6 w-6 mx-auto mb-2 text-sapphire-300" />
                       <p className="text-2xl font-bold">{business.rating?.toFixed(1) || 'N/A'}</p>
                       <p className="text-xs text-muted-foreground">Rating</p>
                     </div>
@@ -298,8 +301,8 @@ export function BusinessProfile() {
                       <p className="text-2xl font-bold">{formatCurrency(business.revenue)}</p>
                       <p className="text-xs text-muted-foreground">Annual Revenue</p>
                       <div className="flex items-center justify-center mt-2">
-                        <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                        <span className="text-xs text-green-500">+{formatPercentage(business.revenueGrowth)}</span>
+                        <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                        <span className="text-xs text-sapphire-400">+{formatPercentage(business.revenueGrowth)}</span>
                       </div>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
@@ -453,7 +456,7 @@ export function BusinessProfile() {
                             key={i}
                             className={`h-4 w-4 ${
                               i < Math.floor(business.rating || 0)
-                                ? 'text-yellow-400 fill-current'
+                                ? 'text-sapphire-300 fill-current'
                                 : 'text-gray-300'
                             }`}
                           />
@@ -474,7 +477,7 @@ export function BusinessProfile() {
                                   key={i}
                                   className={`h-3 w-3 ${
                                     i < Math.floor(review.rating)
-                                      ? 'text-yellow-400 fill-current'
+                                      ? 'text-sapphire-300 fill-current'
                                       : 'text-gray-300'
                                   }`}
                                 />
@@ -553,7 +556,7 @@ export function BusinessProfile() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Revenue Growth</span>
-                <span className="text-sm font-medium text-green-500">
+                <span className="text-sm font-medium text-sapphire-400">
                   +{formatPercentage(business.revenueGrowth)}
                 </span>
               </div>

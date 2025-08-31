@@ -1,19 +1,19 @@
-import { forwardRef, type HTMLAttributes } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { forwardRef, type HTMLAttributes } from 'react'
 
 import { cn } from '@/utils'
 
 const cardVariants = cva(
-  'rounded-xl border bg-card text-card-foreground transition-all duration-200',
+  'rounded-xl transition-all duration-200',
   {
     variants: {
       variant: {
-        default: 'shadow-sleek hover:shadow-sleek-lg',
-        elevated: 'shadow-sleek-lg hover:shadow-hard',
-        glass: 'bg-glass backdrop-blur-md border-glass-border shadow-glow',
-        midnight: 'bg-midnight-900 border-midnight-700 shadow-midnight text-white',
-        flat: 'shadow-none border-border',
-        interactive: 'shadow-sleek hover:shadow-sleek-lg hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
+        default: 'glass border border-gray-800/50',
+        elevated: 'glass-dark shadow-lg hover:shadow-xl',
+        glass: 'glass glass-shimmer',
+        midnight: 'glass-dark border-sapphire-900/50 shadow-midnight',
+        flat: 'bg-midnight-900/90 border border-gray-800/30',
+        interactive: 'glass hover:shadow-lg hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
       },
       padding: {
         none: 'p-0',

@@ -1,6 +1,6 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Loader2 } from 'lucide-react'
+import { forwardRef, type ButtonHTMLAttributes } from 'react'
 
 import { cn } from '@/utils'
 
@@ -10,20 +10,20 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-sleek hover:bg-primary/90 hover:shadow-sleek-lg active:scale-[0.98]',
+          'bg-sapphire-600 text-white shadow-lg hover:bg-sapphire-500 hover:shadow-glow active:scale-[0.98]',
         destructive:
-          'bg-destructive text-destructive-foreground shadow-sleek hover:bg-destructive/90 hover:shadow-sleek-lg active:scale-[0.98]',
+          'bg-gray-600 text-white shadow-lg hover:bg-gray-500 hover:shadow-gray-500/25 active:scale-[0.98]',
         outline:
-          'border border-border bg-background shadow-sleek hover:bg-accent hover:text-accent-foreground hover:shadow-sleek-lg active:scale-[0.98]',
+          'border border-gray-700 bg-transparent text-gray-300 hover:bg-gray-800/50 hover:text-white active:scale-[0.98]',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-sleek hover:bg-secondary/80 hover:shadow-sleek-lg active:scale-[0.98]',
+          'glass text-gray-200 hover:bg-sapphire-900/30 hover:text-white active:scale-[0.98]',
         ghost:
-          'hover:bg-accent hover:text-accent-foreground active:scale-[0.98] transition-all duration-150',
-        link: 'text-primary underline-offset-4 hover:underline active:scale-[0.98]',
+          'hover:bg-gray-800/50 hover:text-white active:scale-[0.98] transition-all duration-150',
+        link: 'text-sapphire-400 underline-offset-4 hover:underline hover:text-sapphire-300 active:scale-[0.98]',
         glass:
-          'bg-glass backdrop-blur-md border border-glass-border text-foreground shadow-glow hover:bg-glass hover:shadow-sleek-lg active:scale-[0.98]',
+          'glass glass-shimmer text-white hover:shadow-lg active:scale-[0.98]',
         midnight:
-          'bg-midnight-900 text-white shadow-midnight hover:bg-midnight-800 hover:shadow-glow active:scale-[0.98]',
+          'glass-dark text-white shadow-lg hover:shadow-glow active:scale-[0.98]',
       },
       size: {
         default: 'h-11 px-6 py-2',

@@ -1,8 +1,8 @@
-import { forwardRef } from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { User } from 'lucide-react'
+import { cva, type VariantProps } from 'class-variance-authority';
+import { User } from 'lucide-react';
+import { forwardRef, useState } from 'react';
 
-import { cn } from '@/utils'
+import { cn } from '@/utils';
 
 const avatarVariants = cva(
   'relative flex shrink-0 overflow-hidden rounded-full border-2 border-background shadow-sleek',
@@ -27,91 +27,85 @@ const avatarVariants = cva(
       variant: 'default',
     },
   }
-)
+);
 
 export interface AvatarProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof avatarVariants> {
-  src?: string
-  alt?: string
-  fallback?: string
-  initials?: string
+  src?: string;
+  alt?: string;
+  fallback?: string;
+  initials?: string;
 }
+
+const sizeToClassMap = {
+  sm: 'text-xs',
+  default: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg',
+  '2xl': 'text-xl',
+};
+
+const sizeToIconClassMap = {
+    sm: 'h-4 w-4',
+    default: 'h-5 w-5',
+    lg: 'h-6 w-6',
+    xl: 'h-8 w-8',
+    '2xl': 'h-10 w-10',
+};
+
+const AvatarFallback = ({ initials, fallback, size }: Pick<AvatarProps, 'initials' | 'fallback' | 'size'>) => {
+  const sizeClass = size ? sizeToClassMap[size] : sizeToClassMap.default;
+  const iconSizeClass = size ? sizeToIconClassMap[size] : sizeToIconClassMap.default;
+
+  if (initials) {
+    return <span className={cn('font-medium uppercase', sizeClass)}>{initials}</span>;
+  }
+  if (fallback) {
+    return <span className={cn('text-xs font-medium', sizeClass)}>{fallback}</span>;
+  }
+  return <User className={cn(iconSizeClass)} />;
+};
 
 const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   ({ className, size, variant, src, alt, fallback, initials, ...props }, ref) => {
+    const [hasError, setHasError] = useState(false);
+
     return (
       <div
         ref={ref}
         className={cn(avatarVariants({ size, variant }), className)}
         {...props}
       >
-        {src ? (
+        {src && !hasError ? (
           <img
             className='aspect-square h-full w-full object-cover'
             src={src}
             alt={alt || 'Avatar'}
-            onError={(e) => {
-              // Fallback to initials/icon if image fails to load
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-            }}
+            onError={() => setHasError(true)}
           />
-        ) : null}
-        
-        {/* Fallback content when no image or image fails */}
-        {(!src || initials || fallback) && (
+        ) : (
           <div className='flex h-full w-full items-center justify-center bg-muted text-muted-foreground'>
-            {initials ? (
-              <span className={cn(
-                'font-medium uppercase',
-                size === 'sm' && 'text-xs',
-                size === 'default' && 'text-sm',
-                size === 'lg' && 'text-base',
-                size === 'xl' && 'text-lg',
-                size === '2xl' && 'text-xl'
-              )}>
-                {initials}
-              </span>
-            ) : fallback ? (
-              <span className={cn(
-                'text-xs font-medium',
-                size === 'sm' && 'text-xs',
-                size === 'default' && 'text-sm',
-                size === 'lg' && 'text-base',
-                size === 'xl' && 'text-lg',
-                size === '2xl' && 'text-xl'
-              )}>
-                {fallback}
-              </span>
-            ) : (
-              <User className={cn(
-                size === 'sm' && 'h-4 w-4',
-                size === 'default' && 'h-5 w-5',
-                size === 'lg' && 'h-6 w-6',
-                size === 'xl' && 'h-8 w-8',
-                size === '2xl' && 'h-10 w-10'
-              )} />
-            )}
+            <AvatarFallback initials={initials} fallback={fallback} size={size} />
           </div>
         )}
       </div>
-    )
+    );
   }
-)
+);
 
 // Avatar group component for showing multiple avatars
 interface AvatarGroupProps {
   avatars: Array<{
-    src?: string
-    alt?: string
-    initials?: string
-    fallback?: string
-  }>
-  max?: number
-  size?: VariantProps<typeof avatarVariants>['size']
-  variant?: VariantProps<typeof avatarVariants>['variant']
-  className?: string
+    src?: string;
+    alt?: string;
+    initials?: string;
+    fallback?: string;
+  }>;
+  max?: number;
+  size?: VariantProps<typeof avatarVariants>['size'];
+  variant?: VariantProps<typeof avatarVariants>['variant'];
+  className?: string;
 }
 
 export function AvatarGroup({ 
@@ -121,8 +115,8 @@ export function AvatarGroup({
   variant = 'default',
   className 
 }: AvatarGroupProps) {
-  const displayedAvatars = avatars.slice(0, max)
-  const remainingCount = avatars.length - max
+  const displayedAvatars = avatars.slice(0, max);
+  const remainingCount = avatars.length - max;
 
   return (
     <div className={cn('flex -space-x-2', className)}>
@@ -148,9 +142,9 @@ export function AvatarGroup({
         />
       )}
     </div>
-  )
+  );
 }
 
-Avatar.displayName = 'Avatar'
+Avatar.displayName = 'Avatar';
 
-export { Avatar, avatarVariants }
+export { Avatar, avatarVariants };

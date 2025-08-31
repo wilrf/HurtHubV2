@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -12,16 +10,20 @@ import {
   Filter,
   Download
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import { BusinessSearch } from '@/components/search/BusinessSearch'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
+
 import type { BusinessAnalytics, Business, BusinessSearchResult } from '@/types/business'
-import { useTheme } from '@/contexts/ThemeContext'
+// Dark mode only - no theme switching
 
 export function Dashboard() {
-  const { isDarkMode } = useTheme()
+  // Dark mode only
   const navigate = useNavigate()
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [recentBusinesses, setRecentBusinesses] = useState<Business[]>([])
@@ -69,15 +71,15 @@ export function Dashboard() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-64"></div>
+          <div className="h-8 bg-gray-800 rounded w-64"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              <div key={i} className="h-32 bg-gray-800 rounded-lg"></div>
             ))}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="h-80 bg-gray-200 rounded-lg"></div>
+              <div key={i} className="h-80 bg-gray-800 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -101,7 +103,7 @@ export function Dashboard() {
             <Download className="h-4 w-4 mr-2" />
             Export Data
           </Button>
-          <Button variant={isDarkMode ? 'glass' : 'default'}>
+          <Button variant={true ? 'glass' : 'default'}>
             <Filter className="h-4 w-4 mr-2" />
             Advanced Analytics
           </Button>
@@ -111,7 +113,7 @@ export function Dashboard() {
       {/* Key Metrics */}
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -121,21 +123,21 @@ export function Dashboard() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-blue-50'
+                  true ? 'bg-sapphire-900/20' : 'bg-sapphire-900/20'
                 }`}>
                   <Building2 className={`h-6 w-6 ${
-                    isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                    true ? 'text-sapphire-400' : 'text-sapphire-500'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+12% from last quarter</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+12% from last quarter</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -145,21 +147,21 @@ export function Dashboard() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-green-50'
+                  'bg-sapphire-900/20'
                 }`}>
                   <DollarSign className={`h-6 w-6 ${
-                    isDarkMode ? 'text-green-400' : 'text-green-600'
+                    'text-sapphire-400'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+8.5% year over year</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+8.5% year over year</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -169,21 +171,21 @@ export function Dashboard() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-purple-50'
+                  'bg-sapphire-800/20'
                 }`}>
                   <Users className={`h-6 w-6 ${
-                    isDarkMode ? 'text-purple-400' : 'text-purple-600'
+                    'text-sapphire-500'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+15% job growth</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+15% job growth</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -193,16 +195,16 @@ export function Dashboard() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-orange-50'
+                  'bg-sapphire-700/20'
                 }`}>
                   <BarChart3 className={`h-6 w-6 ${
-                    isDarkMode ? 'text-orange-400' : 'text-orange-600'
+                    'text-sapphire-300'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+3.2% efficiency</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+3.2% efficiency</span>
               </div>
             </CardContent>
           </Card>
@@ -210,7 +212,7 @@ export function Dashboard() {
       )}
 
       {/* Business Search */}
-      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+      <Card variant={true ? 'glass' : 'elevated'}>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Building2 className="h-5 w-5 mr-2" />
@@ -229,7 +231,7 @@ export function Dashboard() {
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Industries */}
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart3 className="h-5 w-5 mr-2" />
@@ -242,11 +244,11 @@ export function Dashboard() {
                   <div key={industry.industry} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className={`w-2 h-2 rounded-full mr-3 ${
-                        index === 0 ? 'bg-blue-500' :
-                        index === 1 ? 'bg-green-500' :
-                        index === 2 ? 'bg-purple-500' :
-                        index === 3 ? 'bg-orange-500' :
-                        index === 4 ? 'bg-red-500' : 'bg-gray-500'
+                        index === 0 ? 'bg-sapphire-500' :
+                        index === 1 ? 'bg-sapphire-400' :
+                        index === 2 ? 'bg-sapphire-600' :
+                        index === 3 ? 'bg-sapphire-300' :
+                        index === 4 ? 'bg-gray-600' : 'bg-gray-500'
                       }`} />
                       <div>
                         <p className="font-medium text-sm">{industry.industry}</p>
@@ -258,15 +260,15 @@ export function Dashboard() {
                     <div className="text-right">
                       <p className="text-sm font-medium">{formatCurrency(industry.totalRevenue)}</p>
                       <div className={`w-20 h-2 rounded-full mt-1 ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className={`h-2 rounded-full ${
-                            index === 0 ? 'bg-blue-500' :
-                            index === 1 ? 'bg-green-500' :
-                            index === 2 ? 'bg-purple-500' :
-                            index === 3 ? 'bg-orange-500' :
-                            index === 4 ? 'bg-red-500' : 'bg-gray-500'
+                            index === 0 ? 'bg-sapphire-500' :
+                            index === 1 ? 'bg-sapphire-400' :
+                            index === 2 ? 'bg-sapphire-600' :
+                            index === 3 ? 'bg-sapphire-300' :
+                            index === 4 ? 'bg-gray-600' : 'bg-gray-500'
                           }`}
                           style={{ 
                             width: `${(industry.totalRevenue / (analytics.topIndustries?.[0]?.totalRevenue || 1)) * 100}%` 
@@ -281,7 +283,7 @@ export function Dashboard() {
           </Card>
 
           {/* Top Neighborhoods */}
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MapPin className="h-5 w-5 mr-2" />
@@ -294,17 +296,17 @@ export function Dashboard() {
                   <div key={neighborhood.neighborhood} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className={`w-2 h-2 rounded-full mr-3 ${
-                        index === 0 ? 'bg-cyan-500' :
-                        index === 1 ? 'bg-teal-500' :
-                        index === 2 ? 'bg-indigo-500' :
-                        index === 3 ? 'bg-pink-500' :
-                        index === 4 ? 'bg-yellow-500' : 'bg-gray-500'
+                        index === 0 ? 'bg-sapphire-600' :
+                        index === 1 ? 'bg-sapphire-700' :
+                        index === 2 ? 'bg-sapphire-700' :
+                        index === 3 ? 'bg-gray-500' :
+                        index === 4 ? 'bg-gray-400' : 'bg-gray-500'
                       }`} />
                       <div>
                         <p className="font-medium text-sm">{neighborhood.neighborhood}</p>
                         <p className="text-xs text-muted-foreground flex items-center">
                           {neighborhood.count} businesses • 
-                          <Star className="h-3 w-3 text-yellow-400 ml-1 mr-1" />
+                          <Star className="h-3 w-3 text-sapphire-300 ml-1 mr-1" />
                           {neighborhood.avgRating?.toFixed(1) || '0.0'}
                         </p>
                       </div>
@@ -312,15 +314,15 @@ export function Dashboard() {
                     <div className="text-right">
                       <p className="text-sm font-medium">{formatCurrency(neighborhood.totalRevenue)}</p>
                       <div className={`w-20 h-2 rounded-full mt-1 ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className={`h-2 rounded-full ${
-                            index === 0 ? 'bg-cyan-500' :
-                            index === 1 ? 'bg-teal-500' :
-                            index === 2 ? 'bg-indigo-500' :
-                            index === 3 ? 'bg-pink-500' :
-                            index === 4 ? 'bg-yellow-500' : 'bg-gray-500'
+                            index === 0 ? 'bg-sapphire-600' :
+                            index === 1 ? 'bg-sapphire-700' :
+                            index === 2 ? 'bg-sapphire-700' :
+                            index === 3 ? 'bg-gray-500' :
+                            index === 4 ? 'bg-gray-400' : 'bg-gray-500'
                           }`}
                           style={{ 
                             width: `${(neighborhood.totalRevenue / (analytics.topNeighborhoods?.[0]?.totalRevenue || 1)) * 100}%` 
@@ -340,7 +342,7 @@ export function Dashboard() {
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Revenue Distribution */}
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <DollarSign className="h-5 w-5 mr-2" />
@@ -356,10 +358,10 @@ export function Dashboard() {
                     </div>
                     <div className="flex items-center flex-1 mx-4">
                       <div className={`w-full h-3 rounded-full ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
-                          className="h-3 bg-gradient-to-r from-green-400 to-green-600 rounded-full"
+                          className="h-3 bg-gradient-to-r from-sapphire-400 to-sapphire-600 rounded-full"
                           style={{ 
                             width: `${(range.count / Math.max(...(analytics.revenueDistribution?.map(r => r.count) || [1]))) * 100}%` 
                           }}
@@ -376,7 +378,7 @@ export function Dashboard() {
           </Card>
 
           {/* Business Age Distribution */}
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+          <Card variant={true ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />
@@ -392,10 +394,10 @@ export function Dashboard() {
                     </div>
                     <div className="flex items-center flex-1 mx-4">
                       <div className={`w-full h-3 rounded-full ${
-                        isDarkMode ? 'bg-midnight-800' : 'bg-gray-200'
+                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
-                          className="h-3 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
+                          className="h-3 bg-gradient-to-r from-sapphire-500 to-sapphire-700 rounded-full"
                           style={{ 
                             width: `${(age.count / Math.max(...(analytics.businessAgeDistribution?.map(a => a.count) || [1]))) * 100}%` 
                           }}
@@ -414,7 +416,7 @@ export function Dashboard() {
       )}
 
       {/* Recent Businesses */}
-      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+      <Card variant={true ? 'glass' : 'elevated'}>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Building2 className="h-5 w-5 mr-2" />
@@ -443,7 +445,7 @@ export function Dashboard() {
                       </Badge>
                       {business.rating && (
                         <div className="flex items-center">
-                          <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                          <Star className="h-3 w-3 text-sapphire-300 mr-1" />
                           <span>{business.rating.toFixed(1)}</span>
                         </div>
                       )}
@@ -464,7 +466,7 @@ export function Dashboard() {
       {/* Selected Business Modal/Details would go here */}
       {selectedBusiness && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card variant={isDarkMode ? 'glass' : 'elevated'} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <Card variant={true ? 'glass' : 'elevated'} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{selectedBusiness.name}</CardTitle>
               <Button

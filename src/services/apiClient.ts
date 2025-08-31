@@ -7,6 +7,7 @@ import axios, {
 import { toast } from 'react-hot-toast'
 
 import { env } from '@/config/env'
+
 import type { ApiResponse, ApiErrorResponse } from '@/types'
 
 class APIClient {

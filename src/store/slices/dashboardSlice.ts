@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+
 import type { DashboardStatsResponse, TrendDataResponse, NewsItem } from '@/types'
 
 interface DashboardState {

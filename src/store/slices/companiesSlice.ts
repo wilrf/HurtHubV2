@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+
 import type { Company, CompanySearchFilters, PaginatedResponse } from '@/types'
 
 interface CompaniesState {

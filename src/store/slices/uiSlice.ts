@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+
 import type { Theme, Notification } from '@/types'
 
 interface UIState {

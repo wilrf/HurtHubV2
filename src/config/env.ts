@@ -100,7 +100,7 @@ class Environment {
     }
 
     if (errors.length > 0) {
-      const errorMessage = 'Environment configuration errors:\n' + errors.join('\n')
+      const errorMessage = `Environment configuration errors:\n${  errors.join('\n')}`
       if (this.isProduction()) {
         throw new Error(errorMessage)
       } else {
@@ -141,7 +141,7 @@ class Environment {
   }
 
   get openaiApiKey(): string | undefined {
-    return this.config.OPENAI_API_KEY
+    return undefined
   }
 
   get mapboxAccessToken(): string | undefined {
@@ -201,7 +201,7 @@ class Environment {
 
   // Service availability checks
   hasOpenAI(): boolean {
-    return Boolean(this.config.OPENAI_API_KEY) && this.config.ENABLE_AI_FEATURES
+    return this.config.ENABLE_AI_FEATURES
   }
 
   hasMapbox(): boolean {

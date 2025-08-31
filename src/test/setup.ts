@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
-import { expect, afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import { expect, afterEach, vi } from 'vitest'
 
 // Cleanup after each test case
 afterEach(() => {
@@ -108,7 +108,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: vi.fn(() => 'test-uuid-' + Math.random().toString(36).substr(2, 9)),
+    randomUUID: vi.fn(() => `test-uuid-${  Math.random().toString(36).substr(2, 9)}`),
   },
 })
 
@@ -142,7 +142,7 @@ global.testUtils = {
   
   // Helper to create mock company data
   createMockCompany: (overrides = {}) => ({
-    id: 'test-company-' + Math.random().toString(36).substr(2, 9),
+    id: `test-company-${  Math.random().toString(36).substr(2, 9)}`,
     name: 'Test Company',
     industry: 'Technology',
     location: {
@@ -168,7 +168,7 @@ global.testUtils = {
   
   // Helper to create mock user data
   createMockUser: (overrides = {}) => ({
-    id: 'test-user-' + Math.random().toString(36).substr(2, 9),
+    id: `test-user-${  Math.random().toString(36).substr(2, 9)}`,
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',

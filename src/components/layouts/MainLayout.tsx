@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import { useLocation, Outlet } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 import { 
   Menu, 
   X, 
@@ -10,19 +7,20 @@ import {
   MessageSquare,
   Settings,
   Bell,
-  Search,
-  Moon,
-  Sun
+  Search
 } from 'lucide-react'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useLocation, Outlet } from 'react-router-dom'
 
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
-import { Toggle } from '@/components/ui/Toggle'
-import { useTheme } from '@/contexts/ThemeContext'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+// Dark mode only - no theme switching
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/utils'
+
 import type { RootState } from '@/store'
 
 const navigation = [
@@ -35,17 +33,14 @@ const navigation = [
 export function MainLayout() {
   const location = useLocation()
   const { user } = useAuth()
-  const { isDarkMode, toggleTheme } = useTheme()
+  // Dark mode only
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const notifications = useSelector((state: RootState) => state.ui.notifications)
   
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <div className={cn(
-      'min-h-screen transition-all duration-300',
-      isDarkMode ? 'bg-midnight-950' : 'bg-gray-50'
-    )}>
+    <div className='min-h-screen transition-all duration-300 bg-midnight-950'>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -59,7 +54,7 @@ export function MainLayout() {
         className={cn(
           'fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-          isDarkMode ? 'bg-midnight-900 border-midnight-700' : 'bg-white border-gray-200',
+          'glass-dark border-gray-800/50',
           'border-r shadow-sleek-lg'
         )}
       >
@@ -68,17 +63,14 @@ export function MainLayout() {
           <div className='flex items-center space-x-3'>
             <div className={cn(
               'flex h-8 w-8 items-center justify-center rounded-lg',
-              isDarkMode ? 'bg-midnight-700' : 'bg-primary'
+              'bg-sapphire-800/50 backdrop-blur-sm'
             )}>
               <BarChart3 className={cn(
                 'h-5 w-5',
-                isDarkMode ? 'text-white' : 'text-primary-foreground'
+                'text-white'
               )} />
             </div>
-            <h1 className={cn(
-              'text-lg font-semibold',
-              isDarkMode ? 'text-white' : 'text-midnight-950'
-            )}>
+            <h1 className='text-lg font-semibold text-white'>
               Charlotte EconDev
             </h1>
           </div>
@@ -107,12 +99,8 @@ export function MainLayout() {
                 className={cn(
                   'flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
                   isActive
-                    ? isDarkMode
-                      ? 'bg-midnight-700 text-white shadow-glow'
-                      : 'bg-primary text-primary-foreground shadow-sleek'
-                    : isDarkMode
-                      ? 'text-midnight-300 hover:bg-midnight-800 hover:text-white'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'glass text-white shadow-glow'
+                    : 'text-gray-400 hover:bg-sapphire-900/30 hover:text-white'
                 )}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -124,49 +112,25 @@ export function MainLayout() {
         </nav>
 
         {/* Sidebar footer */}
-        <div className='border-t border-border p-4'>
-          <div className='flex items-center justify-between mb-4'>
-            <span className={cn(
-              'text-sm font-medium',
-              isDarkMode ? 'text-white' : 'text-midnight-950'
-            )}>
-              Theme
-            </span>
-            <Button
-              variant='ghost'
-              size='icon-sm'
-              onClick={toggleTheme}
-              aria-label='Toggle theme'
-            >
-              {isDarkMode ? (
-                <Sun className='h-4 w-4' />
-              ) : (
-                <Moon className='h-4 w-4' />
-              )}
-            </Button>
-          </div>
-          
+        <div className='border-t border-gray-800/50 p-4'>
           {user && (
             <div className={cn(
               'flex items-center space-x-3 rounded-xl p-3',
-              isDarkMode ? 'bg-midnight-800' : 'bg-gray-100'
+              'glass'
             )}>
               <Avatar
                 src={user.avatar}
                 initials={`${user.firstName[0]}${user.lastName[0]}`}
                 size='sm'
-                variant={isDarkMode ? 'midnight' : 'default'}
+                variant='midnight'
               />
               <div className='flex-1 min-w-0'>
-                <p className={cn(
-                  'text-sm font-medium truncate',
-                  isDarkMode ? 'text-white' : 'text-midnight-950'
-                )}>
+                <p className='text-sm font-medium truncate text-white'>
                   {user.firstName} {user.lastName}
                 </p>
                 <p className={cn(
                   'text-xs truncate',
-                  isDarkMode ? 'text-midnight-400' : 'text-gray-600'
+                  'text-gray-400'
                 )}>
                   {user.email}
                 </p>
@@ -181,9 +145,7 @@ export function MainLayout() {
         {/* Top bar */}
         <header className={cn(
           'sticky top-0 z-30 h-16 border-b transition-all duration-300',
-          isDarkMode 
-            ? 'bg-midnight-900/80 border-midnight-700 backdrop-blur-xl' 
-            : 'bg-white/80 border-gray-200 backdrop-blur-xl',
+          'glass-dark backdrop-blur-xl border-gray-800/50',
           'shadow-sleek'
         )}>
           <div className='flex h-full items-center justify-between px-4 sm:px-6 lg:px-8'>
@@ -202,7 +164,7 @@ export function MainLayout() {
               <Input
                 type='search'
                 placeholder='Search companies, news, developments...'
-                variant={isDarkMode ? 'midnight' : 'ghost'}
+                variant='midnight'
                 leftIcon={<Search className='h-4 w-4' />}
                 className='w-full'
               />
@@ -242,7 +204,7 @@ export function MainLayout() {
                 <Avatar
                   src={user.avatar}
                   initials={`${user.firstName[0]}${user.lastName[0]}`}
-                  variant={isDarkMode ? 'midnight' : 'default'}
+                  variant='midnight'
                   className='cursor-pointer hover:ring-2 hover:ring-ring transition-all duration-200'
                 />
               )}

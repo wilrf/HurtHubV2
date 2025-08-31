@@ -1,8 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent, StatsCard } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { useTheme } from '@/contexts/ThemeContext'
 import { 
   Building2, 
   TrendingUp, 
@@ -13,6 +8,13 @@ import {
   MapPin,
   Calendar
 } from 'lucide-react'
+
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card, CardHeader, CardTitle, CardContent, StatsCard } from '@/components/ui/Card'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { useTheme } from '@/contexts/ThemeContext'
+
 
 export function HomePage() {
   const { isDarkMode } = useTheme()

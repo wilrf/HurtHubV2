@@ -1,7 +1,8 @@
+import { AlertTriangle, Home, ArrowLeft } from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { useTheme } from '@/contexts/ThemeContext'
-import { AlertTriangle, Home, ArrowLeft } from 'lucide-react'
 
 export function NotFound() {
   const { isDarkMode } = useTheme()

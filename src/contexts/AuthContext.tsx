@@ -5,11 +5,12 @@ import {
   useEffect, 
   type ReactNode 
 } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-hot-toast'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { api } from '@/services/apiClient'
 import { authActions, type RootState } from '@/store'
+
 import type { User } from '@/types'
 
 interface AuthContextValue {

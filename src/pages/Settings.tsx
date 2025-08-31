@@ -1,5 +1,6 @@
-import { Badge } from '@/components/ui/Badge'
 import { Settings as SettingsIcon } from 'lucide-react'
+
+import { Badge } from '@/components/ui/Badge'
 
 export function Settings() {
   return (

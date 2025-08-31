@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react'
 import { 
-  Users, 
   TrendingUp, 
   MessageCircle, 
   MapPin, 
@@ -11,20 +9,23 @@ import {
   Activity,
   Zap,
   Award,
-  Globe,
   Building2,
   UserCheck
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
+import { useState, useEffect } from 'react'
+
 import { BusinessAIChat } from '@/components/ai/BusinessAIChat'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
+
 import type { BusinessAnalytics, Business } from '@/types/business'
-import { useTheme } from '@/contexts/ThemeContext'
+// Dark mode only - no theme switching
 
 export function CommunityPulse() {
-  const { isDarkMode } = useTheme()
+  // Dark mode only
+  const isDarkMode = true
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -169,6 +170,22 @@ export function CommunityPulse() {
         </div>
       </div>
 
+      {/* AI Assistant - Prominent Position */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h2 className="text-xl font-bold flex items-center">
+              <Network className="h-6 w-6 mr-2 text-sapphire-400" />
+              AI Community Insights Assistant
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ask about community trends, business connections, or neighborhood developments
+            </p>
+          </div>
+        </div>
+        <BusinessAIChat module="community-pulse" />
+      </div>
+
       {/* Community Health Metrics */}
       {communityMetrics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -182,16 +199,16 @@ export function CommunityPulse() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-green-50'
+                  'bg-sapphire-900/20'
                 }`}>
                   <Heart className={`h-6 w-6 ${
-                    isDarkMode ? 'text-green-400' : 'text-green-600'
+                    'text-sapphire-400'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">+12% this month</span>
+                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">+12% this month</span>
               </div>
             </CardContent>
           </Card>
@@ -206,10 +223,10 @@ export function CommunityPulse() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-blue-50'
+                  'bg-sapphire-700/20'
                 }`}>
                   <Building2 className={`h-6 w-6 ${
-                    isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                    'text-sapphire-300'
                   }`} />
                 </div>
               </div>
@@ -229,16 +246,16 @@ export function CommunityPulse() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-purple-50'
+                  'bg-sapphire-800/20'
                 }`}>
                   <Network className={`h-6 w-6 ${
-                    isDarkMode ? 'text-purple-400' : 'text-purple-600'
+                    'text-sapphire-500'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <Activity className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm text-green-500">Growing network</span>
+                <Activity className="h-4 w-4 text-sapphire-400 mr-1" />
+                <span className="text-sm text-sapphire-400">Growing network</span>
               </div>
             </CardContent>
           </Card>
@@ -253,16 +270,16 @@ export function CommunityPulse() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  isDarkMode ? 'bg-midnight-800' : 'bg-orange-50'
+                  'bg-sapphire-600/20'
                 }`}>
                   <MessageCircle className={`h-6 w-6 ${
-                    isDarkMode ? 'text-orange-400' : 'text-orange-600'
+                    'text-sapphire-200'
                   }`} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                <span className="text-sm text-yellow-600">Very positive</span>
+                <Star className="h-4 w-4 text-sapphire-300 mr-1" />
+                <span className="text-sm text-sapphire-300">Very positive</span>
               </div>
             </CardContent>
           </Card>
@@ -288,9 +305,9 @@ export function CommunityPulse() {
                       isDarkMode ? 'bg-midnight-800' : 'bg-gray-100'
                     }`}>
                       <Icon className={`h-5 w-5 ${
-                        highlight.impact === 'Very High' ? 'text-green-500' :
-                        highlight.impact === 'High' ? 'text-blue-500' :
-                        'text-orange-500'
+                        highlight.impact === 'Very High' ? 'text-sapphire-400' :
+                        highlight.impact === 'High' ? 'text-sapphire-500' :
+                        'text-sapphire-200'
                       }`} />
                     </div>
                     <div className="flex-1">
@@ -331,18 +348,18 @@ export function CommunityPulse() {
               <div className="space-y-4">
                 {neighborhoodPulse?.slice(0, 8).map((neighborhood, index) => {
                   const getTrendIcon = () => {
-                    if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />
-                    if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
-                    return <Activity className="h-4 w-4 text-yellow-500" />
+                    if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-sapphire-400" />
+                    if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-gray-500 rotate-180" />
+                    return <Activity className="h-4 w-4 text-sapphire-300" />
                   }
 
                   return (
                     <div key={neighborhood.neighborhood} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full mr-3 ${
-                          neighborhood.pulseScore > 85 ? 'bg-green-500' :
-                          neighborhood.pulseScore > 70 ? 'bg-blue-500' :
-                          neighborhood.pulseScore > 55 ? 'bg-yellow-500' : 'bg-red-500'
+                          neighborhood.pulseScore > 85 ? 'bg-sapphire-400' :
+                          neighborhood.pulseScore > 70 ? 'bg-sapphire-500' :
+                          neighborhood.pulseScore > 55 ? 'bg-sapphire-300' : 'bg-gray-600'
                         }`} />
                         <div>
                           <p className="font-medium text-sm">{neighborhood.neighborhood}</p>
@@ -355,7 +372,7 @@ export function CommunityPulse() {
                         <div className="text-right">
                           <p className="text-sm font-semibold">Pulse Score: {neighborhood.pulseScore}</p>
                           <div className="flex items-center text-xs">
-                            <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                            <Star className="h-3 w-3 text-sapphire-200 mr-1" />
                             <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
                             {getTrendIcon()}
                           </div>
@@ -369,10 +386,6 @@ export function CommunityPulse() {
           </Card>
         </div>
 
-        {/* AI Assistant */}
-        <div>
-          <BusinessAIChat module="community-pulse" />
-        </div>
       </div>
 
       {/* Community Events & Engagement */}

@@ -1,5 +1,6 @@
-import { Badge } from '@/components/ui/Badge'
 import { MessageSquare } from 'lucide-react'
+
+import { Badge } from '@/components/ui/Badge'
 
 export function AIAssistant() {
   return (

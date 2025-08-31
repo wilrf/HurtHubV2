@@ -1,6 +1,8 @@
 # Charlotte Economic Development Platform
 
-A comprehensive web application providing real-time economic intelligence, community monitoring, and business analytics for the Greater Charlotte/Davidson metropolitan area.
+A comprehensive web application providing real-time economic intelligence, community monitoring, and business analytics for the Greater Charlotte metropolitan area.
+
+🌐 **Live Demo:** [https://hurt-hub-v2.vercel.app](https://hurt-hub-v2.vercel.app)
 
 ## 🚀 Features
 

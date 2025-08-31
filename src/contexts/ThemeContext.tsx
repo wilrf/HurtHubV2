@@ -7,6 +7,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux'
 
 import { uiActions, type RootState } from '@/store'
+
 import type { Theme } from '@/types'
 
 interface ThemeContextValue {

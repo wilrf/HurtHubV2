@@ -1,9 +1,10 @@
-import { Fragment, type ReactNode } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { X } from 'lucide-react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { X } from 'lucide-react'
+import { Fragment, type ReactNode } from 'react'
 
 import { cn } from '@/utils'
+
 import { Button } from './Button'
 
 const modalVariants = cva(
