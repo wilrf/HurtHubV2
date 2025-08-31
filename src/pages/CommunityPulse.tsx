@@ -170,21 +170,29 @@ export function CommunityPulse() {
         </div>
       </div>
 
-      {/* AI Assistant - Prominent Position */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h2 className="text-xl font-bold flex items-center">
-              <Network className="h-6 w-6 mr-2 text-sapphire-400" />
-              AI Community Insights Assistant
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Ask about community trends, business connections, or neighborhood developments
-            </p>
+      {/* AI Assistant - Prominent Position with visible chat interface */}
+      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold flex items-center">
+                <Network className="h-6 w-6 mr-2 text-sapphire-400" />
+                AI Community Insights Assistant
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ask about community trends, business connections, or neighborhood developments
+              </p>
+            </div>
+            <Badge variant="secondary" className="flex items-center">
+              <Zap className="h-3 w-3 mr-1" />
+              Powered by GPT-4
+            </Badge>
           </div>
-        </div>
-        <BusinessAIChat module="community-pulse" />
-      </div>
+        </CardHeader>
+        <CardContent>
+          <BusinessAIChat module="community-pulse" />
+        </CardContent>
+      </Card>
 
       {/* Community Health Metrics */}
       {communityMetrics && (
@@ -334,59 +342,54 @@ export function CommunityPulse() {
         </CardContent>
       </Card>
 
-      {/* Neighborhood Pulse & AI Assistant */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <MapPin className="h-5 w-5 mr-2" />
-                Neighborhood Pulse
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {neighborhoodPulse?.slice(0, 8).map((neighborhood, index) => {
-                  const getTrendIcon = () => {
-                    if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-sapphire-400" />
-                    if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-gray-500 rotate-180" />
-                    return <Activity className="h-4 w-4 text-sapphire-300" />
-                  }
+      {/* Neighborhood Pulse - Full Width */}
+      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <MapPin className="h-5 w-5 mr-2" />
+            Neighborhood Pulse
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {neighborhoodPulse?.slice(0, 6).map((neighborhood, index) => {
+              const getTrendIcon = () => {
+                if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-sapphire-400" />
+                if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-gray-500 rotate-180" />
+                return <Activity className="h-4 w-4 text-sapphire-300" />
+              }
 
-                  return (
-                    <div key={neighborhood.neighborhood} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-3 ${
-                          neighborhood.pulseScore > 85 ? 'bg-sapphire-400' :
-                          neighborhood.pulseScore > 70 ? 'bg-sapphire-500' :
-                          neighborhood.pulseScore > 55 ? 'bg-sapphire-300' : 'bg-gray-600'
-                        }`} />
-                        <div>
-                          <p className="font-medium text-sm">{neighborhood.neighborhood}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {neighborhood.count} businesses • {neighborhood.communityEvents} events
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <p className="text-sm font-semibold">Pulse Score: {neighborhood.pulseScore}</p>
-                          <div className="flex items-center text-xs">
-                            <Star className="h-3 w-3 text-sapphire-200 mr-1" />
-                            <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
-                            {getTrendIcon()}
-                          </div>
-                        </div>
+              return (
+                <div key={neighborhood.neighborhood} className="flex items-center justify-between p-4 border rounded-lg hover:bg-midnight-800/20 transition-colors">
+                  <div className="flex items-center">
+                    <div className={`w-3 h-3 rounded-full mr-3 ${
+                      neighborhood.pulseScore > 85 ? 'bg-sapphire-400' :
+                      neighborhood.pulseScore > 70 ? 'bg-sapphire-500' :
+                      neighborhood.pulseScore > 55 ? 'bg-sapphire-300' : 'bg-gray-600'
+                    }`} />
+                    <div>
+                      <p className="font-medium text-sm">{neighborhood.neighborhood}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {neighborhood.count} businesses • {neighborhood.communityEvents} events
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold">Score: {neighborhood.pulseScore}</p>
+                      <div className="flex items-center justify-end text-xs gap-1">
+                        <Star className="h-3 w-3 text-sapphire-200" />
+                        <span>{neighborhood.avgRating?.toFixed(1) || '0.0'}</span>
+                        {getTrendIcon()}
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-      </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Community Events & Engagement */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

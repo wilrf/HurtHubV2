@@ -11,11 +11,13 @@ import {
   Activity,
   ArrowUpRight,
   ArrowDownRight,
-  Minus
+  Minus,
+  Sparkles
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { BusinessAIChat } from '@/components/ai/BusinessAIChat'
+import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
@@ -156,21 +158,29 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
-      {/* AI Assistant - Prominent Position */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h2 className="text-xl font-bold flex items-center">
-              <Activity className="h-6 w-6 mr-2 text-sapphire-400" />
-              AI Business Intelligence Assistant
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Ask questions about market trends, company performance, or get strategic insights
-            </p>
+      {/* AI Assistant - Prominent Position with visible chat interface */}
+      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold flex items-center">
+                <Activity className="h-6 w-6 mr-2 text-sapphire-400" />
+                AI Business Intelligence Assistant
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ask questions about market trends, company performance, or get strategic insights
+              </p>
+            </div>
+            <Badge variant="secondary" className="flex items-center">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Powered by GPT-4
+            </Badge>
           </div>
-        </div>
-        <BusinessAIChat module="business-intelligence" />
-      </div>
+        </CardHeader>
+        <CardContent>
+          <BusinessAIChat module="business-intelligence" />
+        </CardContent>
+      </Card>
 
       {/* Key Performance Indicators */}
       {analytics && (
