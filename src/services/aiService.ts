@@ -13,10 +13,17 @@ export interface ChatRequest {
 
 export async function createChatCompletion(req: ChatRequest): Promise<string> {
   try {
-    const res = await fetch('/api/openai-chat', {
+    // Use the enhanced endpoint for better context-aware responses
+    const res = await fetch('/api/ai-chat-enhanced', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req),
+      body: JSON.stringify({
+        messages: req.messages,
+        model: req.model || 'gpt-4o-mini',
+        temperature: req.temperature || 0.7,
+        sessionId: `session-${Date.now()}`, // Generate a session ID for tracking
+        saveToDatabase: false // Don't save to DB for now to avoid clutter
+      }),
     })
 
     if (!res.ok) {
@@ -27,7 +34,21 @@ export async function createChatCompletion(req: ChatRequest): Promise<string> {
         throw new Error('API endpoint requires authentication. Please check deployment settings.');
       }
       
-      throw new Error(`Chat request failed: ${res.status} ${detail.substring(0, 200)}`)
+      // Fallback to basic endpoint if enhanced fails
+      console.warn('Enhanced API failed, falling back to basic endpoint');
+      const fallbackRes = await fetch('/api/openai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req),
+      })
+      
+      if (!fallbackRes.ok) {
+        const fallbackDetail = await fallbackRes.text().catch(() => '')
+        throw new Error(`Chat request failed: ${fallbackRes.status} ${fallbackDetail.substring(0, 200)}`)
+      }
+      
+      const fallbackData = (await fallbackRes.json()) as { content?: string }
+      return fallbackData.content ?? ''
     }
 
     const data = (await res.json()) as { content?: string }
