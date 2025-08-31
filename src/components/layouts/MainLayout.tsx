@@ -26,7 +26,7 @@ import { cn } from '@/utils'
 import type { RootState } from '@/store'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'Home', href: '/', icon: Home },
   { name: 'Community Pulse', href: '/community', icon: Users },
   { name: 'Business Intelligence', href: '/business-intelligence', icon: BarChart3 },
   { name: 'AI Assistant', href: '/ai-assistant', icon: MessageSquare },

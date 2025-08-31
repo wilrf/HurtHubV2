@@ -218,6 +218,7 @@ export function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <h2 className="sr-only">Search Companies</h2>
           <BusinessSearch 
             onResults={setSearchResults}
             onBusinessSelect={setSelectedBusiness}
