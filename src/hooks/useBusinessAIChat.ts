@@ -88,67 +88,78 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
 
   const generateAIResponse = async (userMessage: string): Promise<string> => {
     try {
-      // Use enhanced API with database context
-      const response = await fetch('/api/ai-chat-enhanced', {
+      // Use simplified API first (more reliable)
+      const response = await fetch('/api/ai-chat-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
-            {
-              role: 'system',
-              content: module === 'business-intelligence'
-                ? `You are a Charlotte Business Intelligence AI assistant with access to real business data. 
-                   You have information on ${businesses.length} businesses across ${analytics?.topIndustries?.length || 0} industries.
-                   Focus on data-driven insights, market trends, competitive analysis, and business performance metrics.`
-                : `You are a Charlotte Community Pulse AI assistant with access to local business community data.
-                   You have information on ${businesses.length} businesses and community dynamics.
-                   Focus on community engagement, local business relationships, neighborhood economic patterns, and social impact.`
-            },
             { role: 'user', content: userMessage }
           ],
-          sessionId: `${module}-${Date.now()}`,
-          saveToDatabase: false // Don't save demo chats
+          module: module
         })
       });
 
       if (!response.ok) {
-        const error = await response.text().catch(() => '');
-        if (error.includes('Authentication Required') || error.includes('Vercel Authentication')) {
-          throw new Error('API endpoint requires authentication. Please check deployment settings.');
-        }
-        if (response.status === 404) {
-          throw new Error('API endpoint was not found. Please check the deployment.');
-        }
-        throw new Error(`Chat request failed: ${response.status} ${error.substring(0, 200)}`);
+        throw new Error(`Simple API failed: ${response.status}`);
       }
 
       const data = await response.json();
-      return data.content || 'Sorry, I could not generate a response.';
+      if (data.content) {
+        return data.content;
+      }
+      throw new Error('No content in response');
     } catch (error) {
-      // Fallback to basic API if enhanced fails
-      console.warn('Enhanced API failed, falling back to basic API:', error);
+      console.warn('Simple API failed, trying enhanced API:', error);
       
-      const messagesPayload = [
-        {
-          role: 'system',
-          content:
-            module === 'business-intelligence'
-              ? 'You are an assistant specialized in Charlotte business intelligence. Be concise and focus on practical insights.'
-              : 'You are an assistant focused on Charlotte community and economic pulse. Be concise and relevant.',
-        },
-        {
-          role: 'system',
-          content: `Context: dataset size=${businesses.length}, topIndustries=${analytics?.topIndustries?.length || 0}. Use this context qualitatively; do not invent precise numbers.`,
-        },
-        { role: 'user', content: userMessage },
-      ];
+      try {
+        // Fallback to enhanced API
+        const response = await fetch('/api/ai-chat-enhanced', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: module === 'business-intelligence'
+                  ? `You are a Charlotte Business Intelligence AI assistant. Focus on market trends and business analysis.`
+                  : `You are a Charlotte Community Pulse AI assistant. Focus on community engagement and local business relationships.`
+              },
+              { role: 'user', content: userMessage }
+            ],
+            sessionId: `${module}-${Date.now()}`,
+            saveToDatabase: false
+          })
+        });
 
-      const reply = await createChatCompletion({
-        messages: messagesPayload as any,
-        model: 'gpt-4o-mini',
-        temperature: 0.2,
-      });
-      return reply.trim();
+        if (!response.ok) {
+          throw new Error(`Enhanced API failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.content) {
+          return data.content;
+        }
+        throw new Error('No content in enhanced response');
+      } catch (enhancedError) {
+        console.warn('Enhanced API also failed, using basic fallback:', enhancedError);
+        
+        // Final fallback to basic OpenAI API
+        const messagesPayload = [
+          {
+            role: 'system',
+            content: `You are a Charlotte, NC business assistant. Provide helpful insights about Charlotte's business ecosystem.`
+          },
+          { role: 'user', content: userMessage },
+        ];
+
+        const reply = await createChatCompletion({
+          messages: messagesPayload as any,
+          model: 'gpt-4o-mini',
+          temperature: 0.2,
+        });
+        return reply.trim();
+      }
     }
   };
 
