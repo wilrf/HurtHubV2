@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { businessDataService } from '@/services/businessDataService'
 
-import type { BusinessAnalytics, Business, BusinessSearchResult } from '@/types/business'
+import type { BusinessAnalytics, Business } from '@/types/business'
 // Dark mode only - no theme switching
 
 export function Dashboard() {
@@ -27,7 +27,6 @@ export function Dashboard() {
   const navigate = useNavigate()
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [recentBusinesses, setRecentBusinesses] = useState<Business[]>([])
-  const [searchResults, setSearchResults] = useState<BusinessSearchResult | null>(null)
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -221,7 +220,6 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           <BusinessSearch 
-            onResults={setSearchResults}
             onBusinessSelect={setSelectedBusiness}
           />
         </CardContent>

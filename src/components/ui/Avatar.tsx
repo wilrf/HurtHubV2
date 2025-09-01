@@ -18,6 +18,7 @@ const avatarVariants = cva(
       variant: {
         default: 'bg-muted',
         primary: 'bg-primary text-primary-foreground',
+        secondary: 'bg-secondary text-secondary-foreground',
         glass: 'bg-glass backdrop-blur-md border-glass-border shadow-glow',
         midnight: 'bg-midnight-800 border-midnight-600 text-white',
       },

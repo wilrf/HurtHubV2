@@ -1,5 +1,5 @@
 import { Search, Filter } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -84,6 +84,13 @@ export function BusinessSearch({
     setCurrentPage,
     performSearch
   } = useBusinessSearch();
+
+  // Call onResults when results change
+  useEffect(() => {
+    if (onResults && results) {
+      onResults(results);
+    }
+  }, [results, onResults]);
 
   return (
     <div className={`${className}`}>
