@@ -39,32 +39,9 @@ export function BusinessAIChat({
   };
 
   return (
-    <Card
-      variant={isDarkMode ? "glass" : "elevated"}
-      className={`h-[600px] flex flex-col ${className}`}
-    >
-      <CardHeader className="pb-3 flex-shrink-0">
-        <CardTitle className="flex items-center text-lg">
-          {module === "business-intelligence" ? (
-            <>
-              <BarChart3 className="h-5 w-5 mr-2" />
-              Business Intelligence AI
-            </>
-          ) : (
-            <>
-              <MessageSquare className="h-5 w-5 mr-2" />
-              Community Pulse AI
-            </>
-          )}
-          <Badge variant="secondary" className="ml-2 text-xs">
-            <Sparkles className="h-3 w-3 mr-1" />
-            Enhanced with DB Context
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-
+    <div className={`flex flex-col ${className}`}>
       <CardContent className="flex-1 flex flex-col p-4 min-h-0">
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0">
+        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0 scrollbar-thin scrollbar-thumb-midnight-700 scrollbar-track-transparent">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -111,6 +88,6 @@ export function BusinessAIChat({
           />
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 }

@@ -154,10 +154,63 @@ async function searchContext(
   limit: number = 10
 ): Promise<VercelResponse> {
   try {
-    // Generate embedding for the search query
+    // Enhanced search with multiple strategies
+    const searchResults = await performEnhancedSearch(query, userId, limit);
+
+    return res.status(200).json({
+      query,
+      results: searchResults.map(r => ({
+        sessionId: r.sessionId,
+        messages: r.messages,
+        similarity: r.similarity,
+        relevance: r.relevance,
+        timestamp: r.timestamp,
+        context: r.context
+      })),
+      metadata: {
+        searchStrategy: searchResults.length > 0 ? 'enhanced' : 'fallback',
+        totalResults: searchResults.length,
+        queryTerms: extractSearchTerms(query)
+      }
+    });
+  } catch (error: any) {
+    throw new Error(`Failed to search context: ${error.message}`);
+  }
+}
+
+async function performEnhancedSearch(query: string, userId?: string, limit: number = 10) {
+  const results: any[] = [];
+
+  try {
+    // Strategy 1: Semantic search using embeddings
+    const semanticResults = await performSemanticSearch(query, userId, Math.ceil(limit / 2));
+    results.push(...semanticResults);
+
+    // Strategy 2: Keyword-based search
+    const keywordResults = await performKeywordSearch(query, userId, Math.ceil(limit / 2));
+    results.push(...keywordResults);
+
+    // Strategy 3: Recent conversation search
+    const recentResults = await performRecentSearch(query, userId, Math.ceil(limit / 3));
+    results.push(...recentResults);
+
+    // Remove duplicates and sort by relevance
+    const uniqueResults = removeDuplicates(results);
+    return uniqueResults
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, limit);
+
+  } catch (error) {
+    console.error('Enhanced search failed, using fallback:', error);
+    // Fallback to simple text search
+    return await performKeywordSearch(query, userId, limit);
+  }
+}
+
+async function performSemanticSearch(query: string, userId?: string, limit: number = 5) {
+  try {
     const queryEmbedding = await generateEmbedding(query);
 
-    // Perform semantic search using vector similarity
     let searchQuery = supabase
       .from('ai_conversations')
       .select('*');
@@ -166,31 +219,136 @@ async function searchContext(
       searchQuery = searchQuery.eq('user_id', userId);
     }
 
-    const { data, error } = await searchQuery;
+    const { data, error } = await searchQuery.limit(100); // Get more for better filtering
 
-    if (error) throw error;
+    if (error || !data) return [];
 
-    // Calculate similarity scores and sort
-    const results = data?.map(item => {
-      const similarity = cosineSimilarity(queryEmbedding, item.embeddings);
-      return { ...item, similarity };
-    })
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, limit);
+    const results = data
+      .filter(item => item.embeddings && item.embeddings.length > 0)
+      .map(item => {
+        // Calculate similarity with the first message embedding
+        const similarity = cosineSimilarity(queryEmbedding, item.embeddings[0] || []);
+        const relevance = similarity * 0.8; // Weight semantic similarity
 
-    return res.status(200).json({
-      query,
-      results: results?.map(r => ({
-        sessionId: r.session_id,
-        messages: r.messages,
-        similarity: r.similarity,
-        timestamp: r.created_at,
-      })),
-      count: results?.length || 0,
-    });
-  } catch (error: any) {
-    throw new Error(`Failed to search context: ${error.message}`);
+        return {
+          sessionId: item.session_id,
+          messages: item.messages,
+          similarity,
+          relevance,
+          timestamp: item.created_at,
+          context: 'semantic',
+          type: 'semantic'
+        };
+      })
+      .filter(item => item.similarity > 0.3) // Minimum similarity threshold
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, limit);
+
+    return results;
+  } catch (error) {
+    console.error('Semantic search failed:', error);
+    return [];
   }
+}
+
+async function performKeywordSearch(query: string, userId?: string, limit: number = 5) {
+  try {
+    const searchTerms = extractSearchTerms(query);
+
+    let searchQuery = supabase
+      .from('ai_conversations')
+      .select('*');
+
+    if (userId) {
+      searchQuery = searchQuery.eq('user_id', userId);
+    }
+
+    const { data, error } = await searchQuery.limit(50);
+
+    if (error || !data) return [];
+
+    const results = data
+      .map(item => {
+        const messagesText = item.messages.map((m: any) => m.content).join(' ').toLowerCase();
+        let relevance = 0;
+
+        // Calculate keyword relevance
+        searchTerms.forEach(term => {
+          const count = (messagesText.match(new RegExp(term, 'gi')) || []).length;
+          relevance += count * 0.1;
+        });
+
+        // Boost recent conversations
+        const daysSince = (Date.now() - new Date(item.created_at).getTime()) / (1000 * 60 * 60 * 24);
+        relevance += Math.max(0, 0.2 - (daysSince * 0.01));
+
+        return {
+          sessionId: item.session_id,
+          messages: item.messages,
+          similarity: relevance,
+          relevance,
+          timestamp: item.created_at,
+          context: 'keyword',
+          type: 'keyword'
+        };
+      })
+      .filter(item => item.relevance > 0.05) // Minimum relevance threshold
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, limit);
+
+    return results;
+  } catch (error) {
+    console.error('Keyword search failed:', error);
+    return [];
+  }
+}
+
+async function performRecentSearch(query: string, userId?: string, limit: number = 3) {
+  try {
+    let searchQuery = supabase
+      .from('ai_conversations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (userId) {
+      searchQuery = searchQuery.eq('user_id', userId);
+    }
+
+    const { data, error } = await searchQuery.limit(limit * 2);
+
+    if (error || !data) return [];
+
+    return data.map(item => ({
+      sessionId: item.session_id,
+      messages: item.messages,
+      similarity: 0.5, // Base relevance for recent items
+      relevance: 0.5,
+      timestamp: item.created_at,
+      context: 'recent',
+      type: 'recent'
+    }));
+  } catch (error) {
+    console.error('Recent search failed:', error);
+    return [];
+  }
+}
+
+function extractSearchTerms(query: string): string[] {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(term => term.length > 2)
+    .map(term => term.replace(/[^\w]/g, ''));
+}
+
+function removeDuplicates(results: any[]): any[] {
+  const seen = new Set();
+  return results.filter(item => {
+    const key = `${item.sessionId}-${item.type}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function summarizeContext(

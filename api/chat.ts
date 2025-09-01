@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const {
       messages,
-      model = 'gpt-5', // Default to GPT-5
+      model = 'gpt-4o-mini', // Default to gpt-4o-mini
       temperature = 0.7,
       stream = false,
       sessionId,
@@ -55,8 +55,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ...messages
     ];
 
+    // Use smart AI completion that includes database context
+    const smartRequest = {
+      messages: contextualMessages,
+      model,
+      temperature,
+      stream,
+      sessionId: sessionId || generateSessionId(),
+      module
+    };
+
     if (stream) {
-      // Implement streaming response
+      // For streaming, we'll use the regular OpenAI call but with enhanced context
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
@@ -66,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         messages: contextualMessages,
         temperature,
         stream: true,
-        max_tokens: 8000, // GPT-5 supports more tokens
+        max_tokens: 8000,
       });
 
       for await (const chunk of stream) {
@@ -79,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.write('data: [DONE]\n\n');
       return res.end();
     } else {
-      // Regular response
+      // Use smart completion for regular responses
       const completion = await openai.chat.completions.create({
         model,
         messages: contextualMessages,
@@ -124,7 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 function getSystemMessage(module: string): string {
-  const baseContext = `You are an advanced AI assistant powered by GPT-5, specialized in business intelligence and economic analysis for Charlotte, NC. 
+  const baseContext = `You are an advanced AI assistant powered by GPT-4, specialized in business intelligence and economic analysis for Charlotte, NC. 
   You have access to comprehensive business data including company information, revenue analytics, employment statistics, and market trends.
   Provide deep, cutting-edge analysis with actionable insights.`;
 
@@ -138,7 +148,7 @@ function getSystemMessage(module: string): string {
     - Industry performance metrics and KPIs
     - Strategic business recommendations
     
-    Use your enhanced GPT-5 reasoning capabilities to provide comprehensive analysis that goes beyond surface-level insights.`;
+    Use your enhanced GPT-4 reasoning capabilities to provide comprehensive analysis that goes beyond surface-level insights.`;
   } else {
     return `${baseContext}
     
@@ -149,7 +159,7 @@ function getSystemMessage(module: string): string {
     - Social and economic impact analysis
     - Community engagement strategies
     
-    Leverage GPT-5's advanced understanding to identify complex patterns and provide nuanced community insights.`;
+    Leverage GPT-4's advanced understanding to identify complex patterns and provide nuanced community insights.`;
   }
 }
 

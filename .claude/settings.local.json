@@ -53,7 +53,8 @@
       "Bash(npm run format:check:*)",
       "Bash(npm run format:*)",
       "Bash(npm run quality:*)",
-      "Bash(git rev-parse:*)"
+      "Bash(git rev-parse:*)",
+      "Bash(npm search:*)"
     ],
     "deny": [],
     "ask": []

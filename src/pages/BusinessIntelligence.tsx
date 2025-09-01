@@ -179,28 +179,28 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
-      {/* AI Assistant - Prominent Position with visible chat interface */}
-      <Card variant={isDarkMode ? "glass" : "elevated"}>
-        <CardHeader>
+      {/* AI Assistant - Expanded and Prominent */}
+      <Card variant={isDarkMode ? "glass" : "elevated"} className="mb-8">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-bold flex items-center">
-                <Activity className="h-6 w-6 mr-2 text-sapphire-400" />
+            <div className="flex-1">
+              <CardTitle className="text-2xl font-bold flex items-center mb-2">
+                <Activity className="h-7 w-7 mr-3 text-sapphire-400" />
                 AI Business Intelligence Assistant
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-base text-muted-foreground">
                 Ask questions about market trends, company performance, or get
                 strategic insights
               </p>
             </div>
-            <Badge variant="secondary" className="flex items-center">
-              <Sparkles className="h-3 w-3 mr-1" />
+            <Badge variant="secondary" className="flex items-center px-4 py-2">
+              <Sparkles className="h-4 w-4 mr-1" />
               AI Assistant
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <BusinessAIChat module="business-intelligence" />
+        <CardContent className="pt-0">
+          <BusinessAIChat module="business-intelligence" className="min-h-[700px]" />
         </CardContent>
       </Card>
 

@@ -29,6 +29,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const GPT5Test = lazy(() =>
   import("@/pages/GPT5Test").then((module) => ({ default: module.GPT5Test })),
 );
+const AISystemCheck = lazy(() => import("@/pages/AISystemCheck"));
 
 function App() {
   return (
@@ -122,6 +123,20 @@ function App() {
                           }
                         >
                           <GPT5Test />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="ai-system-check"
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className="flex h-96 items-center justify-center">
+                              <LoadingSpinner size="lg" />
+                            </div>
+                          }
+                        >
+                          <AISystemCheck />
                         </Suspense>
                       }
                     />

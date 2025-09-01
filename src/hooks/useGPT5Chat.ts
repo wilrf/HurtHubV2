@@ -197,7 +197,7 @@ How can I help you understand Charlotte's business community?`;
     setMessages((prev) => [...prev, streamMessage]);
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/ai-chat-simple", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
