@@ -57,7 +57,8 @@ class Environment {
         import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3001",
 
       // External Services
-      OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY,
+      OPENAI_API_KEY:
+        import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY,
       MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
       GOOGLE_ANALYTICS_ID: import.meta.env.VITE_GOOGLE_ANALYTICS_ID,
       SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
@@ -125,32 +126,34 @@ class Environment {
     }
 
     if (this.config.ENABLE_ANALYTICS && !this.config.GOOGLE_ANALYTICS_ID) {
-      warnings.push("⚠️ Analytics are enabled but GOOGLE_ANALYTICS_ID is not set");
+      warnings.push(
+        "⚠️ Analytics are enabled but GOOGLE_ANALYTICS_ID is not set",
+      );
     }
 
     // Log warnings (non-blocking)
-    warnings.forEach(warning => console.warn(warning));
+    warnings.forEach((warning) => console.warn(warning));
 
     // Handle errors
     if (errors.length > 0) {
       const errorMessage = `Environment configuration errors:\n${errors.join("\n")}`;
-      
+
       if (this.isProduction()) {
         // In production, try to recover gracefully instead of crashing
         console.error("🚨 PRODUCTION CONFIG ERROR:", errorMessage);
         console.warn("🔄 Attempting graceful recovery with fallback values...");
-        
+
         // Apply fallbacks for production
         if (!this.config.API_BASE_URL.startsWith("https://")) {
           this.config.API_BASE_URL = "https://hurt-hub-v2.vercel.app/api";
           console.warn("📡 Applied fallback API_BASE_URL");
         }
-        
+
         if (!this.config.WEBSOCKET_URL.startsWith("wss://")) {
           this.config.WEBSOCKET_URL = "wss://hurt-hub-v2.vercel.app";
           console.warn("🔌 Applied fallback WEBSOCKET_URL");
         }
-        
+
         console.log("✅ Configuration recovered, application will continue");
       } else {
         console.error(errorMessage);
@@ -175,7 +178,9 @@ class Environment {
       console.log("🚀 Production environment initialized");
       console.log(`📡 API: ${this.config.API_BASE_URL}`);
       console.log(`🔌 WebSocket: ${this.config.WEBSOCKET_URL}`);
-      console.log(`🤖 AI Features: ${this.config.ENABLE_AI_FEATURES ? "enabled" : "disabled"}`);
+      console.log(
+        `🤖 AI Features: ${this.config.ENABLE_AI_FEATURES ? "enabled" : "disabled"}`,
+      );
     }
   }
 
