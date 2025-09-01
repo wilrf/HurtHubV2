@@ -63,10 +63,10 @@ test.describe("Search Functionality", () => {
   test("should allow searching for companies", async ({ page }) => {
     await page.goto("/");
 
-    // Look for search input
+    // Look for search input - use first() to handle multiple matches
     const searchInput = page.locator(
       'input[type="search"], input[placeholder*="search" i]',
-    );
+    ).first();
     if (await searchInput.isVisible()) {
       await searchInput.fill("test company");
       await searchInput.press("Enter");
