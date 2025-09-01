@@ -7,13 +7,21 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
 
-// Initialize Supabase - Use correct Vercel environment variable names
-const supabaseUrl = process.env.SUPABASE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+// Initialize Supabase - Check standard names first, then fallback to Vercel's naming
+const supabaseUrl = process.env.SUPABASE_URL || 
+                    process.env.SUPABASE_SUPABASE_URL || 
+                    process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                    process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || '';
 
-// Log environment variable status (for debugging)
-console.log('Supabase URL exists:', !!supabaseUrl);
-console.log('Supabase Key exists:', !!supabaseKey);
+// Debug logging to verify environment variables
+console.log('Environment check:', {
+  hasSupabaseUrl: !!supabaseUrl,
+  hasSupabaseKey: !!supabaseKey,
+  hasOpenAI: !!process.env.OPENAI_API_KEY,
+  urlPrefix: supabaseUrl.substring(0, 30),
+  keyPrefix: supabaseKey.substring(0, 20)
+});
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -95,15 +103,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     console.error('AI Chat Error:', error);
     
+    // Add debugging info in development
+    const debugInfo = process.env.NODE_ENV !== 'production' ? {
+      hasOpenAI: !!process.env.OPENAI_API_KEY,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseKey,
+      errorType: error.constructor.name,
+      errorCode: error.code
+    } : {};
+    
     if (error.status === 401) {
       return res.status(401).json({
         error: 'Invalid OpenAI API key. Please check your configuration.',
+        debug: debugInfo
       });
     }
 
     return res.status(500).json({
       error: 'Failed to process chat request',
       details: error.message,
+      debug: debugInfo
     });
   }
 }

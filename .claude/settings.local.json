@@ -58,7 +58,11 @@
       "Bash(cat:*)",
       "Bash(firebase login:*)",
       "Bash(firebase:*)",
-      "Bash(npx firecrawl-mcp:*)"
+      "Bash(npx firecrawl-mcp:*)",
+      "Bash(npx playwright:*)",
+      "mcp__firecrawl__firecrawl_map",
+      "mcp__firecrawl__firecrawl_scrape",
+      "WebFetch(domain:supabase.com)"
     ],
     "deny": [],
     "ask": []
