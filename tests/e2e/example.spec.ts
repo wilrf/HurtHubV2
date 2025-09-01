@@ -71,8 +71,8 @@ test.describe("Search Functionality", () => {
       await searchInput.fill("test company");
       await searchInput.press("Enter");
 
-      // Wait for search results
-      await page.waitForTimeout(1000);
+      // Wait for search results (use proper wait instead of timeout)
+      await page.waitForLoadState('networkidle', { timeout: 5000 });
 
       // Check if search results are displayed
       await expect(page.locator("main")).toContainText(
