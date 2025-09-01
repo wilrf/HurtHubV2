@@ -71,7 +71,7 @@ export interface DashboardStatsResponse {
   marketValue: number
 }
 
-export interface TrendDataResponse {
+export type TrendDataResponse = {
   date: string
   value: number
   change: number

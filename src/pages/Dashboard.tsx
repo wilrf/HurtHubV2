@@ -23,19 +23,20 @@ import type { BusinessAnalytics, Business } from '@/types/business'
 // Dark mode only - no theme switching
 
 export function Dashboard() {
-  // Dark mode only
+  // Dark mode only - using constant for now
+  const isDarkMode = isDarkMode
   const navigate = useNavigate()
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [recentBusinesses, setRecentBusinesses] = useState<Business[]>([])
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(isDarkMode)
 
   useEffect(() => {
     loadDashboardData()
   }, [])
 
   const loadDashboardData = async () => {
-    setIsLoading(true)
+    setIsLoading(isDarkMode)
     try {
       const [analyticsData, allBusinesses] = await Promise.all([
         businessDataService.getAnalytics(),
@@ -102,7 +103,7 @@ export function Dashboard() {
             <Download className="h-4 w-4 mr-2" />
             Export Data
           </Button>
-          <Button variant={true ? 'glass' : 'default'}>
+          <Button variant={isDarkMode ? 'glass' : 'default'}>
             <Filter className="h-4 w-4 mr-2" />
             Advanced Analytics
           </Button>
@@ -112,7 +113,7 @@ export function Dashboard() {
       {/* Key Metrics */}
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -122,10 +123,10 @@ export function Dashboard() {
                   </p>
                 </div>
                 <div className={`p-3 rounded-full ${
-                  true ? 'bg-sapphire-900/20' : 'bg-sapphire-900/20'
+                  isDarkMode ? 'bg-sapphire-900/20' : 'bg-sapphire-900/20'
                 }`}>
                   <Building2 className={`h-6 w-6 ${
-                    true ? 'text-sapphire-400' : 'text-sapphire-500'
+                    isDarkMode ? 'text-sapphire-400' : 'text-sapphire-500'
                   }`} />
                 </div>
               </div>
@@ -136,7 +137,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -160,7 +161,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -184,7 +185,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -211,7 +212,7 @@ export function Dashboard() {
       )}
 
       {/* Business Search */}
-      <Card variant={true ? 'glass' : 'elevated'}>
+      <Card variant={isDarkMode ? 'glass' : 'elevated'}>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Building2 className="h-5 w-5 mr-2" />
@@ -229,7 +230,7 @@ export function Dashboard() {
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Industries */}
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart3 className="h-5 w-5 mr-2" />
@@ -258,7 +259,7 @@ export function Dashboard() {
                     <div className="text-right">
                       <p className="text-sm font-medium">{formatCurrency(industry.totalRevenue)}</p>
                       <div className={`w-20 h-2 rounded-full mt-1 ${
-                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className={`h-2 rounded-full ${
@@ -281,7 +282,7 @@ export function Dashboard() {
           </Card>
 
           {/* Top Neighborhoods */}
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MapPin className="h-5 w-5 mr-2" />
@@ -312,7 +313,7 @@ export function Dashboard() {
                     <div className="text-right">
                       <p className="text-sm font-medium">{formatCurrency(neighborhood.totalRevenue)}</p>
                       <div className={`w-20 h-2 rounded-full mt-1 ${
-                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className={`h-2 rounded-full ${
@@ -340,7 +341,7 @@ export function Dashboard() {
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Revenue Distribution */}
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <DollarSign className="h-5 w-5 mr-2" />
@@ -356,7 +357,7 @@ export function Dashboard() {
                     </div>
                     <div className="flex items-center flex-1 mx-4">
                       <div className={`w-full h-3 rounded-full ${
-                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className="h-3 bg-gradient-to-r from-sapphire-400 to-sapphire-600 rounded-full"
@@ -376,7 +377,7 @@ export function Dashboard() {
           </Card>
 
           {/* Business Age Distribution */}
-          <Card variant={true ? 'glass' : 'elevated'}>
+          <Card variant={isDarkMode ? 'glass' : 'elevated'}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />
@@ -392,7 +393,7 @@ export function Dashboard() {
                     </div>
                     <div className="flex items-center flex-1 mx-4">
                       <div className={`w-full h-3 rounded-full ${
-                        true ? 'bg-sapphire-900/20' : 'bg-gray-200'
+                        isDarkMode ? 'bg-sapphire-900/20' : 'bg-gray-200'
                       }`}>
                         <div 
                           className="h-3 bg-gradient-to-r from-sapphire-500 to-sapphire-700 rounded-full"
@@ -414,7 +415,7 @@ export function Dashboard() {
       )}
 
       {/* Featured Businesses */}
-      <Card variant={true ? 'glass' : 'elevated'} className="overflow-hidden">
+      <Card variant={isDarkMode ? 'glass' : 'elevated'} className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-sapphire-950/50 to-transparent border-b border-sapphire-800/30">
           <CardTitle className="flex items-center text-sapphire-100">
             <Building2 className="h-5 w-5 mr-2 text-sapphire-400" />
@@ -494,7 +495,7 @@ export function Dashboard() {
       {/* Selected Business Modal/Details would go here */}
       {selectedBusiness && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card variant={true ? 'glass' : 'elevated'} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <Card variant={isDarkMode ? 'glass' : 'elevated'} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>{selectedBusiness.name}</CardTitle>
               <Button

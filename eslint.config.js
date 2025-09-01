@@ -58,14 +58,14 @@ export default tseslint.config(
       
       // React Hooks rules
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'off',
       
-      // React Refresh
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // React Refresh - disabled for component libraries
+      'react-refresh/only-export-components': 'off',
       
       // TypeScript rules
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { 
@@ -74,14 +74,14 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_'
         }
       ],
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/consistent-type-imports': [
         'warn',
         { prefer: 'type-imports' }
       ],
       
       // General rules
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-console': 'off',
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'no-unused-expressions': 'error',

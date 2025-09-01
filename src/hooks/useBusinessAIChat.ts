@@ -23,9 +23,9 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
 
   const getWelcomeMessage = useCallback(() => {
     if (module === 'business-intelligence') {
-      return `👋 Hi! I\'m your Business Intelligence AI assistant. I have access to Charlotte\'s business data including ${businesses.length} businesses across ${analytics?.topIndustries.length || 0} industries.\n\nI can help you analyze market trends, compare businesses, identify opportunities, and answer questions about:\n• Industry performance and benchmarks\n• Revenue and employment analytics  \n• Geographic business distribution\n• Competitive landscape analysis\n• Growth patterns and market insights\n\nWhat would you like to explore today?`;
+      return `👋 Hi! I'm your Business Intelligence AI assistant. I have access to Charlotte's business data including ${businesses.length} businesses across ${analytics?.topIndustries.length || 0} industries.\n\nI can help you analyze market trends, compare businesses, identify opportunities, and answer questions about:\n• Industry performance and benchmarks\n• Revenue and employment analytics  \n• Geographic business distribution\n• Competitive landscape analysis\n• Growth patterns and market insights\n\nWhat would you like to explore today?`;
     } else {
-      return `👋 Welcome to Community Pulse AI! I\'m here to help you understand Charlotte\'s business community dynamics and trends.\n\nI can analyze:\n• Community business sentiment and engagement\n• Neighborhood economic development patterns\n• Local industry clusters and ecosystems\n• Business network connections and partnerships\n• Economic impact on different communities\n\nHow can I help you understand Charlotte\'s business community today?`;
+      return `👋 Welcome to Community Pulse AI! I'm here to help you understand Charlotte's business community dynamics and trends.\n\nI can analyze:\n• Community business sentiment and engagement\n• Neighborhood economic development patterns\n• Local industry clusters and ecosystems\n• Business network connections and partnerships\n• Economic impact on different communities\n\nHow can I help you understand Charlotte's business community today?`;
     }
   }, [module, businesses, analytics]);
 
@@ -110,7 +110,7 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
           messages: [
             { role: 'user', content: userMessage }
           ],
-          module: module,
+          module,
           model: 'gpt-4o-mini',
           temperature: 0.7
         })

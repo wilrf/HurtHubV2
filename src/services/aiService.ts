@@ -39,7 +39,11 @@ export async function createChatCompletion(req: ChatRequest): Promise<string> {
     const data = (await res.json()) as { content?: string }
     return data.content ?? ''
   } catch (error) {
-    throw error;
+    // Re-throw with more context
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Unknown error in chat completion');
   }
 }
 

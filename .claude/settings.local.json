@@ -38,7 +38,8 @@
       "Bash(git config:*)",
       "Bash(npm run pipeline:logs:*)",
       "Bash(npm audit:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

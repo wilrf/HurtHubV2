@@ -125,7 +125,7 @@ if (import.meta.env.MODE === 'test') {
 }
 
 // Custom matchers
-;(expect as any).extend({
+(expect as any).extend({
   toBeInTheDocument: (received: any) => {
     const pass = received && received.ownerDocument && received.ownerDocument === document
     return {
@@ -136,7 +136,7 @@ if (import.meta.env.MODE === 'test') {
 })
 
 // Global test utilities
-(globalThis as any).testUtils = {
+;(globalThis as any).testUtils = {
   // Helper to wait for next tick
   waitForNextTick: () => new Promise(resolve => setTimeout(resolve, 0)),
   
