@@ -42,7 +42,8 @@
       "Bash(npm run lint:*)",
       "Bash(git reset:*)",
       "Bash(git rm:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

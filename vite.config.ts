@@ -6,6 +6,12 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    exclude: ["tests/e2e/**", "node_modules/**", "dist/**", ".vercel/**"],
+  },
   css: {
     postcss: "./config/postcss.config.js",
   },
