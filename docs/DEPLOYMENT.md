@@ -18,12 +18,13 @@
    - Go to Settings → API
    - Copy these values:
      - `Project URL` → VITE_SUPABASE_URL
-     - `anon public` key → VITE_SUPABASE_ANON_KEY  
+     - `anon public` key → VITE_SUPABASE_ANON_KEY
      - `service_role` key → SUPABASE_SERVICE_ROLE_KEY (keep secret!)
 
 ### 2. Configure Environment Variables
 
 1. **Update `.env` file locally** with your Supabase credentials:
+
    ```env
    VITE_SUPABASE_URL="https://your-project.supabase.co"
    VITE_SUPABASE_ANON_KEY="your-anon-key"
@@ -42,16 +43,18 @@
 ### 3. Deploy to Vercel
 
 1. **Initial Setup** (if not done):
+
    ```bash
    npm install -g vercel
    vercel login
    ```
 
 2. **Deploy**:
+
    ```bash
    # Preview deployment
    vercel
-   
+
    # Production deployment
    vercel --prod
    ```
@@ -59,6 +62,7 @@
 ### 4. Verify Deployment
 
 After deployment, test these endpoints:
+
 - Homepage: `https://your-app.vercel.app`
 - Companies API: `https://your-app.vercel.app/api/companies`
 - AI Chat: `https://your-app.vercel.app/api/ai-chat-enhanced`
@@ -94,12 +98,12 @@ VITE_MAPBOX_ACCESS_TOKEN="pk...."
 
 Your app will have these API endpoints available:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/companies` | GET, POST, PUT, DELETE | Company CRUD operations |
-| `/api/economic-indicators` | GET, POST | Economic data |
-| `/api/ai-chat-enhanced` | POST | AI chat with database context |
-| `/api/openai-chat` | POST | Basic OpenAI chat |
+| Endpoint                   | Method                 | Description                   |
+| -------------------------- | ---------------------- | ----------------------------- |
+| `/api/companies`           | GET, POST, PUT, DELETE | Company CRUD operations       |
+| `/api/economic-indicators` | GET, POST              | Economic data                 |
+| `/api/ai-chat-enhanced`    | POST                   | AI chat with database context |
+| `/api/openai-chat`         | POST                   | Basic OpenAI chat             |
 
 ## Testing the Integration
 
@@ -114,10 +118,11 @@ Your app will have these API endpoints available:
    - Should respond with database context
 
 3. **Test API Endpoints**:
+
    ```bash
    # Test companies endpoint
    curl https://your-app.vercel.app/api/companies
-   
+
    # Test AI with database context
    curl -X POST https://your-app.vercel.app/api/ai-chat-enhanced \
      -H "Content-Type: application/json" \

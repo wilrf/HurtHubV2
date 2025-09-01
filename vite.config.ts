@@ -1,28 +1,28 @@
-import path from 'path'
+import path from "path";
 
-import react from '@vitejs/plugin-react-swc'
-import { defineConfig } from 'vite'
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   css: {
-    postcss: './config/postcss.config.js',
+    postcss: "./config/postcss.config.js",
   },
-  publicDir: 'public',
+  publicDir: "public",
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/hooks': path.resolve(__dirname, './src/hooks'),
-      '@/services': path.resolve(__dirname, './src/services'),
-      '@/utils': path.resolve(__dirname, './src/utils'),
-      '@/types': path.resolve(__dirname, './src/types'),
-      '@/constants': path.resolve(__dirname, './src/constants'),
-      '@/contexts': path.resolve(__dirname, './src/contexts'),
-      '@/store': path.resolve(__dirname, './src/store'),
-      '@/assets': path.resolve(__dirname, './src/assets'),
-      '@/styles': path.resolve(__dirname, './src/styles'),
+      "@": path.resolve(__dirname, "./src"),
+      "@/components": path.resolve(__dirname, "./src/components"),
+      "@/hooks": path.resolve(__dirname, "./src/hooks"),
+      "@/services": path.resolve(__dirname, "./src/services"),
+      "@/utils": path.resolve(__dirname, "./src/utils"),
+      "@/types": path.resolve(__dirname, "./src/types"),
+      "@/constants": path.resolve(__dirname, "./src/constants"),
+      "@/contexts": path.resolve(__dirname, "./src/contexts"),
+      "@/store": path.resolve(__dirname, "./src/store"),
+      "@/assets": path.resolve(__dirname, "./src/assets"),
+      "@/styles": path.resolve(__dirname, "./src/styles"),
     },
   },
   server: {
@@ -30,22 +30,22 @@ export default defineConfig({
     host: true,
   },
   build: {
-    outDir: 'dist',
+    outDir: "dist",
     sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          redux: ['@reduxjs/toolkit', 'react-redux'],
-          ui: ['@headlessui/react', 'framer-motion'],
-          charts: ['recharts'],
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          redux: ["@reduxjs/toolkit", "react-redux"],
+          ui: ["@headlessui/react", "framer-motion"],
+          charts: ["recharts"],
         },
       },
     },
     chunkSizeWarningLimit: 512,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: ["react", "react-dom", "react-router-dom"],
   },
-})
+});

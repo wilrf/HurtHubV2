@@ -8,6 +8,7 @@ Add these secrets to your repository:
 ### 1. Vercel Secrets
 
 #### VERCEL_TOKEN
+
 ```
 How to get:
 1. Go to https://vercel.com/account/tokens
@@ -17,6 +18,7 @@ How to get:
 ```
 
 #### VERCEL_ORG_ID
+
 ```
 How to get:
 1. Run: vercel whoami
@@ -25,6 +27,7 @@ How to get:
 ```
 
 #### VERCEL_PROJECT_ID
+
 ```
 How to get:
 1. Run: vercel link (in project directory)
@@ -35,6 +38,7 @@ How to get:
 ### 2. Optional Secrets (if using additional services)
 
 #### SUPABASE_SERVICE_KEY
+
 ```
 For server-side operations:
 1. Go to your Supabase project
@@ -43,6 +47,7 @@ For server-side operations:
 ```
 
 #### SENTRY_AUTH_TOKEN
+
 ```
 For error tracking:
 1. Go to https://sentry.io/settings/account/api/auth-tokens/
@@ -67,6 +72,7 @@ vercel project ls
 ## Verify Setup
 
 After adding secrets, trigger a deployment:
+
 1. Push to main branch for production deployment
 2. Create a PR for preview deployment
 

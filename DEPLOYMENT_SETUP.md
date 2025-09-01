@@ -1,6 +1,7 @@
 # Deployment Setup Guide
 
 ## Prerequisites
+
 - GitHub repository
 - Vercel account
 - Node.js 18+
@@ -10,16 +11,19 @@
 ### 1. Vercel Configuration
 
 1. Install Vercel CLI:
+
 ```bash
 npm install -g vercel
 ```
 
 2. Link your project to Vercel:
+
 ```bash
 vercel link
 ```
 
 3. Get your Vercel credentials:
+
 ```bash
 # Get your token
 vercel tokens create github-actions
@@ -41,6 +45,7 @@ Add the following secrets to your GitHub repository (Settings → Secrets and va
 Create the following environment files locally:
 
 #### `.env.local` (for local development)
+
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -48,6 +53,7 @@ VITE_API_URL=http://localhost:3000
 ```
 
 #### `.env.production` (for production)
+
 ```env
 VITE_SUPABASE_URL=your_production_supabase_url
 VITE_SUPABASE_ANON_KEY=your_production_supabase_anon_key
@@ -80,11 +86,13 @@ vercel env add VITE_API_URL preview
 ### Manual Deployments
 
 Use the deployment script:
+
 ```bash
 npm run deploy
 ```
 
 Or deploy directly:
+
 ```bash
 # Preview deployment
 npm run deploy:preview
@@ -96,16 +104,19 @@ npm run deploy:prod
 ## Monitoring
 
 ### Check deployment status:
+
 ```bash
 vercel list
 ```
 
 ### View logs:
+
 ```bash
 vercel logs [deployment-url]
 ```
 
 ### GitHub Actions:
+
 - Check the Actions tab in your GitHub repository
 - Monitor workflow runs and deployment status
 
@@ -119,6 +130,7 @@ vercel logs [deployment-url]
 4. **Missing environment variables**: Verify all required variables are set in Vercel
 
 ### Debug Commands:
+
 ```bash
 # Test build locally
 npm run build

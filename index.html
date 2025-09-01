@@ -4,69 +4,89 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Charlotte Economic Development Platform - Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area" />
-    <meta name="keywords" content="Charlotte, economic development, business analytics, North Carolina, companies, investments, real estate" />
+    <meta
+      name="description"
+      content="Charlotte Economic Development Platform - Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area"
+    />
+    <meta
+      name="keywords"
+      content="Charlotte, economic development, business analytics, North Carolina, companies, investments, real estate"
+    />
     <meta name="author" content="Charlotte Economic Development" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://charlotte-econdev.com/" />
-    <meta property="og:title" content="Charlotte Economic Development Platform" />
-    <meta property="og:description" content="Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area" />
+    <meta
+      property="og:title"
+      content="Charlotte Economic Development Platform"
+    />
+    <meta
+      property="og:description"
+      content="Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area"
+    />
     <meta property="og:image" content="/og-image.jpg" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://charlotte-econdev.com/" />
-    <meta property="twitter:title" content="Charlotte Economic Development Platform" />
-    <meta property="twitter:description" content="Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area" />
+    <meta
+      property="twitter:title"
+      content="Charlotte Economic Development Platform"
+    />
+    <meta
+      property="twitter:description"
+      content="Real-time economic intelligence and business analytics for the Greater Charlotte metropolitan area"
+    />
     <meta property="twitter:image" content="/twitter-image.jpg" />
 
     <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
+
     <!-- Load Inter font -->
-    <link 
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" 
-      rel="stylesheet" 
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
     />
-    
+
     <!-- Load JetBrains Mono for code -->
-    <link 
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" 
-      rel="stylesheet" 
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
     />
-    
+
     <!-- Theme color for mobile browsers -->
     <meta name="theme-color" content="#3b82f6" />
-    
+
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json" />
-    
+
     <!-- PWA specific meta tags -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Charlotte EconDev" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    
+
     <title>Charlotte Economic Development Platform</title>
-    
+
     <!-- Prevent FOUC (Flash of Unstyled Content) -->
     <script>
       // Set initial theme based on localStorage or system preference
-      (function() {
-        const savedTheme = localStorage.getItem('charlotte-econdev-theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-        
-        if (theme === 'dark' || (theme === 'system' && systemPrefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.classList.add('dark');
+      (function () {
+        const savedTheme = localStorage.getItem("charlotte-econdev-theme");
+        const systemPrefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = savedTheme || (systemPrefersDark ? "dark" : "light");
+
+        if (theme === "dark" || (theme === "system" && systemPrefersDark)) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.classList.add("dark");
         } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-          document.documentElement.classList.remove('dark');
+          document.documentElement.setAttribute("data-theme", "light");
+          document.documentElement.classList.remove("dark");
         }
       })();
     </script>
@@ -74,28 +94,41 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- Loading fallback for users with JavaScript disabled -->
     <noscript>
-      <div style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        font-family: Inter, system-ui, -apple-system, sans-serif;
-        background-color: #f9fafb;
-        color: #1f2937;
-        text-align: center;
-        padding: 2rem;
-      ">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          font-family:
+            Inter,
+            system-ui,
+            -apple-system,
+            sans-serif;
+          background-color: #f9fafb;
+          color: #1f2937;
+          text-align: center;
+          padding: 2rem;
+        "
+      >
         <div>
-          <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #3b82f6;">
+          <h1
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              margin-bottom: 1rem;
+              color: #3b82f6;
+            "
+          >
             Charlotte Economic Development Platform
           </h1>
-          <p style="font-size: 1.125rem; margin-bottom: 1.5rem;">
+          <p style="font-size: 1.125rem; margin-bottom: 1.5rem">
             This application requires JavaScript to function properly.
           </p>
-          <p style="color: #6b7280;">
+          <p style="color: #6b7280">
             Please enable JavaScript in your browser and refresh the page.
           </p>
         </div>
