@@ -24,7 +24,7 @@ import type { BusinessAnalytics, Business } from '@/types/business'
 
 export function Dashboard() {
   // Dark mode only - using constant for now
-  const isDarkMode = isDarkMode
+  const isDarkMode = true
   const navigate = useNavigate()
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null)
   const [recentBusinesses, setRecentBusinesses] = useState<Business[]>([])
