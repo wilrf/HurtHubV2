@@ -14,9 +14,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   };
 
   // Try to connect with available credentials
-  const supabaseUrl = process.env.SUPABASE_URL || 
-                      process.env.SUPABASE_SUPABASE_URL || 
-                      'https://osnbklmavnsxpgktdeun.supabase.co';
+  // IMPORTANT: Use correct project (osnbklmavnsxpgktdeun) not old one (vueccqtftltszqropcyk)
+  const supabaseUrl = process.env.SUPABASE_SUPABASE_URL ||  // Correct URL from Vercel integration
+                      process.env.VITE_SUPABASE_URL ||
+                      'https://osnbklmavnsxpgktdeun.supabase.co' ||  // Fallback to correct URL
+                      process.env.SUPABASE_URL;  // Wrong URL, only as last resort
   
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
                       process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY ||

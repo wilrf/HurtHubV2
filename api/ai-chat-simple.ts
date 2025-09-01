@@ -7,12 +7,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
 
-// Initialize Supabase - Check standard names first, then fallback to Vercel's naming
-const supabaseUrl = process.env.SUPABASE_URL || 
-                    process.env.SUPABASE_SUPABASE_URL || 
-                    process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-                    process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || '';
+// Initialize Supabase - IMPORTANT: Use the correct project URL
+// The correct project is osnbklmavnsxpgktdeun (has 299 companies)
+// NOT vueccqtftltszqropcyk (wrong/old project)
+const supabaseUrl = process.env.SUPABASE_SUPABASE_URL ||  // Use Vercel integration URL first (correct)
+                    process.env.VITE_SUPABASE_URL || 
+                    process.env.SUPABASE_URL ||  // This one has wrong URL, use as last resort
+                    'https://osnbklmavnsxpgktdeun.supabase.co';  // Fallback to correct URL
+const supabaseKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || 
+                    process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                    process.env.SUPABASE_ANON_KEY || '';
 
 // Debug logging to verify environment variables
 console.log('Environment check:', {
