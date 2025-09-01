@@ -30,7 +30,15 @@
       "Bash(cp:*)",
       "Bash(gh run view:*)",
       "Bash(gh run list:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(gh:*)",
+      "Bash(winget install:*)",
+      "Bash(npm run pipeline:check:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git config:*)",
+      "Bash(npm run pipeline:logs:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

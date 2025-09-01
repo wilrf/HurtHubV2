@@ -27,7 +27,10 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "quality": "npm run lint && npm run type-check && npm run format:check",
     "quality:fix": "npm run lint:fix && npm run format",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "pipeline:check": "node scripts/check-pipeline.js",
+    "pipeline:logs": "node scripts/fetch-logs.js",
+    "pipeline:watch": "watch -n 30 node scripts/check-pipeline.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -63,7 +66,6 @@
     "@types/node": "^20.5.9",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@vercel/node": "^2.3.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
