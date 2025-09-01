@@ -39,10 +39,5 @@
         }
       ]
     }
-  ],
-  "functions": {
-    "api/*.ts": {
-      "maxDuration": 10
-    }
-  }
+  ]
 }
