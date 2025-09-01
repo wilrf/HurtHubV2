@@ -5,7 +5,7 @@ import { forwardRef, type InputHTMLAttributes, useState } from 'react';
 import { cn } from '@/utils';
 
 const inputVariants = cva(
-  'flex w-full rounded-xl border bg-background px-4 py-3 text-sm transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
+  'flex w-full rounded-xl border bg-background px-4 py-3 text-sm transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 micro-hover border-pulse',
   {
     variants: {
       variant: {

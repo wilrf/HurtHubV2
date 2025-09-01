@@ -115,7 +115,7 @@ export function MainLayout() {
                 <span className='relative'>
                   {item.name}
                   {isActive && (
-                    <div className='absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gradient-to-r from-sapphire-400 to-transparent' />
+                    <div className='absolute -bottom-0.5 left-0 right-0 h-1 bg-gradient-to-r from-sapphire-400 to-transparent' />
                   )}
                 </span>
               </a>
@@ -207,8 +207,9 @@ export function MainLayout() {
                 variant='ghost'
                 size='icon'
                 aria-label='Settings'
+                className='relative micro-hover border border-transparent hover:border-primary/20'
               >
-                <Settings className='h-5 w-5' />
+                <Settings className='h-5 w-5 icon-bounce' />
               </Button>
 
               {/* User menu */}
@@ -217,7 +218,7 @@ export function MainLayout() {
                   src={user.avatar}
                   initials={`${user.firstName[0]}${user.lastName[0]}`}
                   variant='midnight'
-                  className='cursor-pointer hover:ring-2 hover:ring-ring transition-all duration-200'
+                  className='cursor-pointer hover:ring-2 hover:ring-ring transition-all duration-200 hover:border-primary/20'
                 />
               )}
             </div>
