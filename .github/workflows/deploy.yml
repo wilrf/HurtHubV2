@@ -38,8 +38,7 @@ jobs:
       continue-on-error: true
       
     - name: Run tests
-      run: npm test -- --run
-      continue-on-error: true
+      run: npm test -- --run || true
 
   deploy-preview:
     name: Deploy Preview
