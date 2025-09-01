@@ -26,7 +26,9 @@ const CompanyDetails = lazy(() => import("@/pages/CompanyDetails"));
 const BusinessProfile = lazy(() => import("@/pages/BusinessProfile"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
-const GPT5Test = lazy(() => import("@/pages/GPT5Test").then(module => ({ default: module.GPT5Test })));
+const GPT5Test = lazy(() =>
+  import("@/pages/GPT5Test").then((module) => ({ default: module.GPT5Test })),
+);
 
 function App() {
   return (

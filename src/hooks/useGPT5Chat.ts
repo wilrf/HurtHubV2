@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { 
-  createChatCompletion, 
-  retrieveContext, 
-  storeContext, 
+import { useState, useEffect, useRef } from "react";
+import {
+  createChatCompletion,
+  retrieveContext,
+  storeContext,
   summarizeConversation,
   performDeepAnalysis,
-  type ChatMessage,
-  type ChatResponse,
-  type AnalysisResponse 
+  type AnalysisResponse,
 } from "@/services/aiService";
 
 interface Message {
@@ -59,11 +57,13 @@ export function useGPT5Chat(options: UseGPT5ChatOptions = {}) {
     if (enableMemory) {
       const context = await retrieveContext(newSessionId, 20);
       if (context && context.messages) {
-        setMessages(context.messages.map((msg: any) => ({
-          ...msg,
-          id: msg.id || Date.now().toString(),
-          timestamp: new Date(msg.timestamp || Date.now()),
-        })));
+        setMessages(
+          context.messages.map((msg: any) => ({
+            ...msg,
+            id: msg.id || Date.now().toString(),
+            timestamp: new Date(msg.timestamp || Date.now()),
+          })),
+        );
         setConversationSummary(context.summary || "");
       }
     }
@@ -76,11 +76,11 @@ export function useGPT5Chat(options: UseGPT5ChatOptions = {}) {
       timestamp: new Date(),
       suggestions: getSuggestedQuestions(module),
     };
-    setMessages(prev => [...prev, welcomeMessage]);
+    setMessages((prev) => [...prev, welcomeMessage]);
   };
 
   const getWelcomeMessage = (module: string, model: string) => {
-    const gpt5Features = model.includes("gpt-5") 
+    const gpt5Features = model.includes("gpt-5")
       ? "I'm powered by GPT-5 with advanced reasoning, extended context memory, and deep analytical capabilities. "
       : "";
 
@@ -137,7 +137,7 @@ How can I help you understand Charlotte's business community?`;
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
@@ -163,7 +163,7 @@ How can I help you understand Charlotte's business community?`;
           suggestions: generateFollowUpQuestions(analysisResult),
         };
 
-        setMessages(prev => [...prev, analysisMessage]);
+        setMessages((prev) => [...prev, analysisMessage]);
       } else {
         // Regular chat with GPT-5
         if (enableStreaming) {
@@ -194,14 +194,14 @@ How can I help you understand Charlotte's business community?`;
       streaming: true,
     };
 
-    setMessages(prev => [...prev, streamMessage]);
+    setMessages((prev) => [...prev, streamMessage]);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages.slice(-5), userMessage].map(m => ({
+          messages: [...messages.slice(-5), userMessage].map((m) => ({
             role: m.role,
             content: m.content,
           })),
@@ -235,13 +235,15 @@ How can I help you understand Charlotte's business community?`;
               try {
                 const parsed = JSON.parse(data);
                 fullContent += parsed.content || "";
-                
-                setMessages(prev => prev.map(msg => 
-                  msg.id === streamMessage.id 
-                    ? { ...msg, content: fullContent, streaming: false }
-                    : msg
-                ));
-              } catch (e) {
+
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === streamMessage.id
+                      ? { ...msg, content: fullContent, streaming: false }
+                      : msg,
+                  ),
+                );
+              } catch (_e) {
                 // Skip invalid JSON
               }
             }
@@ -256,7 +258,7 @@ How can I help you understand Charlotte's business community?`;
 
   const handleRegularChat = async (userMessage: Message) => {
     const response = await createChatCompletion({
-      messages: [...messages.slice(-5), userMessage].map(m => ({
+      messages: [...messages.slice(-5), userMessage].map((m) => ({
         role: m.role as "user" | "assistant" | "system",
         content: m.content,
       })),
@@ -271,11 +273,14 @@ How can I help you understand Charlotte's business community?`;
       role: "assistant",
       content: response.content,
       timestamp: new Date(),
-      suggestions: Math.random() > 0.5 ? getSuggestedQuestions(module).slice(0, 3) : undefined,
+      suggestions:
+        Math.random() > 0.5
+          ? getSuggestedQuestions(module).slice(0, 3)
+          : undefined,
     };
 
-    setMessages(prev => [...prev, assistantMessage]);
-    
+    setMessages((prev) => [...prev, assistantMessage]);
+
     if (response.sessionId) {
       setSessionId(response.sessionId);
     }
@@ -283,15 +288,24 @@ How can I help you understand Charlotte's business community?`;
 
   const checkIfNeedsAnalysis = (input: string): boolean => {
     const analysisKeywords = [
-      "analyze", "analysis", "deep dive", "investigate", 
-      "examine", "assess", "evaluate", "compare", "predict"
+      "analyze",
+      "analysis",
+      "deep dive",
+      "investigate",
+      "examine",
+      "assess",
+      "evaluate",
+      "compare",
+      "predict",
     ];
-    return analysisKeywords.some(keyword => 
-      input.toLowerCase().includes(keyword)
+    return analysisKeywords.some((keyword) =>
+      input.toLowerCase().includes(keyword),
     );
   };
 
-  const determineAnalysisType = (input: string): "code" | "business" | "market" | "competitive" => {
+  const determineAnalysisType = (
+    input: string,
+  ): "code" | "business" | "market" | "competitive" => {
     if (input.includes("code") || input.includes("technical")) return "code";
     if (input.includes("market")) return "market";
     if (input.includes("compet")) return "competitive";
@@ -300,17 +314,17 @@ How can I help you understand Charlotte's business community?`;
 
   const formatAnalysisResponse = (analysis: AnalysisResponse): string => {
     let formatted = `## 📊 Deep Analysis Results\n\n${analysis.analysis}\n\n`;
-    
+
     if (analysis.insights.keyFindings.length > 0) {
       formatted += `### 🔍 Key Findings\n`;
-      analysis.insights.keyFindings.forEach(finding => {
+      analysis.insights.keyFindings.forEach((finding) => {
         formatted += `• ${finding}\n`;
       });
     }
 
     if (analysis.insights.recommendations.length > 0) {
       formatted += `\n### 💡 Recommendations\n`;
-      analysis.insights.recommendations.forEach(rec => {
+      analysis.insights.recommendations.forEach((rec) => {
         formatted += `• ${rec}\n`;
       });
     }
@@ -324,18 +338,22 @@ How can I help you understand Charlotte's business community?`;
 
   const generateFollowUpQuestions = (analysis: AnalysisResponse): string[] => {
     const questions: string[] = [];
-    
+
     if (analysis.insights.opportunities.length > 0) {
-      questions.push(`Tell me more about the opportunity: ${analysis.insights.opportunities[0]}`);
+      questions.push(
+        `Tell me more about the opportunity: ${analysis.insights.opportunities[0]}`,
+      );
     }
-    
+
     if (analysis.insights.risks.length > 0) {
-      questions.push(`How can we mitigate the risk: ${analysis.insights.risks[0]}`);
+      questions.push(
+        `How can we mitigate the risk: ${analysis.insights.risks[0]}`,
+      );
     }
-    
+
     questions.push("Can you provide a more detailed implementation plan?");
     questions.push("What are the success metrics for this strategy?");
-    
+
     return questions.slice(0, 3);
   };
 
@@ -346,24 +364,24 @@ How can I help you understand Charlotte's business community?`;
       content: `❌ I encountered an error: ${error.message || "Unknown error occurred"}. Please try again or rephrase your question.`,
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, errorMessage]);
+    setMessages((prev) => [...prev, errorMessage]);
   };
 
   const summarizeCurrentConversation = async () => {
     if (!sessionId || messages.length < 3) return;
-    
+
     setIsLoading(true);
     try {
       const summary = await summarizeConversation(sessionId);
       setConversationSummary(summary);
-      
+
       const summaryMessage: Message = {
         id: "summary",
         role: "system",
         content: `📝 **Conversation Summary:**\n\n${summary}`,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, summaryMessage]);
+      setMessages((prev) => [...prev, summaryMessage]);
     } catch (error) {
       console.error("Failed to summarize:", error);
     } finally {

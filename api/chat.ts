@@ -1,13 +1,12 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import OpenAI from 'openai';
 
 // Initialize OpenAI with GPT-5
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || '',
 });
 
 export const config = {
-  runtime: 'edge',
   maxDuration: 60,
 };
 

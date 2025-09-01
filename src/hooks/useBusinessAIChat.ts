@@ -148,7 +148,7 @@ export function useBusinessAIChat(
         model: "gpt-4o-mini",
         temperature: 0.7,
       });
-      return reply.trim();
+      return reply.content?.trim() || "";
     }
   };
 

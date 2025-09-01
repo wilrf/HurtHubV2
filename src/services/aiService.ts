@@ -52,7 +52,9 @@ export interface AnalysisResponse {
 }
 
 // GPT-5 Chat Completion with memory and context
-export async function createChatCompletion(req: ChatRequest): Promise<ChatResponse> {
+export async function createChatCompletion(
+  req: ChatRequest,
+): Promise<ChatResponse> {
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -69,7 +71,9 @@ export async function createChatCompletion(req: ChatRequest): Promise<ChatRespon
 
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
-      throw new Error(`GPT-5 API failed: ${res.status} - ${detail.substring(0, 200)}`);
+      throw new Error(
+        `GPT-5 API failed: ${res.status} - ${detail.substring(0, 200)}`,
+      );
     }
 
     if (req.stream) {
@@ -94,7 +98,9 @@ export async function createChatCompletion(req: ChatRequest): Promise<ChatRespon
 }
 
 // Deep Analysis with GPT-5's advanced reasoning
-export async function performDeepAnalysis(req: AnalysisRequest): Promise<AnalysisResponse> {
+export async function performDeepAnalysis(
+  req: AnalysisRequest,
+): Promise<AnalysisResponse> {
   try {
     const res = await fetch("/api/analyze", {
       method: "POST",
@@ -120,7 +126,10 @@ export async function performDeepAnalysis(req: AnalysisRequest): Promise<Analysi
 }
 
 // Context Management Functions
-export async function storeContext(sessionId: string, messages: ChatMessage[]): Promise<boolean> {
+export async function storeContext(
+  sessionId: string,
+  messages: ChatMessage[],
+): Promise<boolean> {
   try {
     const res = await fetch("/api/context", {
       method: "POST",
@@ -139,7 +148,10 @@ export async function storeContext(sessionId: string, messages: ChatMessage[]): 
   }
 }
 
-export async function retrieveContext(sessionId: string, limit: number = 10): Promise<any> {
+export async function retrieveContext(
+  sessionId: string,
+  limit: number = 10,
+): Promise<any> {
   try {
     const res = await fetch("/api/context", {
       method: "POST",
@@ -159,7 +171,10 @@ export async function retrieveContext(sessionId: string, limit: number = 10): Pr
   }
 }
 
-export async function searchContext(query: string, userId?: string): Promise<any> {
+export async function searchContext(
+  query: string,
+  userId?: string,
+): Promise<any> {
   try {
     const res = await fetch("/api/context", {
       method: "POST",
@@ -179,7 +194,9 @@ export async function searchContext(query: string, userId?: string): Promise<any
   }
 }
 
-export async function summarizeConversation(sessionId: string): Promise<string> {
+export async function summarizeConversation(
+  sessionId: string,
+): Promise<string> {
   try {
     const res = await fetch("/api/context", {
       method: "POST",
@@ -200,7 +217,9 @@ export async function summarizeConversation(sessionId: string): Promise<string> 
 }
 
 // Handle streaming responses from GPT-5
-async function handleStreamingResponse(response: Response): Promise<ChatResponse> {
+async function handleStreamingResponse(
+  response: Response,
+): Promise<ChatResponse> {
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
   let content = "";
@@ -223,7 +242,7 @@ async function handleStreamingResponse(response: Response): Promise<ChatResponse
           try {
             const parsed = JSON.parse(data);
             content += parsed.content || "";
-          } catch (e) {
+          } catch (_e) {
             // Skip invalid JSON
           }
         }

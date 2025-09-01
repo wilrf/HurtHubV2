@@ -49,7 +49,10 @@
       "Bash(msiexec:*)",
       "Bash(cmd /c \"C:\\Program Files\\GitHub CLI\\gh.exe\" --version)",
       "WebSearch",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run quality:*)"
     ],
     "deny": [],
     "ask": []

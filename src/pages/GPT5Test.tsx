@@ -3,24 +3,26 @@ import { useGPT5Chat } from "@/hooks/useGPT5Chat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { 
-  Sparkles, 
-  Brain, 
-  MessageSquare, 
-  Zap, 
-  Database, 
+import {
+  Sparkles,
+  Brain,
+  MessageSquare,
+  Zap,
+  Database,
   TrendingUp,
   Settings,
   Send,
   RotateCcw,
-  FileText
+  FileText,
 } from "lucide-react";
 
 export function GPT5Test() {
-  const [selectedModel, setSelectedModel] = useState<"gpt-5" | "gpt-5-pro">("gpt-5");
+  const [selectedModel, setSelectedModel] = useState<"gpt-5" | "gpt-5-pro">(
+    "gpt-5",
+  );
   const [enableStreaming, setEnableStreaming] = useState(true);
   const [enableMemory, setEnableMemory] = useState(true);
-  
+
   const {
     messages,
     input,
@@ -49,7 +51,8 @@ export function GPT5Test() {
             GPT-5 Integration Test
           </h1>
           <p className="text-gray-400">
-            Testing advanced AI capabilities with conversation memory and deep analysis
+            Testing advanced AI capabilities with conversation memory and deep
+            analysis
           </p>
         </div>
 
@@ -62,7 +65,7 @@ export function GPT5Test() {
                   <Sparkles className="h-3 w-3" />
                   {selectedModel.toUpperCase()}
                 </Badge>
-                <Badge variant={enableMemory ? "info" : "secondary"}>
+                <Badge variant={enableMemory ? "secondary" : "outline"}>
                   <Database className="h-3 w-3 mr-1" />
                   Memory: {enableMemory ? "ON" : "OFF"}
                 </Badge>
@@ -71,9 +74,11 @@ export function GPT5Test() {
                   Streaming: {enableStreaming ? "ON" : "OFF"}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400">Session: {sessionId.slice(0, 12)}...</span>
+                <span className="text-sm text-gray-400">
+                  Session: {sessionId.slice(0, 12)}...
+                </span>
               </div>
             </div>
           </CardContent>
@@ -91,14 +96,20 @@ export function GPT5Test() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Model</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Model
+                  </label>
                   <select
                     value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value as "gpt-5" | "gpt-5-pro")}
+                    onChange={(e) =>
+                      setSelectedModel(e.target.value as "gpt-5" | "gpt-5-pro")
+                    }
                     className="w-full p-2 bg-midnight-800 border border-midnight-700 rounded-lg"
                   >
                     <option value="gpt-5">GPT-5</option>
-                    <option value="gpt-5-pro">GPT-5 Pro (Extended Reasoning)</option>
+                    <option value="gpt-5-pro">
+                      GPT-5 Pro (Extended Reasoning)
+                    </option>
                   </select>
                 </div>
 
@@ -112,7 +123,7 @@ export function GPT5Test() {
                     />
                     <span className="text-sm">Enable Streaming</span>
                   </label>
-                  
+
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -134,7 +145,7 @@ export function GPT5Test() {
                     <FileText className="h-4 w-4 mr-2" />
                     Summarize Conversation
                   </Button>
-                  
+
                   <Button
                     onClick={clearConversation}
                     disabled={isLoading}
@@ -168,7 +179,10 @@ export function GPT5Test() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Context Length:</span>
-                    <span>{messages.reduce((acc, m) => acc + m.content.length, 0)} chars</span>
+                    <span>
+                      {messages.reduce((acc, m) => acc + m.content.length, 0)}{" "}
+                      chars
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -191,7 +205,9 @@ export function GPT5Test() {
                     <div
                       key={message.id}
                       className={`flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
+                        message.role === "user"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
@@ -199,8 +215,8 @@ export function GPT5Test() {
                           message.role === "user"
                             ? "bg-sapphire-900/50 border border-sapphire-800"
                             : message.role === "system"
-                            ? "bg-yellow-900/20 border border-yellow-800"
-                            : "bg-midnight-800 border border-midnight-700"
+                              ? "bg-yellow-900/20 border border-yellow-800"
+                              : "bg-midnight-800 border border-midnight-700"
                         }`}
                       >
                         <div className="text-xs text-gray-400 mb-1">
@@ -209,11 +225,15 @@ export function GPT5Test() {
                           {message.role === "system" && "System"}
                           {message.streaming && " (streaming...)"}
                         </div>
-                        <div className="whitespace-pre-wrap">{message.content}</div>
-                        
+                        <div className="whitespace-pre-wrap">
+                          {message.content}
+                        </div>
+
                         {message.suggestions && (
                           <div className="mt-3 pt-3 border-t border-midnight-700">
-                            <div className="text-xs text-gray-400 mb-2">Suggested follow-ups:</div>
+                            <div className="text-xs text-gray-400 mb-2">
+                              Suggested follow-ups:
+                            </div>
                             <div className="space-y-1">
                               {message.suggestions.map((suggestion, idx) => (
                                 <button
@@ -230,17 +250,19 @@ export function GPT5Test() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {isLoading && !messages[messages.length - 1]?.streaming && (
                     <div className="flex justify-start">
                       <div className="bg-midnight-800 border border-midnight-700 p-3 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div className="animate-pulse">Thinking with GPT-5...</div>
+                          <div className="animate-pulse">
+                            Thinking with GPT-5...
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
-                  
+
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -269,7 +291,9 @@ export function GPT5Test() {
             {conversationSummary && (
               <Card variant="glass" className="mt-4">
                 <CardHeader>
-                  <CardTitle className="text-sm">Conversation Summary</CardTitle>
+                  <CardTitle className="text-sm">
+                    Conversation Summary
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-400">{conversationSummary}</p>
