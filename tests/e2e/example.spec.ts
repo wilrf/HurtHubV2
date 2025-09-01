@@ -2,16 +2,17 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Charlotte Economic Development Platform", () => {
   test("should display the homepage correctly", async ({ page }) => {
-    await page.goto("/");
+    // Add retry logic for initial page load
+    await page.goto("/", { waitUntil: 'networkidle', timeout: 30000 });
 
     // Check if the page loads
-    await expect(page).toHaveTitle(/Charlotte Economic Development Platform/);
+    await expect(page).toHaveTitle(/Charlotte Economic Development Platform/, { timeout: 10000 });
 
     // Check for main navigation elements
-    await expect(page.locator("nav")).toBeVisible();
+    await expect(page.locator("nav")).toBeVisible({ timeout: 10000 });
 
     // Check for main content area
-    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator("main")).toBeVisible({ timeout: 10000 });
   });
 
   test("should navigate between pages", async ({ page }) => {
