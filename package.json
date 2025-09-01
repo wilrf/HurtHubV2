@@ -2,7 +2,7 @@
   "name": "charlotte-econdev-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "Charlotte Economic Development Platform - Real-time economic intelligence and business analytics",
+  "description": "Charlotte Economic Development Platform with GPT-5 - Real-time economic intelligence and business analytics",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
