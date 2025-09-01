@@ -43,7 +43,13 @@
       "Bash(git reset:*)",
       "Bash(git rm:*)",
       "Bash(npx prettier:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(powershell:*)",
+      "Bash(where gh.exe)",
+      "Bash(msiexec:*)",
+      "Bash(cmd /c \"C:\\Program Files\\GitHub CLI\\gh.exe\" --version)",
+      "WebSearch",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

@@ -177,7 +177,7 @@ class Environment {
   }
 
   get openaiApiKey(): string | undefined {
-    return undefined;
+    return this.config.OPENAI_API_KEY;
   }
 
   get mapboxAccessToken(): string | undefined {

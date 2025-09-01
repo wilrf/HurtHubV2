@@ -26,6 +26,7 @@ const CompanyDetails = lazy(() => import("@/pages/CompanyDetails"));
 const BusinessProfile = lazy(() => import("@/pages/BusinessProfile"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const GPT5Test = lazy(() => import("@/pages/GPT5Test").then(module => ({ default: module.GPT5Test })));
 
 function App() {
   return (
@@ -105,6 +106,20 @@ function App() {
                           }
                         >
                           <AIAssistant />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="gpt5-test"
+                      element={
+                        <Suspense
+                          fallback={
+                            <div className="flex h-96 items-center justify-center">
+                              <LoadingSpinner size="lg" />
+                            </div>
+                          }
+                        >
+                          <GPT5Test />
                         </Suspense>
                       }
                     />

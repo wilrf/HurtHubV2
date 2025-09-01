@@ -192,3 +192,5 @@ storybook-static
 /logs
 *.log
 .vercel
+
+.vercel
