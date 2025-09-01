@@ -210,9 +210,7 @@ export function BusinessIntelligence() {
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-muted-foreground">
-                  Market Size
-                </p>
+                <p className="text-sm text-muted-foreground">Market Size</p>
                 <DollarSign className="h-5 w-5 text-sapphire-400" />
               </div>
               <p className="text-3xl font-bold text-foreground">

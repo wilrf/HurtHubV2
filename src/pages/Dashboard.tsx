@@ -138,9 +138,7 @@ export function Dashboard() {
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-muted-foreground">
-                  Total Revenue
-                </p>
+                <p className="text-sm text-muted-foreground">Total Revenue</p>
                 <DollarSign className="h-5 w-5 text-sapphire-400" />
               </div>
               <p className="text-3xl font-bold text-foreground">
@@ -156,9 +154,7 @@ export function Dashboard() {
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-muted-foreground">
-                  Total Employees
-                </p>
+                <p className="text-sm text-muted-foreground">Total Employees</p>
                 <Users className="h-5 w-5 text-sapphire-400" />
               </div>
               <p className="text-3xl font-bold text-foreground">
