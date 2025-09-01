@@ -143,7 +143,7 @@ async function fetchRelevantBusinessData(query: string) {
         .select('*')
         .eq('status', 'active')
         .order('revenue', { ascending: false })
-        .limit(10);
+        .limit(50);
       
       if (error) {
         console.error('Supabase error fetching companies:', error);
@@ -210,17 +210,22 @@ async function fetchRelevantBusinessData(query: string) {
 
     // If no specific data was requested, get a general overview
     if (!needsCompanies && !needsDevelopments && !needsEconomic) {
-      // Get top companies
+      // Get count and top companies
+      const { count } = await supabase
+        .from('companies')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+      
       const { data: companies } = await supabase
         .from('companies')
         .select('name, industry, revenue, employees_count')
         .eq('status', 'active')
         .order('revenue', { ascending: false })
-        .limit(5);
+        .limit(10);
       
       if (companies) {
         data.companies = companies;
-        data.summary.overview = `${companies.length} top companies in database`;
+        data.summary.overview = `${count || companies.length} total companies in database`;
       }
     }
 

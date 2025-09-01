@@ -55,7 +55,9 @@
       "Bash(npm run quality:*)",
       "Bash(git rev-parse:*)",
       "Bash(npm search:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase:*)"
     ],
     "deny": [],
     "ask": []
