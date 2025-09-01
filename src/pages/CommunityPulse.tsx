@@ -352,7 +352,7 @@ export function CommunityPulse() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {neighborhoodPulse?.slice(0, 6).map((neighborhood, index) => {
+            {neighborhoodPulse?.slice(0, 6).map((neighborhood, _index) => {
               const getTrendIcon = () => {
                 if (neighborhood.trendDirection === 'up') return <TrendingUp className="h-4 w-4 text-sapphire-400" />
                 if (neighborhood.trendDirection === 'down') return <TrendingUp className="h-4 w-4 text-gray-500 rotate-180" />

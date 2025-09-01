@@ -102,7 +102,7 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
 
   const generateAIResponse = async (userMessage: string): Promise<string> => {
     try {
-      // Use simplified API first (more reliable)
+      // Use the consolidated Charlotte AI Chat API
       const response = await fetch('/api/ai-chat-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,12 +110,14 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
           messages: [
             { role: 'user', content: userMessage }
           ],
-          module: module
+          module: module,
+          model: 'gpt-4o-mini',
+          temperature: 0.7
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Simple API failed: ${response.status}`);
+        throw new Error(`Charlotte AI API failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -124,56 +126,25 @@ export function useBusinessAIChat(module: 'business-intelligence' | 'community-p
       }
       throw new Error('No content in response');
     } catch (error) {
-      console.warn('Simple API failed, trying enhanced API:', error);
+      console.warn('Charlotte AI API failed, using fallback:', error);
       
-      try {
-        // Fallback to enhanced API
-        const response = await fetch('/api/ai-chat-enhanced', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: 'system',
-                content: module === 'business-intelligence'
-                  ? `You are a Charlotte Business Intelligence AI assistant. Focus on market trends and business analysis.`
-                  : `You are a Charlotte Community Pulse AI assistant. Focus on community engagement and local business relationships.`
-              },
-              { role: 'user', content: userMessage }
-            ],
-            sessionId: `${module}-${Date.now()}`,
-            saveToDatabase: false
-          })
-        });
+      // Fallback to aiService with basic OpenAI integration
+      const messagesPayload = [
+        {
+          role: 'system',
+          content: module === 'business-intelligence'
+            ? `You are a Charlotte Business Intelligence AI assistant. Focus on market trends and business analysis for Charlotte, NC.`
+            : `You are a Charlotte Community Pulse AI assistant. Focus on community engagement and local business relationships in Charlotte, NC.`
+        },
+        { role: 'user', content: userMessage },
+      ];
 
-        if (!response.ok) {
-          throw new Error(`Enhanced API failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.content) {
-          return data.content;
-        }
-        throw new Error('No content in enhanced response');
-      } catch (enhancedError) {
-        console.warn('Enhanced API also failed, using basic fallback:', enhancedError);
-        
-        // Final fallback to basic OpenAI API
-        const messagesPayload = [
-          {
-            role: 'system',
-            content: `You are a Charlotte, NC business assistant. Provide helpful insights about Charlotte's business ecosystem.`
-          },
-          { role: 'user', content: userMessage },
-        ];
-
-        const reply = await createChatCompletion({
-          messages: messagesPayload as any,
-          model: 'gpt-4o-mini',
-          temperature: 0.2,
-        });
-        return reply.trim();
-      }
+      const reply = await createChatCompletion({
+        messages: messagesPayload as any,
+        model: 'gpt-4o-mini',
+        temperature: 0.7,
+      });
+      return reply.trim();
     }
   };
 

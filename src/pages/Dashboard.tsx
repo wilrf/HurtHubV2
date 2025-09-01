@@ -349,7 +349,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.revenueDistribution?.map((range, index) => (
+                {analytics.revenueDistribution?.map((range, _index) => (
                   <div key={range.range} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="text-sm font-medium min-w-[120px]">{range.range}</span>
@@ -385,7 +385,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.businessAgeDistribution?.map((age, index) => (
+                {analytics.businessAgeDistribution?.map((age, _index) => (
                   <div key={age.ageRange} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="text-sm font-medium min-w-[100px]">{age.ageRange}</span>

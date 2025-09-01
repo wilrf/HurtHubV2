@@ -8,8 +8,7 @@ import type {
   BusinessSearchFilters, 
   BusinessSearchResult,
   BusinessAnalytics,
-  BusinessSortField,
-  BusinessGroupBy
+  BusinessSortField
 } from '@/types/business'
 
 class BusinessDataService {

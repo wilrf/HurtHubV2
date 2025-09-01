@@ -28,7 +28,9 @@
       "Bash(taskkill:*)",
       "Bash(mkdir:*)",
       "Bash(cp:*)",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

@@ -112,9 +112,9 @@ export const supabaseAdmin = {
       const { data, error } = await supabase
         .from('chat_sessions')
         .insert({
-          user_id: userId,
+          user_id: userId || null,
           started_at: new Date().toISOString()
-        })
+        } as any)
         .select()
         .single()
       
@@ -127,10 +127,10 @@ export const supabaseAdmin = {
         .from('chat_messages')
         .insert({
           session_id: sessionId,
-          role,
+          role: role as 'user' | 'assistant' | 'system',
           content,
           created_at: new Date().toISOString()
-        })
+        } as any)
         .select()
         .single()
       

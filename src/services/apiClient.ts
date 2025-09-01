@@ -279,16 +279,16 @@ export class MockAPIClient {
     }
   }
 
-  async post<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+  async post<T = unknown>(_url: string, data?: unknown): Promise<ApiResponse<T>> {
     await this.delay(1000)
     return {
-      data: { id: crypto.randomUUID(), ...data } as T,
+      data: { id: crypto.randomUUID(), ...(typeof data === 'object' && data !== null ? data : {}) } as T,
       success: true,
       message: 'Mock created',
     }
   }
 
-  async put<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+  async put<T = unknown>(_url: string, data?: unknown): Promise<ApiResponse<T>> {
     await this.delay(800)
     return {
       data: data as T,
@@ -297,7 +297,7 @@ export class MockAPIClient {
     }
   }
 
-  async patch<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+  async patch<T = unknown>(_url: string, data?: unknown): Promise<ApiResponse<T>> {
     await this.delay(600)
     return {
       data: data as T,

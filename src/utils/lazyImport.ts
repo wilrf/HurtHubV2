@@ -14,7 +14,7 @@ export function lazyImport<
         default: module[name],
       }))
     ),
-  } as Record<U, T[U]>
+  } as unknown as Record<U, T[U]>
 }
 
 /**
@@ -23,5 +23,5 @@ export function lazyImport<
 export function lazyDefault<T extends ComponentType<any>>(
   factory: () => Promise<{ default: T }>
 ): T {
-  return lazy(factory)
+  return lazy(factory) as unknown as T
 }

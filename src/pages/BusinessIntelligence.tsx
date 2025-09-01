@@ -402,7 +402,7 @@ export function BusinessIntelligence() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analytics.monthlyTrends?.slice(0, 6).map((trend, index) => (
+                {analytics.monthlyTrends?.slice(0, 6).map((trend, _index) => (
                   <div key={trend.month} className="flex items-center justify-between">
                     <span className="text-sm font-medium">{trend.month}</span>
                     <div className="flex items-center">
