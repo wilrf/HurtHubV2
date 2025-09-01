@@ -1,26 +1,26 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import type { Company, CompanySearchFilters, PaginatedResponse } from '@/types'
+import type { Company, CompanySearchFilters, PaginatedResponse } from "@/types";
 
 interface CompaniesState {
-  companies: Company[]
-  selectedCompany: Company | null
-  searchResults: PaginatedResponse<Company> | null
-  filters: CompanySearchFilters
-  isLoading: boolean
-  error: string | null
-  recentSearches: string[]
+  companies: Company[];
+  selectedCompany: Company | null;
+  searchResults: PaginatedResponse<Company> | null;
+  filters: CompanySearchFilters;
+  isLoading: boolean;
+  error: string | null;
+  recentSearches: string[];
 }
 
 const getRecentSearches = (): string[] => {
   try {
-    const stored = localStorage.getItem('charlotte-econdev-recent-searches')
-    return stored ? JSON.parse(stored) : []
+    const stored = localStorage.getItem("charlotte-econdev-recent-searches");
+    return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.warn('Failed to parse recent searches from localStorage:', error)
-    return []
+    console.warn("Failed to parse recent searches from localStorage:", error);
+    return [];
   }
-}
+};
 
 const initialState: CompaniesState = {
   companies: [],
@@ -30,110 +30,124 @@ const initialState: CompaniesState = {
   isLoading: false,
   error: null,
   recentSearches: getRecentSearches(),
-}
+};
 
 export const companiesSlice = createSlice({
-  name: 'companies',
+  name: "companies",
   initialState,
   reducers: {
     // Loading states
     setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload
+      state.isLoading = action.payload;
       if (action.payload) {
-        state.error = null
+        state.error = null;
       }
     },
     setError: (state, action: PayloadAction<string>) => {
-      state.error = action.payload
-      state.isLoading = false
+      state.error = action.payload;
+      state.isLoading = false;
     },
-    clearError: state => {
-      state.error = null
+    clearError: (state) => {
+      state.error = null;
     },
 
     // Companies data
     setCompanies: (state, action: PayloadAction<Company[]>) => {
-      state.companies = action.payload
-      state.isLoading = false
-      state.error = null
+      state.companies = action.payload;
+      state.isLoading = false;
+      state.error = null;
     },
     addCompany: (state, action: PayloadAction<Company>) => {
-      state.companies.unshift(action.payload)
+      state.companies.unshift(action.payload);
     },
     updateCompany: (state, action: PayloadAction<Company>) => {
-      const index = state.companies.findIndex(c => c.id === action.payload.id)
+      const index = state.companies.findIndex(
+        (c) => c.id === action.payload.id,
+      );
       if (index !== -1) {
-        state.companies[index] = action.payload
+        state.companies[index] = action.payload;
       }
       if (state.selectedCompany?.id === action.payload.id) {
-        state.selectedCompany = action.payload
+        state.selectedCompany = action.payload;
       }
     },
     removeCompany: (state, action: PayloadAction<string>) => {
-      state.companies = state.companies.filter(c => c.id !== action.payload)
+      state.companies = state.companies.filter((c) => c.id !== action.payload);
       if (state.selectedCompany?.id === action.payload) {
-        state.selectedCompany = null
+        state.selectedCompany = null;
       }
     },
 
     // Selected company
     setSelectedCompany: (state, action: PayloadAction<Company | null>) => {
-      state.selectedCompany = action.payload
+      state.selectedCompany = action.payload;
     },
 
     // Search functionality
-    setSearchResults: (state, action: PayloadAction<PaginatedResponse<Company>>) => {
-      state.searchResults = action.payload
-      state.isLoading = false
-      state.error = null
+    setSearchResults: (
+      state,
+      action: PayloadAction<PaginatedResponse<Company>>,
+    ) => {
+      state.searchResults = action.payload;
+      state.isLoading = false;
+      state.error = null;
     },
-    clearSearchResults: state => {
-      state.searchResults = null
+    clearSearchResults: (state) => {
+      state.searchResults = null;
     },
     setFilters: (state, action: PayloadAction<CompanySearchFilters>) => {
-      state.filters = action.payload
+      state.filters = action.payload;
     },
-    updateFilters: (state, action: PayloadAction<Partial<CompanySearchFilters>>) => {
-      state.filters = { ...state.filters, ...action.payload }
+    updateFilters: (
+      state,
+      action: PayloadAction<Partial<CompanySearchFilters>>,
+    ) => {
+      state.filters = { ...state.filters, ...action.payload };
     },
-    clearFilters: state => {
-      state.filters = {}
+    clearFilters: (state) => {
+      state.filters = {};
     },
 
     // Recent searches
     addRecentSearch: (state, action: PayloadAction<string>) => {
-      const query = action.payload.trim()
+      const query = action.payload.trim();
       if (query) {
         state.recentSearches = [
           query,
-          ...state.recentSearches.filter(s => s !== query),
-        ].slice(0, 10)
+          ...state.recentSearches.filter((s) => s !== query),
+        ].slice(0, 10);
         try {
           localStorage.setItem(
-            'charlotte-econdev-recent-searches',
-            JSON.stringify(state.recentSearches)
-          )
+            "charlotte-econdev-recent-searches",
+            JSON.stringify(state.recentSearches),
+          );
         } catch (error) {
-          console.warn('Failed to save recent searches to localStorage:', error)
+          console.warn(
+            "Failed to save recent searches to localStorage:",
+            error,
+          );
         }
       }
     },
-    clearRecentSearches: state => {
-      state.recentSearches = []
-      localStorage.removeItem('charlotte-econdev-recent-searches')
+    clearRecentSearches: (state) => {
+      state.recentSearches = [];
+      localStorage.removeItem("charlotte-econdev-recent-searches");
     },
 
     // Bulk operations
-    setCompaniesFromSearch: (state, action: PayloadAction<PaginatedResponse<Company>>) => {
-      state.searchResults = action.payload
+    setCompaniesFromSearch: (
+      state,
+      action: PayloadAction<PaginatedResponse<Company>>,
+    ) => {
+      state.searchResults = action.payload;
       // Also update the main companies array if it's empty
       if (state.companies.length === 0) {
-        state.companies = action.payload.data
+        state.companies = action.payload.data;
       }
-      state.isLoading = false
-      state.error = null
+      state.isLoading = false;
+      state.error = null;
     },
   },
-})
+});
 
-export const companiesActions = companiesSlice.actions
+export const companiesActions = companiesSlice.actions;

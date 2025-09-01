@@ -1,20 +1,20 @@
-import '@testing-library/jest-dom'
-import { cleanup } from '@testing-library/react'
-import { expect, afterEach, vi } from 'vitest'
+import "@testing-library/jest-dom";
+import { cleanup } from "@testing-library/react";
+import { expect, afterEach, vi } from "vitest";
 
 // Cleanup after each test case
 afterEach(() => {
-  cleanup()
-})
+  cleanup();
+});
 
 // Mock environment variables for testing
-vi.mock('../config/env', () => ({
+vi.mock("../config/env", () => ({
   env: {
-    appName: 'Charlotte Economic Development Platform',
-    appVersion: '1.0.0',
-    appEnv: 'test',
-    apiBaseUrl: 'http://localhost:3001/api/v1',
-    websocketUrl: 'ws://localhost:3001',
+    appName: "Charlotte Economic Development Platform",
+    appVersion: "1.0.0",
+    appEnv: "test",
+    apiBaseUrl: "http://localhost:3001/api/v1",
+    websocketUrl: "ws://localhost:3001",
     enableAIFeatures: false,
     enableRealTime: true,
     enableAnalytics: false,
@@ -30,54 +30,54 @@ vi.mock('../config/env', () => ({
     hasAnalytics: () => false,
     hasSentry: () => false,
   },
-}))
+}));
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {}
+  let store: Record<string, string> = {};
 
   return {
     getItem: vi.fn((key: string) => store[key] || null),
     setItem: vi.fn((key: string, value: string) => {
-      store[key] = value.toString()
+      store[key] = value.toString();
     }),
     removeItem: vi.fn((key: string) => {
-      delete store[key]
+      delete store[key];
     }),
     clear: vi.fn(() => {
-      store = {}
+      store = {};
     }),
-  }
-})()
+  };
+})();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
-})
+});
 
 // Mock sessionStorage
 const sessionStorageMock = (() => {
-  let store: Record<string, string> = {}
+  let store: Record<string, string> = {};
 
   return {
     getItem: vi.fn((key: string) => store[key] || null),
     setItem: vi.fn((key: string, value: string) => {
-      store[key] = value.toString()
+      store[key] = value.toString();
     }),
     removeItem: vi.fn((key: string) => {
-      delete store[key]
+      delete store[key];
     }),
     clear: vi.fn(() => {
-      store = {}
+      store = {};
     }),
-  }
-})()
+  };
+})();
 
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(window, "sessionStorage", {
   value: sessionStorageMock,
-})
+});
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
@@ -89,31 +89,33 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock crypto.randomUUID
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(global, "crypto", {
   value: {
-    randomUUID: vi.fn(() => `test-uuid-${  Math.random().toString(36).substr(2, 9)}`),
+    randomUUID: vi.fn(
+      () => `test-uuid-${Math.random().toString(36).substr(2, 9)}`,
+    ),
   },
-})
+});
 
 // Mock console methods in test environment
-if (import.meta.env.MODE === 'test') {
+if (import.meta.env.MODE === "test") {
   global.console = {
     ...console,
     log: vi.fn(),
@@ -121,37 +123,39 @@ if (import.meta.env.MODE === 'test') {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-  }
+  };
 }
 
 // Custom matchers
 (expect as any).extend({
   toBeInTheDocument: (received: any) => {
-    const pass = received && received.ownerDocument && received.ownerDocument === document
+    const pass =
+      received && received.ownerDocument && received.ownerDocument === document;
     return {
-      message: () => `expected element ${pass ? 'not ' : ''}to be in the document`,
+      message: () =>
+        `expected element ${pass ? "not " : ""}to be in the document`,
       pass,
-    }
+    };
   },
-})
+});
 
 // Global test utilities
-;(globalThis as any).testUtils = {
+(globalThis as any).testUtils = {
   // Helper to wait for next tick
-  waitForNextTick: () => new Promise(resolve => setTimeout(resolve, 0)),
-  
+  waitForNextTick: () => new Promise((resolve) => setTimeout(resolve, 0)),
+
   // Helper to create mock company data
   createMockCompany: (overrides = {}) => ({
-    id: `test-company-${  Math.random().toString(36).substr(2, 9)}`,
-    name: 'Test Company',
-    industry: 'Technology',
+    id: `test-company-${Math.random().toString(36).substr(2, 9)}`,
+    name: "Test Company",
+    industry: "Technology",
     location: {
       headquarters: {
-        street: '123 Test St',
-        city: 'Charlotte',
-        state: 'NC',
-        zipCode: '28202',
-        country: 'USA',
+        street: "123 Test St",
+        city: "Charlotte",
+        state: "NC",
+        zipCode: "28202",
+        country: "USA",
       },
     },
     metrics: {
@@ -165,27 +169,27 @@ if (import.meta.env.MODE === 'test') {
     updatedAt: new Date().toISOString(),
     ...overrides,
   }),
-  
+
   // Helper to create mock user data
   createMockUser: (overrides = {}) => ({
-    id: `test-user-${  Math.random().toString(36).substr(2, 9)}`,
-    email: 'test@example.com',
-    firstName: 'Test',
-    lastName: 'User',
-    role: 'user',
+    id: `test-user-${Math.random().toString(36).substr(2, 9)}`,
+    email: "test@example.com",
+    firstName: "Test",
+    lastName: "User",
+    role: "user",
     permissions: [],
     preferences: {
-      theme: 'light' as const,
+      theme: "light" as const,
       notifications: {
         email: true,
         push: false,
         inApp: true,
       },
       dashboard: {
-        layout: 'grid' as const,
+        layout: "grid" as const,
         compactMode: false,
       },
     },
     ...overrides,
   }),
-}
+};

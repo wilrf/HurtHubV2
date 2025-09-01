@@ -1,15 +1,15 @@
-import { Search, Filter } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
 
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { useBusinessSearch } from '@/hooks/useBusinessSearch';
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { useBusinessSearch } from "@/hooks/useBusinessSearch";
 
-import { SearchFilters } from './SearchFilters';
-import { SearchResults } from './SearchResults';
+import { SearchFilters } from "./SearchFilters";
+import { SearchResults } from "./SearchResults";
 
-import type { Business, BusinessSearchResult } from '@/types/business';
+import type { Business, BusinessSearchResult } from "@/types/business";
 
 interface SearchInputProps {
   query: string;
@@ -21,7 +21,15 @@ interface SearchInputProps {
   setShowFiltersPanel: (show: boolean) => void;
 }
 
-function SearchInput({ query, setQuery, placeholder, showFilters, activeFiltersCount, showFiltersPanel, setShowFiltersPanel }: SearchInputProps) {
+function SearchInput({
+  query,
+  setQuery,
+  placeholder,
+  showFilters,
+  activeFiltersCount,
+  showFiltersPanel,
+  setShowFiltersPanel,
+}: SearchInputProps) {
   return (
     <div className="relative">
       <Input
@@ -32,7 +40,7 @@ function SearchInput({ query, setQuery, placeholder, showFilters, activeFiltersC
         leftIcon={<Search className="h-4 w-4" />}
         className="pr-24"
       />
-      
+
       {showFilters && (
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {activeFiltersCount > 0 && (
@@ -44,7 +52,7 @@ function SearchInput({ query, setQuery, placeholder, showFilters, activeFiltersC
             variant="ghost"
             size="sm"
             onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-            className={`p-1 ${showFiltersPanel ? 'text-primary' : ''}`}
+            className={`p-1 ${showFiltersPanel ? "text-primary" : ""}`}
           >
             <Filter className="h-4 w-4" />
           </Button>
@@ -62,12 +70,12 @@ interface BusinessSearchProps {
   className?: string;
 }
 
-export function BusinessSearch({ 
-  onResults, 
+export function BusinessSearch({
+  onResults,
   onBusinessSelect,
-  showFilters = true, 
+  showFilters = true,
   placeholder = "Search businesses by name, industry, or location...",
-  className = ""
+  className = "",
 }: BusinessSearchProps) {
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
   const {
@@ -82,7 +90,7 @@ export function BusinessSearch({
     isLoading,
     currentPage,
     setCurrentPage,
-    performSearch
+    performSearch,
   } = useBusinessSearch();
 
   // Call onResults when results change
@@ -94,37 +102,37 @@ export function BusinessSearch({
 
   return (
     <div className={`${className}`}>
-      <SearchInput 
-        query={query} 
-        setQuery={setQuery} 
-        placeholder={placeholder} 
-        showFilters={showFilters} 
-        activeFiltersCount={activeFiltersCount} 
-        showFiltersPanel={showFiltersPanel} 
-        setShowFiltersPanel={setShowFiltersPanel} 
+      <SearchInput
+        query={query}
+        setQuery={setQuery}
+        placeholder={placeholder}
+        showFilters={showFilters}
+        activeFiltersCount={activeFiltersCount}
+        showFiltersPanel={showFiltersPanel}
+        setShowFiltersPanel={setShowFiltersPanel}
       />
 
       {showFilters && showFiltersPanel && filterOptions && (
-        <SearchFilters 
-          filters={filters} 
-          handleFilterChange={handleFilterChange} 
-          clearAllFilters={clearAllFilters} 
-          activeFiltersCount={activeFiltersCount} 
-          filterOptions={filterOptions} 
+        <SearchFilters
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          clearAllFilters={clearAllFilters}
+          activeFiltersCount={activeFiltersCount}
+          filterOptions={filterOptions}
         />
       )}
 
       {results && (
-        <SearchResults 
-          results={results} 
-          isLoading={isLoading} 
-          filters={filters} 
-          handleFilterChange={handleFilterChange} 
-          onBusinessSelect={onBusinessSelect} 
-          currentPage={currentPage} 
-          setCurrentPage={setCurrentPage} 
-          performSearch={performSearch} 
-          query={query} 
+        <SearchResults
+          results={results}
+          isLoading={isLoading}
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          onBusinessSelect={onBusinessSelect}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          performSearch={performSearch}
+          query={query}
         />
       )}
     </div>

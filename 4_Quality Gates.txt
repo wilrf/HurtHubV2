@@ -1,0 +1,370 @@
+﻿2025-09-01T15:21:42.0154137Z Current runner version: '2.328.0'
+2025-09-01T15:21:42.0188287Z ##[group]Runner Image Provisioner
+2025-09-01T15:21:42.0189421Z Hosted Compute Agent
+2025-09-01T15:21:42.0190394Z Version: 20250829.383
+2025-09-01T15:21:42.0191251Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-01T15:21:42.0192655Z Build Date: 2025-08-29T13:48:48Z
+2025-09-01T15:21:42.0193567Z ##[endgroup]
+2025-09-01T15:21:42.0194394Z ##[group]Operating System
+2025-09-01T15:21:42.0195356Z Ubuntu
+2025-09-01T15:21:42.0196094Z 24.04.3
+2025-09-01T15:21:42.0196814Z LTS
+2025-09-01T15:21:42.0197428Z ##[endgroup]
+2025-09-01T15:21:42.0198346Z ##[group]Runner Image
+2025-09-01T15:21:42.0199184Z Image: ubuntu-24.04
+2025-09-01T15:21:42.0200054Z Version: 20250824.1.0
+2025-09-01T15:21:42.0201683Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250824.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-01T15:21:42.0204495Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250824.1
+2025-09-01T15:21:42.0206336Z ##[endgroup]
+2025-09-01T15:21:42.0207983Z ##[group]GITHUB_TOKEN Permissions
+2025-09-01T15:21:42.0210561Z Contents: read
+2025-09-01T15:21:42.0211331Z Metadata: read
+2025-09-01T15:21:42.0212547Z Packages: read
+2025-09-01T15:21:42.0213520Z ##[endgroup]
+2025-09-01T15:21:42.0216840Z Secret source: Actions
+2025-09-01T15:21:42.0218510Z Prepare workflow directory
+2025-09-01T15:21:42.0943952Z Prepare all required actions
+2025-09-01T15:21:42.1000122Z Getting action download info
+2025-09-01T15:21:42.3301303Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-09-01T15:21:42.4288434Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2025-09-01T15:21:42.6204857Z Complete job name: Quality Gates
+2025-09-01T15:21:42.6842590Z ##[group]Run actions/checkout@v4
+2025-09-01T15:21:42.6843468Z with:
+2025-09-01T15:21:42.6843857Z   repository: wilrf/HurtHubV2
+2025-09-01T15:21:42.6844482Z   token: ***
+2025-09-01T15:21:42.6844861Z   ssh-strict: true
+2025-09-01T15:21:42.6845259Z   ssh-user: git
+2025-09-01T15:21:42.6845652Z   persist-credentials: true
+2025-09-01T15:21:42.6846080Z   clean: true
+2025-09-01T15:21:42.6846583Z   sparse-checkout-cone-mode: true
+2025-09-01T15:21:42.6847051Z   fetch-depth: 1
+2025-09-01T15:21:42.6847430Z   fetch-tags: false
+2025-09-01T15:21:42.6847817Z   show-progress: true
+2025-09-01T15:21:42.6848211Z   lfs: false
+2025-09-01T15:21:42.6848572Z   submodules: false
+2025-09-01T15:21:42.6848965Z   set-safe-directory: true
+2025-09-01T15:21:42.6849614Z env:
+2025-09-01T15:21:42.6849955Z   VERCEL_ORG_ID: 
+2025-09-01T15:21:42.6850336Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:21:42.6850728Z   NODE_VERSION: 18
+2025-09-01T15:21:42.6851094Z ##[endgroup]
+2025-09-01T15:21:42.7972382Z Syncing repository: wilrf/HurtHubV2
+2025-09-01T15:21:42.7974155Z ##[group]Getting Git version info
+2025-09-01T15:21:42.7974853Z Working directory is '/home/runner/work/HurtHubV2/HurtHubV2'
+2025-09-01T15:21:42.7975752Z [command]/usr/bin/git version
+2025-09-01T15:21:42.8082035Z git version 2.51.0
+2025-09-01T15:21:42.8109368Z ##[endgroup]
+2025-09-01T15:21:42.8123594Z Temporarily overriding HOME='/home/runner/work/_temp/fec11cb6-e73c-4202-b694-77b4eba0b407' before making global git config changes
+2025-09-01T15:21:42.8125048Z Adding repository directory to the temporary git global config as a safe directory
+2025-09-01T15:21:42.8136920Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/HurtHubV2/HurtHubV2
+2025-09-01T15:21:42.8174859Z Deleting the contents of '/home/runner/work/HurtHubV2/HurtHubV2'
+2025-09-01T15:21:42.8178459Z ##[group]Initializing the repository
+2025-09-01T15:21:42.8182782Z [command]/usr/bin/git init /home/runner/work/HurtHubV2/HurtHubV2
+2025-09-01T15:21:42.8299795Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-09-01T15:21:42.8301445Z hint: is subject to change. To configure the initial branch name to use in all
+2025-09-01T15:21:42.8303598Z hint: of your new repositories, which will suppress this warning, call:
+2025-09-01T15:21:42.8304894Z hint:
+2025-09-01T15:21:42.8305385Z hint: 	git config --global init.defaultBranch <name>
+2025-09-01T15:21:42.8305968Z hint:
+2025-09-01T15:21:42.8306516Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-09-01T15:21:42.8307398Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-09-01T15:21:42.8308075Z hint:
+2025-09-01T15:21:42.8308435Z hint: 	git branch -m <name>
+2025-09-01T15:21:42.8308968Z hint:
+2025-09-01T15:21:42.8309879Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-09-01T15:21:42.8310849Z Initialized empty Git repository in /home/runner/work/HurtHubV2/HurtHubV2/.git/
+2025-09-01T15:21:42.8315954Z [command]/usr/bin/git remote add origin https://github.com/wilrf/HurtHubV2
+2025-09-01T15:21:42.8354846Z ##[endgroup]
+2025-09-01T15:21:42.8355632Z ##[group]Disabling automatic garbage collection
+2025-09-01T15:21:42.8359772Z [command]/usr/bin/git config --local gc.auto 0
+2025-09-01T15:21:42.8390820Z ##[endgroup]
+2025-09-01T15:21:42.8391470Z ##[group]Setting up auth
+2025-09-01T15:21:42.8398029Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-09-01T15:21:42.8428989Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-09-01T15:21:42.8821871Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-09-01T15:21:42.8854623Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-09-01T15:21:42.9081649Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-09-01T15:21:42.9117785Z ##[endgroup]
+2025-09-01T15:21:42.9119054Z ##[group]Fetching the repository
+2025-09-01T15:21:42.9137120Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +fe3049ab5a97ff204958a08385ef9f452749488f:refs/remotes/origin/main
+2025-09-01T15:21:43.1591686Z From https://github.com/wilrf/HurtHubV2
+2025-09-01T15:21:43.1593445Z  * [new ref]         fe3049ab5a97ff204958a08385ef9f452749488f -> origin/main
+2025-09-01T15:21:43.1632579Z ##[endgroup]
+2025-09-01T15:21:43.1633741Z ##[group]Determining the checkout info
+2025-09-01T15:21:43.1635351Z ##[endgroup]
+2025-09-01T15:21:43.1640330Z [command]/usr/bin/git sparse-checkout disable
+2025-09-01T15:21:43.1684815Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-09-01T15:21:43.1715513Z ##[group]Checking out the ref
+2025-09-01T15:21:43.1720064Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-09-01T15:21:43.1887909Z Switched to a new branch 'main'
+2025-09-01T15:21:43.1889043Z branch 'main' set up to track 'origin/main'.
+2025-09-01T15:21:43.1896738Z ##[endgroup]
+2025-09-01T15:21:43.1935314Z [command]/usr/bin/git log -1 --format=%H
+2025-09-01T15:21:43.1958756Z fe3049ab5a97ff204958a08385ef9f452749488f
+2025-09-01T15:21:43.2187005Z ##[group]Run actions/setup-node@v4
+2025-09-01T15:21:43.2187529Z with:
+2025-09-01T15:21:43.2187874Z   node-version: 18
+2025-09-01T15:21:43.2188237Z   cache: npm
+2025-09-01T15:21:43.2188595Z   always-auth: false
+2025-09-01T15:21:43.2188980Z   check-latest: false
+2025-09-01T15:21:43.2189522Z   token: ***
+2025-09-01T15:21:43.2189853Z env:
+2025-09-01T15:21:43.2190180Z   VERCEL_ORG_ID: 
+2025-09-01T15:21:43.2190537Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:21:43.2190916Z   NODE_VERSION: 18
+2025-09-01T15:21:43.2191278Z ##[endgroup]
+2025-09-01T15:21:43.4321822Z Found in cache @ /opt/hostedtoolcache/node/18.20.8/x64
+2025-09-01T15:21:43.4329431Z ##[group]Environment details
+2025-09-01T15:21:46.5749722Z node: v18.20.8
+2025-09-01T15:21:46.5750127Z npm: 10.8.2
+2025-09-01T15:21:46.5750784Z yarn: 1.22.22
+2025-09-01T15:21:46.5752542Z ##[endgroup]
+2025-09-01T15:21:46.5774541Z [command]/opt/hostedtoolcache/node/18.20.8/x64/bin/npm config get cache
+2025-09-01T15:21:46.8877474Z /home/runner/.npm
+2025-09-01T15:21:47.0250479Z Cache hit for: node-cache-Linux-x64-npm-3fdc490fce5293a03accab1da8fbea5b892acedede1b90f3516ab074c25741ba
+2025-09-01T15:21:47.5818026Z Received 85221417 of 85221417 (100.0%), 162.2 MBs/sec
+2025-09-01T15:21:47.5819253Z Cache Size: ~81 MB (85221417 B)
+2025-09-01T15:21:47.5881056Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8221ab88-9b3c-478c-abf5-85f615cc244d/cache.tzst -P -C /home/runner/work/HurtHubV2/HurtHubV2 --use-compress-program unzstd
+2025-09-01T15:21:47.7962039Z Cache restored successfully
+2025-09-01T15:21:47.8132542Z Cache restored from key: node-cache-Linux-x64-npm-3fdc490fce5293a03accab1da8fbea5b892acedede1b90f3516ab074c25741ba
+2025-09-01T15:21:47.8289496Z ##[group]Run npm ci
+2025-09-01T15:21:47.8289918Z [36;1mnpm ci[0m
+2025-09-01T15:21:47.8415896Z shell: /usr/bin/bash -e {0}
+2025-09-01T15:21:47.8416220Z env:
+2025-09-01T15:21:47.8416421Z   VERCEL_ORG_ID: 
+2025-09-01T15:21:47.8416645Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:21:47.8416874Z   NODE_VERSION: 18
+2025-09-01T15:21:47.8417093Z ##[endgroup]
+2025-09-01T15:21:50.0261593Z npm warn EBADENGINE Unsupported engine {
+2025-09-01T15:21:50.0262621Z npm warn EBADENGINE   package: 'commander@14.0.0',
+2025-09-01T15:21:50.0263109Z npm warn EBADENGINE   required: { node: '>=20' },
+2025-09-01T15:21:50.0263695Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+2025-09-01T15:21:50.0264129Z npm warn EBADENGINE }
+2025-09-01T15:21:50.0273746Z npm warn EBADENGINE Unsupported engine {
+2025-09-01T15:21:50.0274442Z npm warn EBADENGINE   package: 'lint-staged@16.1.5',
+2025-09-01T15:21:50.0275197Z npm warn EBADENGINE   required: { node: '>=20.17' },
+2025-09-01T15:21:50.0276093Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+2025-09-01T15:21:50.0276700Z npm warn EBADENGINE }
+2025-09-01T15:21:50.0278820Z npm warn EBADENGINE Unsupported engine {
+2025-09-01T15:21:50.0279467Z npm warn EBADENGINE   package: 'listr2@9.0.3',
+2025-09-01T15:21:50.0279986Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+2025-09-01T15:21:50.0280486Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+2025-09-01T15:21:50.0280896Z npm warn EBADENGINE }
+2025-09-01T15:21:50.0285791Z npm warn EBADENGINE Unsupported engine {
+2025-09-01T15:21:50.0286635Z npm warn EBADENGINE   package: 'nano-spawn@1.0.2',
+2025-09-01T15:21:50.0287507Z npm warn EBADENGINE   required: { node: '>=20.17' },
+2025-09-01T15:21:50.0288478Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+2025-09-01T15:21:50.0289213Z npm warn EBADENGINE }
+2025-09-01T15:21:50.0311218Z npm warn EBADENGINE Unsupported engine {
+2025-09-01T15:21:50.0311873Z npm warn EBADENGINE   package: 'vite@7.1.4',
+2025-09-01T15:21:50.0312649Z npm warn EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },
+2025-09-01T15:21:50.0313175Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+2025-09-01T15:21:50.0313530Z npm warn EBADENGINE }
+2025-09-01T15:21:52.5963329Z npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+2025-09-01T15:21:52.7604677Z npm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead
+2025-09-01T15:21:52.8197244Z npm warn deprecated @supabase/auth-helpers-react@0.5.0: This package is now deprecated - please use the @supabase/ssr package instead.
+2025-09-01T15:22:01.8770019Z 
+2025-09-01T15:22:01.8770825Z > charlotte-econdev-platform@1.0.0 prepare
+2025-09-01T15:22:01.8771505Z > husky install
+2025-09-01T15:22:01.8771703Z 
+2025-09-01T15:22:01.9266088Z husky - Git hooks installed
+2025-09-01T15:22:01.9427928Z 
+2025-09-01T15:22:01.9428630Z added 679 packages, and audited 680 packages in 14s
+2025-09-01T15:22:01.9431976Z 
+2025-09-01T15:22:01.9432779Z 205 packages are looking for funding
+2025-09-01T15:22:01.9434442Z   run `npm fund` for details
+2025-09-01T15:22:01.9442471Z 
+2025-09-01T15:22:01.9443172Z found 0 vulnerabilities
+2025-09-01T15:22:02.0056767Z ##[group]Run npm audit --audit-level=moderate
+2025-09-01T15:22:02.0057143Z [36;1mnpm audit --audit-level=moderate[0m
+2025-09-01T15:22:02.0088285Z shell: /usr/bin/bash -e {0}
+2025-09-01T15:22:02.0088531Z env:
+2025-09-01T15:22:02.0088704Z   VERCEL_ORG_ID: 
+2025-09-01T15:22:02.0088891Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:22:02.0089090Z   NODE_VERSION: 18
+2025-09-01T15:22:02.0089274Z ##[endgroup]
+2025-09-01T15:22:02.7332817Z found 0 vulnerabilities
+2025-09-01T15:22:02.7446663Z ##[group]Run echo "🔍 Running ESLint - All linting errors must be fixed"
+2025-09-01T15:22:02.7447162Z [36;1mecho "🔍 Running ESLint - All linting errors must be fixed"[0m
+2025-09-01T15:22:02.7447483Z [36;1mnpm run lint[0m
+2025-09-01T15:22:02.7447695Z [36;1mif [ $? -ne 0 ]; then[0m
+2025-09-01T15:22:02.7448035Z [36;1m  echo "❌ ESLint found errors. Fix all linting issues before deployment."[0m
+2025-09-01T15:22:02.7448388Z [36;1m  exit 1[0m
+2025-09-01T15:22:02.7448564Z [36;1mfi[0m
+2025-09-01T15:22:02.7480956Z shell: /usr/bin/bash -e {0}
+2025-09-01T15:22:02.7481198Z env:
+2025-09-01T15:22:02.7481360Z   VERCEL_ORG_ID: 
+2025-09-01T15:22:02.7481555Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:22:02.7481791Z   NODE_VERSION: 18
+2025-09-01T15:22:02.7481971Z ##[endgroup]
+2025-09-01T15:22:02.7531894Z 🔍 Running ESLint - All linting errors must be fixed
+2025-09-01T15:22:02.8780878Z 
+2025-09-01T15:22:02.8781427Z > charlotte-econdev-platform@1.0.0 lint
+2025-09-01T15:22:02.8782013Z > eslint src --max-warnings 0
+2025-09-01T15:22:02.8782440Z 
+2025-09-01T15:22:05.0083637Z 
+2025-09-01T15:22:05.0084871Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/common/ErrorBoundary.tsx
+2025-09-01T15:22:05.0118082Z ##[warning]   47:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                               no-console
+2025-09-01T15:22:05.0130299Z ##[warning]   51:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                               no-console
+2025-09-01T15:22:05.0134025Z ##[warning]  210:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0135754Z 
+2025-09-01T15:22:05.0136253Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Avatar.tsx
+2025-09-01T15:22:05.0138666Z ##[warning]  151:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0140361Z 
+2025-09-01T15:22:05.0140830Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Badge.tsx
+2025-09-01T15:22:05.0143272Z ##[warning]  126:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0145013Z 
+2025-09-01T15:22:05.0145512Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Button.tsx
+2025-09-01T15:22:05.0147816Z ##[warning]  70:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0149533Z 
+2025-09-01T15:22:05.0149994Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Card.tsx
+2025-09-01T15:22:05.0152448Z ##[warning]  168:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0154179Z 
+2025-09-01T15:22:05.0154652Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Input.tsx
+2025-09-01T15:22:05.0156917Z ##[warning]  173:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0158945Z 
+2025-09-01T15:22:05.0159560Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/LoadingSpinner.tsx
+2025-09-01T15:22:05.0161976Z ##[warning]  140:26  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0163969Z 
+2025-09-01T15:22:05.0164452Z /home/runner/work/HurtHubV2/HurtHubV2/src/components/ui/Toggle.tsx
+2025-09-01T15:22:05.0167041Z ##[warning]  156:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0168822Z 
+2025-09-01T15:22:05.0169200Z /home/runner/work/HurtHubV2/HurtHubV2/src/config/env.ts
+2025-09-01T15:22:05.0170858Z ##[warning]  115:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0173698Z ##[warning]  116:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0176233Z ##[warning]  117:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0178712Z ##[warning]  118:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0181278Z ##[warning]  119:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0184037Z ##[warning]  120:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0186554Z ##[warning]  233:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0187917Z 
+2025-09-01T15:22:05.0188385Z /home/runner/work/HurtHubV2/HurtHubV2/src/contexts/AuthContext.tsx
+2025-09-01T15:22:05.0190698Z ##[warning]   91:6   warning  React Hook useEffect has a missing dependency: 'refreshToken'. Either include it or remove the dependency array                 react-hooks/exhaustive-deps
+2025-09-01T15:22:05.0194012Z ##[warning]  111:21  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0196645Z ##[warning]  150:21  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0199270Z ##[warning]  167:21  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0202658Z ##[warning]  241:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0206426Z ##[warning]  252:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0209980Z ##[warning]  263:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0211905Z 
+2025-09-01T15:22:05.0212557Z /home/runner/work/HurtHubV2/HurtHubV2/src/contexts/ThemeContext.tsx
+2025-09-01T15:22:05.0214853Z ##[warning]   98:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0218382Z ##[warning]  109:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0222642Z ##[warning]  139:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+2025-09-01T15:22:05.0224081Z 
+2025-09-01T15:22:05.0224454Z /home/runner/work/HurtHubV2/HurtHubV2/src/hooks/useBusinessAIChat.ts
+2025-09-01T15:22:05.0226338Z ##[error]   26:23   error    Unnecessary escape character: \'          no-useless-escape
+2025-09-01T15:22:05.0228073Z ##[error]   26:94   error    Unnecessary escape character: \'          no-useless-escape
+2025-09-01T15:22:05.0229466Z ##[error]   28:50   error    Unnecessary escape character: \'          no-useless-escape
+2025-09-01T15:22:05.0230766Z ##[error]   28:91   error    Unnecessary escape character: \'          no-useless-escape
+2025-09-01T15:22:05.0232043Z ##[error]   28:423  error    Unnecessary escape character: \'          no-useless-escape
+2025-09-01T15:22:05.0233562Z ##[warning]  113:11   warning  Expected property shorthand               object-shorthand
+2025-09-01T15:22:05.0234955Z ##[warning]  143:38   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0235836Z 
+2025-09-01T15:22:05.0236089Z /home/runner/work/HurtHubV2/HurtHubV2/src/lib/supabase.ts
+2025-09-01T15:22:05.0236983Z ##[warning]  117:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0238413Z ##[warning]  133:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0239290Z 
+2025-09-01T15:22:05.0239499Z /home/runner/work/HurtHubV2/HurtHubV2/src/main.tsx
+2025-09-01T15:22:05.0240279Z ##[warning]  21:21  warning  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0241130Z 
+2025-09-01T15:22:05.0241478Z /home/runner/work/HurtHubV2/HurtHubV2/src/pages/BusinessIntelligence.tsx
+2025-09-01T15:22:05.0242605Z ##[warning]  306:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0243492Z 
+2025-09-01T15:22:05.0243781Z /home/runner/work/HurtHubV2/HurtHubV2/src/pages/BusinessProfile.tsx
+2025-09-01T15:22:05.0244574Z ##[warning]  185:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0245343Z 
+2025-09-01T15:22:05.0245583Z /home/runner/work/HurtHubV2/HurtHubV2/src/pages/Dashboard.tsx
+2025-09-01T15:22:05.0246215Z ##[error]  105:28  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0247266Z ##[error]  115:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0248310Z ##[error]  125:19  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0249339Z ##[error]  128:21  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0250409Z ##[error]  139:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0251447Z ##[error]  163:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0252654Z ##[error]  187:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0253757Z ##[error]  214:22  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0254904Z ##[error]  232:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0256030Z ##[error]  261:25  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0257166Z ##[error]  284:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0258239Z ##[error]  315:25  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0259310Z ##[error]  343:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0260366Z ##[error]  359:25  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0261417Z ##[error]  379:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0263141Z ##[error]  395:25  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0264238Z ##[error]  417:22  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0265294Z ##[error]  497:26  error  Unexpected constant condition  no-constant-condition
+2025-09-01T15:22:05.0266007Z 
+2025-09-01T15:22:05.0266258Z /home/runner/work/HurtHubV2/HurtHubV2/src/services/aiService.ts
+2025-09-01T15:22:05.0267086Z ##[error]  15:3  error  Unnecessary try/catch wrapper  no-useless-catch
+2025-09-01T15:22:05.0267839Z 
+2025-09-01T15:22:05.0268089Z /home/runner/work/HurtHubV2/HurtHubV2/src/services/apiClient.ts
+2025-09-01T15:22:05.0269003Z ##[warning]  15:45  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0270488Z ##[warning]  45:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0272002Z ##[warning]  61:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0273197Z 
+2025-09-01T15:22:05.0273507Z /home/runner/work/HurtHubV2/HurtHubV2/src/services/businessDataService.ts
+2025-09-01T15:22:05.0274338Z ##[warning]   18:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0275635Z ##[warning]   80:11  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0276935Z ##[warning]  168:9   warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0278206Z ##[warning]  175:9   warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0279452Z ##[warning]  202:9   warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0280710Z ##[warning]  209:9   warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0281965Z ##[warning]  231:21  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0283393Z ##[warning]  231:21  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0284663Z ##[warning]  238:58  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0285928Z ##[warning]  306:24  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0287176Z ##[warning]  328:28  warning  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+2025-09-01T15:22:05.0287967Z 
+2025-09-01T15:22:05.0288172Z /home/runner/work/HurtHubV2/HurtHubV2/src/test/setup.ts
+2025-09-01T15:22:05.0289353Z ##[warning]  128:13  warning  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0290808Z ##[warning]  129:33  warning  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0292334Z ##[error]  139:1   error    Unexpected newline between function and ( of function call  no-unexpected-multiline
+2025-09-01T15:22:05.0293892Z ##[warning]  139:16  warning  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0294746Z 
+2025-09-01T15:22:05.0294953Z /home/runner/work/HurtHubV2/HurtHubV2/src/types/api.ts
+2025-09-01T15:22:05.0296351Z ##[error]  79:2  error  Expected an assignment or function call and instead saw an expression  no-unused-expressions
+2025-09-01T15:22:05.0298055Z ##[error]  79:2  error  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+2025-09-01T15:22:05.0298962Z 
+2025-09-01T15:22:05.0299201Z /home/runner/work/HurtHubV2/HurtHubV2/src/types/database.ts
+2025-09-01T15:22:05.0300122Z ##[warning]  33:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0301426Z ##[warning]  34:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0303051Z ##[warning]  35:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0305037Z ##[warning]  38:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0307295Z ##[warning]  39:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0309466Z ##[warning]  40:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0311611Z ##[warning]  43:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0313997Z ##[warning]  44:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0316180Z ##[warning]  45:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0317596Z 
+2025-09-01T15:22:05.0318017Z /home/runner/work/HurtHubV2/HurtHubV2/src/utils/lazyImport.ts
+2025-09-01T15:22:05.0319351Z ##[warning]   8:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0321484Z ##[warning]  23:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0323031Z 
+2025-09-01T15:22:05.0323456Z /home/runner/work/HurtHubV2/HurtHubV2/src/utils/performance.ts
+2025-09-01T15:22:05.0325002Z ##[warning]   53:46  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0327554Z ##[warning]   53:56  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0330064Z ##[warning]   68:46  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0332767Z ##[warning]   68:56  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+2025-09-01T15:22:05.0335416Z ##[warning]  100:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+2025-09-01T15:22:05.0336929Z 
+2025-09-01T15:22:05.0337354Z /home/runner/work/HurtHubV2/HurtHubV2/src/utils/validators.ts
+2025-09-01T15:22:05.0338412Z ##[error]  58:25  error  Unnecessary escape character: \[  no-useless-escape
+2025-09-01T15:22:05.0340300Z ##[error]  58:42  error  Unnecessary escape character: \/  no-useless-escape
+2025-09-01T15:22:05.0341565Z 
+2025-09-01T15:22:05.0342232Z ✖ 96 problems (29 errors, 67 warnings)
+2025-09-01T15:22:05.0342948Z   0 errors and 1 warning potentially fixable with the `--fix` option.
+2025-09-01T15:22:05.0343389Z 
+2025-09-01T15:22:05.0434702Z ##[error]Process completed with exit code 1.
+2025-09-01T15:22:05.0540156Z Post job cleanup.
+2025-09-01T15:22:05.1464861Z [command]/usr/bin/git version
+2025-09-01T15:22:05.1500273Z git version 2.51.0
+2025-09-01T15:22:05.1544344Z Temporarily overriding HOME='/home/runner/work/_temp/cc85cc29-63d3-4083-84b1-c579c4370d9f' before making global git config changes
+2025-09-01T15:22:05.1545873Z Adding repository directory to the temporary git global config as a safe directory
+2025-09-01T15:22:05.1557440Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/HurtHubV2/HurtHubV2
+2025-09-01T15:22:05.1591790Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-09-01T15:22:05.1627200Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-09-01T15:22:05.1851965Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-09-01T15:22:05.1872364Z http.https://github.com/.extraheader
+2025-09-01T15:22:05.1885539Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-09-01T15:22:05.1915296Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-09-01T15:22:05.2233212Z Cleaning up orphan processes

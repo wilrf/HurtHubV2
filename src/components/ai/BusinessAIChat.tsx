@@ -1,26 +1,29 @@
-import { MessageSquare, Bot, Sparkles, BarChart3 } from 'lucide-react';
+import { MessageSquare, Bot, Sparkles, BarChart3 } from "lucide-react";
 
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { useBusinessAIChat } from '@/hooks/useBusinessAIChat';
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
-import { ChatInput } from './ChatInput';
-import { ChatMessage } from './ChatMessage';
+import { ChatInput } from "./ChatInput";
+import { ChatMessage } from "./ChatMessage";
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
   suggestions?: string[];
 }
 
 interface BusinessAIChatProps {
-  module: 'business-intelligence' | 'community-pulse';
+  module: "business-intelligence" | "community-pulse";
   className?: string;
 }
 
-export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) {
+export function BusinessAIChat({
+  module,
+  className = "",
+}: BusinessAIChatProps) {
   const isDarkMode = true; // Dark mode only
   const {
     messages,
@@ -28,7 +31,7 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
     isLoading,
     messagesEndRef,
     setInput,
-    handleSendMessage
+    handleSendMessage,
   } = useBusinessAIChat(module);
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -36,10 +39,13 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
   };
 
   return (
-    <Card variant={isDarkMode ? 'glass' : 'elevated'} className={`h-[600px] flex flex-col ${className}`}>
+    <Card
+      variant={isDarkMode ? "glass" : "elevated"}
+      className={`h-[600px] flex flex-col ${className}`}
+    >
       <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="flex items-center text-lg">
-          {module === 'business-intelligence' ? (
+          {module === "business-intelligence" ? (
             <>
               <BarChart3 className="h-5 w-5 mr-2" />
               Business Intelligence AI
@@ -56,7 +62,7 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
           </Badge>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="flex-1 flex flex-col p-4 min-h-0">
         <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 min-h-0">
           {messages.map((message) => (
@@ -67,15 +73,21 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
               onSuggestionClick={handleSuggestionClick}
             />
           ))}
-          
+
           {isLoading && (
             <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-full ${isDarkMode ? 'bg-midnight-700' : 'bg-gray-100'}`}>
+              <div
+                className={`p-2 rounded-full ${isDarkMode ? "bg-midnight-700" : "bg-gray-100"}`}
+              >
                 <Bot className="h-4 w-4 text-sapphire-400" />
               </div>
-              <div className={`p-3 rounded-lg ${
-                isDarkMode ? 'bg-sapphire-900/20 border border-midnight-700' : 'bg-gray-50 border'
-              }`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  isDarkMode
+                    ? "bg-sapphire-900/20 border border-midnight-700"
+                    : "bg-gray-50 border"
+                }`}
+              >
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -84,7 +96,7 @@ export function BusinessAIChat({ module, className = '' }: BusinessAIChatProps) 
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 

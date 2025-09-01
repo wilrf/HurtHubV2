@@ -39,7 +39,10 @@
       "Bash(npm run pipeline:logs:*)",
       "Bash(npm audit:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(git reset:*)",
+      "Bash(git rm:*)",
+      "Bash(npx prettier:*)"
     ],
     "deny": [],
     "ask": []

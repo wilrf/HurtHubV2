@@ -1,4 +1,4 @@
-import { lazy, type ComponentType } from 'react'
+import { lazy, type ComponentType } from "react";
 
 /**
  * Utility for lazy loading components with named exports
@@ -10,18 +10,18 @@ export function lazyImport<
 >(factory: () => Promise<T>, name: U): Record<U, T[U]> {
   return {
     [name]: lazy(() =>
-      factory().then(module => ({
+      factory().then((module) => ({
         default: module[name],
-      }))
+      })),
     ),
-  } as unknown as Record<U, T[U]>
+  } as unknown as Record<U, T[U]>;
 }
 
 /**
  * Utility for lazy loading default exports
  */
 export function lazyDefault<T extends ComponentType<any>>(
-  factory: () => Promise<{ default: T }>
+  factory: () => Promise<{ default: T }>,
 ): T {
-  return lazy(factory) as unknown as T
+  return lazy(factory) as unknown as T;
 }

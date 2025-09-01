@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { useTheme } from '@/contexts/ThemeContext';
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { useTheme } from "@/contexts/ThemeContext";
 
-import type { BusinessSearchFilters } from '@/types/business';
+import type { BusinessSearchFilters } from "@/types/business";
 
 interface SelectFilterProps {
   label: string;
@@ -13,23 +13,33 @@ interface SelectFilterProps {
   isDarkMode: boolean;
 }
 
-function SelectFilter({ label, options, value, onChange, isDarkMode }: SelectFilterProps) {
+function SelectFilter({
+  label,
+  options,
+  value,
+  onChange,
+  isDarkMode,
+}: SelectFilterProps) {
   return (
     <div>
       <label className="text-sm font-medium mb-2 block">{label}</label>
       <select
         multiple
         value={value}
-        onChange={(e) => onChange(Array.from(e.target.selectedOptions, o => o.value))}
+        onChange={(e) =>
+          onChange(Array.from(e.target.selectedOptions, (o) => o.value))
+        }
         className={`w-full p-2 border rounded-md ${
-          isDarkMode 
-            ? 'bg-midnight-800 border-midnight-700 text-white' 
-            : 'bg-white border-gray-300'
+          isDarkMode
+            ? "bg-midnight-800 border-midnight-700 text-white"
+            : "bg-white border-gray-300"
         }`}
         size={4}
       >
-        {options.map(option => (
-          <option key={option} value={option}>{option}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
         ))}
       </select>
     </div>
@@ -50,14 +60,24 @@ function RangeFilter({ label, value, onChange }: RangeFilterProps) {
         <Input
           type="number"
           placeholder="Min"
-          value={value?.min || ''}
-          onChange={(e) => onChange({ ...value, min: e.target.value ? parseInt(e.target.value) : undefined })}
+          value={value?.min || ""}
+          onChange={(e) =>
+            onChange({
+              ...value,
+              min: e.target.value ? parseInt(e.target.value) : undefined,
+            })
+          }
         />
         <Input
           type="number"
           placeholder="Max"
-          value={value?.max || ''}
-          onChange={(e) => onChange({ ...value, max: e.target.value ? parseInt(e.target.value) : undefined })}
+          value={value?.max || ""}
+          onChange={(e) =>
+            onChange({
+              ...value,
+              max: e.target.value ? parseInt(e.target.value) : undefined,
+            })
+          }
         />
       </div>
     </div>
@@ -66,7 +86,10 @@ function RangeFilter({ label, value, onChange }: RangeFilterProps) {
 
 interface SearchFiltersProps {
   filters: BusinessSearchFilters;
-  handleFilterChange: (key: keyof BusinessSearchFilters, value: unknown) => void;
+  handleFilterChange: (
+    key: keyof BusinessSearchFilters,
+    value: unknown,
+  ) => void;
   clearAllFilters: () => void;
   activeFiltersCount: number;
   filterOptions: {
@@ -77,11 +100,17 @@ interface SearchFiltersProps {
   };
 }
 
-export function SearchFilters({ filters, handleFilterChange, clearAllFilters, activeFiltersCount, filterOptions }: SearchFiltersProps) {
+export function SearchFilters({
+  filters,
+  handleFilterChange,
+  clearAllFilters,
+  activeFiltersCount,
+  filterOptions,
+}: SearchFiltersProps) {
   const { isDarkMode } = useTheme();
 
   return (
-    <Card variant={isDarkMode ? 'glass' : 'elevated'} className="mt-3">
+    <Card variant={isDarkMode ? "glass" : "elevated"} className="mt-3">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-medium">Advanced Filters</h3>
@@ -98,41 +127,41 @@ export function SearchFilters({ filters, handleFilterChange, clearAllFilters, ac
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <SelectFilter 
-            label="Industry" 
-            options={filterOptions.industries} 
-            value={filters.industry || []} 
-            onChange={(value) => handleFilterChange('industry', value)} 
-            isDarkMode={isDarkMode} 
+          <SelectFilter
+            label="Industry"
+            options={filterOptions.industries}
+            value={filters.industry || []}
+            onChange={(value) => handleFilterChange("industry", value)}
+            isDarkMode={isDarkMode}
           />
-          <SelectFilter 
-            label="Neighborhood" 
-            options={filterOptions.neighborhoods} 
-            value={filters.neighborhood || []} 
-            onChange={(value) => handleFilterChange('neighborhood', value)} 
-            isDarkMode={isDarkMode} 
+          <SelectFilter
+            label="Neighborhood"
+            options={filterOptions.neighborhoods}
+            value={filters.neighborhood || []}
+            onChange={(value) => handleFilterChange("neighborhood", value)}
+            isDarkMode={isDarkMode}
           />
-          <SelectFilter 
-            label="Business Type" 
-            options={filterOptions.businessTypes} 
-            value={filters.businessType || []} 
-            onChange={(value) => handleFilterChange('businessType', value)} 
-            isDarkMode={isDarkMode} 
+          <SelectFilter
+            label="Business Type"
+            options={filterOptions.businessTypes}
+            value={filters.businessType || []}
+            onChange={(value) => handleFilterChange("businessType", value)}
+            isDarkMode={isDarkMode}
           />
-          <RangeFilter 
-            label="Employees" 
-            value={filters.employeeRange || {}} 
-            onChange={(value) => handleFilterChange('employeeRange', value)} 
+          <RangeFilter
+            label="Employees"
+            value={filters.employeeRange || {}}
+            onChange={(value) => handleFilterChange("employeeRange", value)}
           />
-          <RangeFilter 
-            label="Revenue" 
-            value={filters.revenueRange || {}} 
-            onChange={(value) => handleFilterChange('revenueRange', value)} 
+          <RangeFilter
+            label="Revenue"
+            value={filters.revenueRange || {}}
+            onChange={(value) => handleFilterChange("revenueRange", value)}
           />
-          <RangeFilter 
-            label="Year Established" 
-            value={filters.yearEstablished || {}} 
-            onChange={(value) => handleFilterChange('yearEstablished', value)} 
+          <RangeFilter
+            label="Year Established"
+            value={filters.yearEstablished || {}}
+            onChange={(value) => handleFilterChange("yearEstablished", value)}
           />
         </div>
       </CardContent>

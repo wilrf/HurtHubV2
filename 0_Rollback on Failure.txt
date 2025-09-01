@@ -1,0 +1,39 @@
+﻿2025-09-01T15:22:08.9899477Z Current runner version: '2.328.0'
+2025-09-01T15:22:08.9933880Z ##[group]Runner Image Provisioner
+2025-09-01T15:22:08.9935514Z Hosted Compute Agent
+2025-09-01T15:22:08.9936401Z Version: 20250829.383
+2025-09-01T15:22:08.9937425Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-01T15:22:08.9938755Z Build Date: 2025-08-29T13:48:48Z
+2025-09-01T15:22:08.9939643Z ##[endgroup]
+2025-09-01T15:22:08.9940577Z ##[group]Operating System
+2025-09-01T15:22:08.9941450Z Ubuntu
+2025-09-01T15:22:08.9942195Z 24.04.3
+2025-09-01T15:22:08.9942856Z LTS
+2025-09-01T15:22:08.9943741Z ##[endgroup]
+2025-09-01T15:22:08.9944510Z ##[group]Runner Image
+2025-09-01T15:22:08.9945675Z Image: ubuntu-24.04
+2025-09-01T15:22:08.9946554Z Version: 20250824.1.0
+2025-09-01T15:22:08.9948298Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250824.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-01T15:22:08.9951357Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250824.1
+2025-09-01T15:22:08.9953054Z ##[endgroup]
+2025-09-01T15:22:08.9955280Z ##[group]GITHUB_TOKEN Permissions
+2025-09-01T15:22:08.9957748Z Contents: read
+2025-09-01T15:22:08.9958690Z Metadata: read
+2025-09-01T15:22:08.9959572Z Packages: read
+2025-09-01T15:22:08.9960297Z ##[endgroup]
+2025-09-01T15:22:08.9963848Z Secret source: Actions
+2025-09-01T15:22:08.9965508Z Prepare workflow directory
+2025-09-01T15:22:09.0745954Z Prepare all required actions
+2025-09-01T15:22:09.0823904Z Complete job name: Rollback on Failure
+2025-09-01T15:22:09.1461207Z ##[group]Run echo "❌ Deployment failed - consider rollback"
+2025-09-01T15:22:09.1462294Z [36;1mecho "❌ Deployment failed - consider rollback"[0m
+2025-09-01T15:22:09.1463067Z [36;1mecho "Run: vercel rollback --token=$VERCEL_TOKEN"[0m
+2025-09-01T15:22:09.1658536Z shell: /usr/bin/bash -e {0}
+2025-09-01T15:22:09.1659525Z env:
+2025-09-01T15:22:09.1659962Z   VERCEL_ORG_ID: 
+2025-09-01T15:22:09.1660725Z   VERCEL_PROJECT_ID: 
+2025-09-01T15:22:09.1661210Z   NODE_VERSION: 18
+2025-09-01T15:22:09.1661718Z ##[endgroup]
+2025-09-01T15:22:09.1946642Z ❌ Deployment failed - consider rollback
+2025-09-01T15:22:09.1947774Z Run: vercel rollback --token=
+2025-09-01T15:22:09.2063806Z Cleaning up orphan processes
