@@ -17,6 +17,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { VersionDisplay } from "@/components/ui/VersionDisplay";
 // Dark mode only - no theme switching
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/utils";
@@ -198,6 +199,9 @@ export function MainLayout() {
 
             {/* Right side actions */}
             <div className="flex items-center space-x-3">
+              {/* Version Display */}
+              <VersionDisplay />
+
               {/* Notifications */}
               <Button
                 variant="ghost"

@@ -1,10 +1,14 @@
 import path from "path";
 
 import react from "@vitejs/plugin-react-swc";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Load env file
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  return {
   plugins: [react()],
   test: {
     globals: true,
@@ -54,4 +58,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom"],
   },
+  envDir: '.',
+  envPrefix: ['VITE_'],
+  };
 });

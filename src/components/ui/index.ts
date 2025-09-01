@@ -7,3 +7,4 @@ export * from "./LoadingSpinner";
 export * from "./Badge";
 export * from "./Avatar";
 export * from "./Toggle";
+export * from "./VersionDisplay";
