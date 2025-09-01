@@ -124,7 +124,12 @@ async function fetchRelevantBusinessData(query: string) {
                           lowerQuery.includes('business') || 
                           lowerQuery.includes('revenue') ||
                           lowerQuery.includes('employee') ||
-                          lowerQuery.includes('industry');
+                          lowerQuery.includes('industry') ||
+                          lowerQuery.includes('restaurant') ||
+                          lowerQuery.includes('food') ||
+                          lowerQuery.includes('how many') ||
+                          lowerQuery.includes('total') ||
+                          lowerQuery.includes('database');
     
     const needsDevelopments = lowerQuery.includes('news') || 
                              lowerQuery.includes('development') ||

@@ -57,7 +57,8 @@
       "Bash(npm search:*)",
       "Bash(cat:*)",
       "Bash(firebase login:*)",
-      "Bash(firebase:*)"
+      "Bash(firebase:*)",
+      "Bash(npx firecrawl-mcp:*)"
     ],
     "deny": [],
     "ask": []
