@@ -7,11 +7,15 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
 
-// Initialize Supabase
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+// Initialize Supabase - Use correct Vercel environment variable names
+const supabaseUrl = process.env.SUPABASE_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Log environment variable status (for debugging)
+console.log('Supabase URL exists:', !!supabaseUrl);
+console.log('Supabase Key exists:', !!supabaseKey);
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const config = {
   maxDuration: 60,
@@ -140,6 +144,10 @@ async function fetchRelevantBusinessData(query: string) {
         .eq('status', 'active')
         .order('revenue', { ascending: false })
         .limit(10);
+      
+      if (error) {
+        console.error('Supabase error fetching companies:', error);
+      }
       
       if (!error && companies) {
         data.companies = companies;
