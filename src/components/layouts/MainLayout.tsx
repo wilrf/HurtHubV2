@@ -32,7 +32,6 @@ const navigation = [
     href: "/business-intelligence",
     icon: BarChart3,
   },
-  { name: "AI Assistant", href: "/ai-assistant", icon: MessageSquare },
 ];
 
 export function MainLayout() {

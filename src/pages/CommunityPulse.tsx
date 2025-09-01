@@ -211,7 +211,7 @@ export function CommunityPulse() {
             </div>
             <Badge variant="secondary" className="flex items-center">
               <Zap className="h-3 w-3 mr-1" />
-              Powered by GPT-4
+              AI Assistant
             </Badge>
           </div>
         </CardHeader>
@@ -225,94 +225,72 @@ export function CommunityPulse() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Community Engagement
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {communityMetrics.communityParticipation}%
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-900/20"}`}>
-                  <Heart className={`h-6 w-6 ${"text-sapphire-400"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Community Engagement
+                </p>
+                <Heart className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  +12% this month
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {communityMetrics.communityParticipation}%
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <TrendingUp className="h-3 w-3 inline mr-1" />
+                +12% this month
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Local Business Focus
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {communityMetrics.localBusinessRatio}%
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-700/20"}`}>
-                  <Building2 className={`h-6 w-6 ${"text-sapphire-300"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Local Business Focus
+                </p>
+                <Building2 className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <span className="text-sm text-muted-foreground">
-                  Strong local presence
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {communityMetrics.localBusinessRatio}%
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Strong local presence
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Network Connections
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {formatNumber(communityMetrics.networkConnections)}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-800/20"}`}>
-                  <Network className={`h-6 w-6 ${"text-sapphire-500"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Network Connections
+                </p>
+                <Network className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <Activity className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  Growing network
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {formatNumber(communityMetrics.networkConnections)}
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <Activity className="h-3 w-3 inline mr-1" />
+                Growing network
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Social Sentiment
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {communityMetrics.socialSentiment}%
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-600/20"}`}>
-                  <MessageCircle className={`h-6 w-6 ${"text-sapphire-200"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Social Sentiment
+                </p>
+                <MessageCircle className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <Star className="h-4 w-4 text-sapphire-300 mr-1" />
-                <span className="text-sm text-sapphire-300">Very positive</span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {communityMetrics.socialSentiment}%
+              </p>
+              <p className="text-sm text-sapphire-300 mt-2">
+                <Star className="h-3 w-3 inline mr-1" />
+                Very positive
+              </p>
             </CardContent>
           </Card>
         </div>

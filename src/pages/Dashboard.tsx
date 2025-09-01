@@ -119,105 +119,73 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Total Businesses
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {formatNumber(analytics.totalBusinesses)}
-                  </p>
-                </div>
-                <div
-                  className={`p-3 rounded-full ${
-                    isDarkMode ? "bg-sapphire-900/20" : "bg-sapphire-900/20"
-                  }`}
-                >
-                  <Building2
-                    className={`h-6 w-6 ${
-                      isDarkMode ? "text-sapphire-400" : "text-sapphire-500"
-                    }`}
-                  />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Total Businesses
+                </p>
+                <Building2 className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  +12% from last quarter
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {formatNumber(analytics.totalBusinesses)}
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <TrendingUp className="h-3 w-3 inline mr-1" />
+                +12% from last quarter
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Total Revenue
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {formatCurrency(analytics.totalRevenue)}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-900/20"}`}>
-                  <DollarSign className={`h-6 w-6 ${"text-sapphire-400"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Total Revenue
+                </p>
+                <DollarSign className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  +8.5% year over year
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {formatCurrency(analytics.totalRevenue)}
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <TrendingUp className="h-3 w-3 inline mr-1" />
+                +8.5% year over year
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Total Employees
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {formatNumber(analytics.totalEmployees)}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-800/20"}`}>
-                  <Users className={`h-6 w-6 ${"text-sapphire-500"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Total Employees
+                </p>
+                <Users className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  +15% job growth
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {formatNumber(analytics.totalEmployees)}
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <TrendingUp className="h-3 w-3 inline mr-1" />
+                +15% job growth
+              </p>
             </CardContent>
           </Card>
 
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Avg Revenue/Business
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {formatCurrency(analytics.averageRevenue)}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-full ${"bg-sapphire-700/20"}`}>
-                  <BarChart3 className={`h-6 w-6 ${"text-sapphire-300"}`} />
-                </div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">
+                  Avg Revenue/Business
+                </p>
+                <BarChart3 className="h-5 w-5 text-sapphire-400" />
               </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="h-4 w-4 text-sapphire-400 mr-1" />
-                <span className="text-sm text-sapphire-400">
-                  +3.2% efficiency
-                </span>
-              </div>
+              <p className="text-3xl font-bold text-foreground">
+                {formatCurrency(analytics.averageRevenue)}
+              </p>
+              <p className="text-sm text-sapphire-400 mt-2">
+                <TrendingUp className="h-3 w-3 inline mr-1" />
+                +3.2% efficiency
+              </p>
             </CardContent>
           </Card>
         </div>
