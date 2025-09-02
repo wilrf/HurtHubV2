@@ -52,14 +52,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_SUPABASE_URL;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
     if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL or SUPABASE_SUPABASE_URL is required');
+      throw new Error('VITE_SUPABASE_URL environment variable is required');
     }
 
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
     }
 
     supabase = createClient(supabaseUrl.trim(), supabaseKey.trim());

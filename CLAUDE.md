@@ -1,5 +1,16 @@
 # Claude Code Project Context
 
+## 🖥️ OS DETECTION & COMMAND USAGE
+**Always check user's OS before running commands:**
+- **Windows**: Use PowerShell commands or Windows-native commands
+  - `taskkill /F /IM process.exe` (not `pkill`)
+  - `Get-Process` (not `ps`)
+  - `Select-String` or `findstr` (not `grep`)
+  - `Get-ChildItem` or `dir /s` (not `find`)
+  - `Get-Content` or `type` (not `cat`)
+- **If Unix commands absolutely needed**: Request user switch to Git Bash or WSL
+- **Avoid Unix commands on Windows**: They will fail with path/encoding errors
+
 ## 🚨 CRITICAL REQUIREMENTS
 
 ### **NEVER USE FALLBACKS RULE**

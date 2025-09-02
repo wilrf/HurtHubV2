@@ -1,17 +1,14 @@
 /**
  * Application constants
+ * 
+ * Note: APP_NAME and APP_VERSION are now handled by env.ts using Vercel variables
+ * Use env.appName and env.appVersion instead
  */
 
-export const APP_NAME = "Charlotte Economic Development Platform";
-export const APP_VERSION = "1.0.0";
 export const APP_DESCRIPTION =
   "Real-time economic intelligence and business analytics for Charlotte";
 
-// API Configuration
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api/v1";
-export const WEBSOCKET_URL =
-  import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3001";
+// API Configuration is handled by env.ts - use env.apiBaseUrl and env.websocketUrl
 
 // Pagination
 export const DEFAULT_PAGE_SIZE = 25;

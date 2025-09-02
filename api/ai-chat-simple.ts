@@ -64,12 +64,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
     // The correct project is osnbklmavnsxpgktdeun (has 299 companies)
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_SUPABASE_URL;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    if (!supabaseUrl) {
+      throw new Error('VITE_SUPABASE_URL environment variable is required');
+    }
     if (!supabaseUrl) {
       throw new Error('VITE_SUPABASE_URL or SUPABASE_SUPABASE_URL is required');
     }
 
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+    }
     if (!supabaseKey) {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
     }
@@ -175,7 +181,10 @@ async function fetchRelevantBusinessData(query: string) {
 
   try {
     // Use AI-powered search for better results - NO FALLBACKS
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://hurt-hub-v2.vercel.app';
+    if (!process.env.VERCEL_URL) {
+      throw new Error('VERCEL_URL environment variable is required for API calls');
+    }
+    const baseUrl = `https://${process.env.VERCEL_URL}`;
     const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
