@@ -1,7 +1,6 @@
-import { MessageSquare, Bot, Sparkles, BarChart3 } from "lucide-react";
+import { Bot } from "lucide-react";
 
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { CardContent } from "@/components/ui/Card";
 import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
 import { ChatInput } from "./ChatInput";

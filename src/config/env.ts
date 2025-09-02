@@ -13,8 +13,7 @@ interface EnvConfig {
   API_BASE_URL: string;
   WEBSOCKET_URL: string;
 
-  // External Services
-  OPENAI_API_KEY?: string;
+  // External Services (client-side only)
   MAPBOX_ACCESS_TOKEN?: string;
   GOOGLE_ANALYTICS_ID?: string;
   SENTRY_DSN?: string;
@@ -56,9 +55,7 @@ class Environment {
       WEBSOCKET_URL:
         import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3001",
 
-      // External Services
-      OPENAI_API_KEY:
-        import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY,
+      // External Services (client-side only)
       MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
       GOOGLE_ANALYTICS_ID: import.meta.env.VITE_GOOGLE_ANALYTICS_ID,
       SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
@@ -121,8 +118,8 @@ class Environment {
     }
 
     // Feature-specific validation
-    if (this.config.ENABLE_AI_FEATURES && !this.config.OPENAI_API_KEY) {
-      warnings.push("⚠️ AI features are enabled but OPENAI_API_KEY is not set");
+    if (this.config.ENABLE_AI_FEATURES) {
+      console.log("✅ AI features are enabled - API key handled server-side");
     }
 
     if (this.config.ENABLE_ANALYTICS && !this.config.GOOGLE_ANALYTICS_ID) {
@@ -205,9 +202,7 @@ class Environment {
     return this.config.WEBSOCKET_URL;
   }
 
-  get openaiApiKey(): string | undefined {
-    return this.config.OPENAI_API_KEY;
-  }
+  // OpenAI API key removed - handled server-side only for security
 
   get mapboxAccessToken(): string | undefined {
     return this.config.MAPBOX_ACCESS_TOKEN;

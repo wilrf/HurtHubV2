@@ -4,6 +4,13 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "@/styles/globals.css";
 
+// Environment variable testing in development
+if (import.meta.env.DEV) {
+  import("./utils/env-test").then(({ testEnvironmentVariables }) => {
+    testEnvironmentVariables();
+  });
+}
+
 // Error reporting (optional - can be configured later)
 if (import.meta.env.PROD) {
   // Production error handling

@@ -62,7 +62,9 @@
       "Bash(npx playwright:*)",
       "mcp__firecrawl__firecrawl_map",
       "mcp__firecrawl__firecrawl_scrape",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:community.openai.com)"
     ],
     "deny": [],
     "ask": []

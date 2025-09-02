@@ -1,33 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js';
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
-
-// Initialize Supabase - IMPORTANT: Use the correct project URL
-// The correct project is osnbklmavnsxpgktdeun (has 299 companies)
-// NOT vueccqtftltszqropcyk (wrong/old project)
-const supabaseUrl = process.env.SUPABASE_SUPABASE_URL ||  // Use Vercel integration URL first (correct)
-                    process.env.VITE_SUPABASE_URL || 
-                    process.env.SUPABASE_URL ||  // This one has wrong URL, use as last resort
-                    'https://osnbklmavnsxpgktdeun.supabase.co';  // Fallback to correct URL
-const supabaseKey = process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY || 
-                    process.env.SUPABASE_SERVICE_ROLE_KEY || 
-                    process.env.SUPABASE_ANON_KEY || '';
-
-// Debug logging to verify environment variables
-console.log('Environment check:', {
-  hasSupabaseUrl: !!supabaseUrl,
-  hasSupabaseKey: !!supabaseKey,
-  hasOpenAI: !!process.env.OPENAI_API_KEY,
-  urlPrefix: supabaseUrl.substring(0, 30),
-  keyPrefix: supabaseKey.substring(0, 20)
-});
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import OpenAI from 'openai';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const config = {
   maxDuration: 60,
@@ -60,6 +34,65 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Initialize clients with proper error handling
+  let openai;
+  let supabase: SupabaseClient;
+
+  try {
+    // Initialize OpenAI client
+    const openaiApiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY not configured in environment variables');
+    }
+    if (!openaiApiKey.startsWith('sk-')) {
+      throw new Error('Invalid OpenAI key format');
+    }
+    
+    openai = new OpenAI({ 
+      apiKey: openaiApiKey,
+      maxRetries: 3,
+      timeout: 30000
+    });
+  } catch (error: any) {
+    console.error('OpenAI initialization failed:', error.message);
+    return res.status(500).json({ 
+      error: 'AI service configuration error',
+      details: error.message 
+    });
+  }
+
+  try {
+    // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
+    // The correct project is osnbklmavnsxpgktdeun (has 299 companies)
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_SUPABASE_URL;
+    if (!supabaseUrl) {
+      throw new Error('VITE_SUPABASE_URL or SUPABASE_SUPABASE_URL is required');
+    }
+
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
+    }
+
+    // Trim keys to handle any whitespace issues
+    supabase = createClient(supabaseUrl.trim(), supabaseKey.trim());
+
+    // Debug logging to verify environment variables
+    console.log('Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseKey,
+      hasOpenAI: !!process.env.OPENAI_API_KEY,
+      urlPrefix: supabaseUrl.substring(0, 30),
+      keyPrefix: supabaseKey.substring(0, 20)
+    });
+  } catch (error: any) {
+    console.error('Supabase initialization failed:', error.message);
+    return res.status(500).json({ 
+      error: 'Database configuration error',
+      details: error.message 
+    });
+  }
+
   try {
     const {
       messages,
@@ -72,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get the user's latest message
     const userMessage = messages[messages.length - 1]?.content || '';
     
-    // Analyze what data the user might need
+    // Analyze what data the user might need using AI-powered search
     const businessData = await fetchRelevantBusinessData(userMessage);
     
     // Build smart context with real data
@@ -95,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const responseContent = completion.choices[0]?.message?.content || '';
 
     // Store conversation in database
-    await storeConversation(sessionId, messages, responseContent);
+    await storeConversation(sessionId, messages, responseContent, supabase);
 
     return res.status(200).json({
       content: responseContent,
@@ -131,9 +164,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// Fetch relevant business data based on user query
+// Fetch relevant business data based on user query using AI-powered search
 async function fetchRelevantBusinessData(query: string) {
-  const lowerQuery = query.toLowerCase();
   const data: any = {
     companies: [],
     developments: [],
@@ -142,126 +174,44 @@ async function fetchRelevantBusinessData(query: string) {
   };
 
   try {
-    // Determine what data to fetch based on query content
-    const needsCompanies = lowerQuery.includes('compan') || 
-                          lowerQuery.includes('business') || 
-                          lowerQuery.includes('revenue') ||
-                          lowerQuery.includes('employee') ||
-                          lowerQuery.includes('industry') ||
-                          lowerQuery.includes('restaurant') ||
-                          lowerQuery.includes('food') ||
-                          lowerQuery.includes('how many') ||
-                          lowerQuery.includes('total') ||
-                          lowerQuery.includes('database');
+    // Use AI-powered search for better results - NO FALLBACKS
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://hurt-hub-v2.vercel.app';
+    const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        query, 
+        limit: 20,
+        useAI: true 
+      })
+    });
+
+    if (!searchResponse.ok) {
+      throw new Error(`AI search failed with status ${searchResponse.status}`);
+    }
+
+    const searchData = await searchResponse.json();
+    if (!searchData.results) {
+      throw new Error('AI search returned invalid response format');
+    }
+
+    data.companies = searchData.results;
+    data.summary.searchIntent = searchData.intent;
+    data.summary.totalCompanies = searchData.results.length;
     
-    const needsDevelopments = lowerQuery.includes('news') || 
-                             lowerQuery.includes('development') ||
-                             lowerQuery.includes('recent') ||
-                             lowerQuery.includes('update');
+    // Calculate summary statistics
+    if (searchData.results.length > 0) {
+      data.summary.totalRevenue = searchData.results.reduce((sum: number, c: any) => sum + (c.revenue || 0), 0);
+      data.summary.totalEmployees = searchData.results.reduce((sum: number, c: any) => sum + (c.employees_count || 0), 0);
+    }
     
-    const needsEconomic = lowerQuery.includes('economic') || 
-                         lowerQuery.includes('gdp') ||
-                         lowerQuery.includes('unemployment') ||
-                         lowerQuery.includes('growth');
-
-    // Fetch companies if needed
-    if (needsCompanies) {
-      const { data: companies, error } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('status', 'active')
-        .order('revenue', { ascending: false })
-        .limit(50);
-      
-      if (error) {
-        console.error('Supabase error fetching companies:', error);
-      }
-      
-      if (!error && companies) {
-        data.companies = companies;
-        
-        // Calculate summary statistics
-        data.summary.totalCompanies = companies.length;
-        data.summary.totalRevenue = companies.reduce((sum: number, c: any) => sum + (c.revenue || 0), 0);
-        data.summary.totalEmployees = companies.reduce((sum: number, c: any) => sum + (c.employees_count || 0), 0);
-        
-        // Get top industries
-        const industries = companies.reduce((acc: any, c: any) => {
-          acc[c.industry] = (acc[c.industry] || 0) + 1;
-          return acc;
-        }, {});
-        data.summary.topIndustries = Object.entries(industries)
-          .sort(([,a], [,b]) => (b as number) - (a as number))
-          .slice(0, 3)
-          .map(([industry, count]) => ({ industry, count }));
-      }
-    }
-
-    // Fetch developments if needed
-    if (needsDevelopments) {
-      const { data: developments, error } = await supabase
-        .from('developments')
-        .select(`
-          *,
-          companies:company_id (
-            name,
-            industry
-          )
-        `)
-        .order('published_at', { ascending: false })
-        .limit(5);
-      
-      if (!error && developments) {
-        data.developments = developments;
-      }
-    }
-
-    // Fetch economic indicators if needed
-    if (needsEconomic) {
-      const { data: indicators, error } = await supabase
-        .from('economic_indicators')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(3);
-      
-      if (!error && indicators && indicators.length > 0) {
-        data.economicIndicators = indicators;
-        const latest = indicators[0];
-        data.summary.latestEconomic = {
-          unemploymentRate: latest.unemployment_rate,
-          gdpGrowth: latest.gdp_growth,
-          jobGrowth: latest.job_growth,
-          date: latest.date
-        };
-      }
-    }
-
-    // If no specific data was requested, get a general overview
-    if (!needsCompanies && !needsDevelopments && !needsEconomic) {
-      // Get count and top companies
-      const { count } = await supabase
-        .from('companies')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
-      
-      const { data: companies } = await supabase
-        .from('companies')
-        .select('name, industry, revenue, employees_count')
-        .eq('status', 'active')
-        .order('revenue', { ascending: false })
-        .limit(10);
-      
-      if (companies) {
-        data.companies = companies;
-        data.summary.overview = `${count || companies.length} total companies in database`;
-      }
-    }
+    console.log(`AI Search returned ${searchData.results.length} relevant companies`);
+    return data;
 
   } catch (error) {
-    console.error('Error fetching business data:', error);
+    console.error('AI-powered search failed:', error);
+    throw new Error(`Failed to fetch business data: ${error.message}`);
   }
-
-  return data;
 }
 
 // Build system message with real business data
@@ -320,77 +270,34 @@ Reference specific businesses and real data from the database above.`;
 async function storeConversation(
   sessionId: string,
   messages: ChatMessage[],
-  response: string
+  aiResponse: string,
+  supabase: SupabaseClient
 ): Promise<void> {
   try {
     const userMessage = messages[messages.length - 1]?.content || '';
     
-    // Store in ai_conversations table
     const { error } = await supabase
       .from('ai_conversations')
       .insert({
         session_id: sessionId,
         user_message: userMessage,
-        ai_response: response,
-        model: 'gpt-4o-mini',
-        created_at: new Date().toISOString()
+        ai_response: aiResponse,
+        module: 'business-intelligence',
+        token_usage: {
+          total_tokens: 0, // Would need to calculate from OpenAI response
+        },
+        created_at: new Date().toISOString(),
       });
 
     if (error) {
       console.error('Failed to store conversation:', error);
-    }
-
-    // If this is a long conversation, create a summary
-    if (messages.length > 5) {
-      await createSessionSummary(sessionId, messages, response);
+      // NO FALLBACK - Let it fail
+      throw error;
     }
   } catch (error) {
     console.error('Error storing conversation:', error);
+    throw new Error(`Failed to store conversation: ${error.message}`);
   }
-}
-
-// Create session summary for long conversations
-async function createSessionSummary(
-  sessionId: string,
-  messages: ChatMessage[],
-  latestResponse: string
-): Promise<void> {
-  try {
-    // Create a brief summary of the conversation
-    const conversationText = messages.map(m => `${m.role}: ${m.content}`).join('\n');
-    
-    const { error } = await supabase
-      .from('ai_session_summaries')
-      .upsert({
-        session_id: sessionId,
-        summary: `Conversation with ${messages.length} messages about business intelligence in Charlotte`,
-        key_topics: extractKeyTopics(conversationText),
-        message_count: messages.length,
-        updated_at: new Date().toISOString()
-      });
-
-    if (error) {
-      console.error('Failed to create session summary:', error);
-    }
-  } catch (error) {
-    console.error('Error creating session summary:', error);
-  }
-}
-
-// Extract key topics from conversation
-function extractKeyTopics(text: string): string[] {
-  const topics = [];
-  const lowerText = text.toLowerCase();
-  
-  if (lowerText.includes('revenue')) topics.push('revenue');
-  if (lowerText.includes('company') || lowerText.includes('companies')) topics.push('companies');
-  if (lowerText.includes('industry')) topics.push('industry');
-  if (lowerText.includes('employee')) topics.push('employment');
-  if (lowerText.includes('growth')) topics.push('growth');
-  if (lowerText.includes('economic')) topics.push('economic');
-  if (lowerText.includes('development')) topics.push('developments');
-  
-  return topics.slice(0, 5); // Return top 5 topics
 }
 
 // Generate unique session ID
