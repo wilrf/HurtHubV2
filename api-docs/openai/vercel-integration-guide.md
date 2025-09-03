@@ -406,7 +406,7 @@ export default async function handler(req, res) {
 - [ ] Check error handling
 
 ### Deployment
-- [ ] Add OPENAI_API_KEY to Vercel (no NEXT_PUBLIC_ prefix)
+- [ ] Add OPENAI_API_KEY to Vercel (no VITE_ prefix)
 - [ ] Deploy application
 - [ ] Wait for deployment to complete
 
@@ -487,7 +487,7 @@ export default async function handler(req, res) {
 4. **Redeploy after env changes** - Changes don't auto-propagate
 5. **Use diagnostic endpoints** - Essential for debugging production issues
 6. **Handle all error cases** - 401, 429, network errors, etc.
-7. **Never expose keys client-side** - No NEXT_PUBLIC_ prefix
+7. **Never expose keys client-side** - No VITE_ prefix
 8. **Monitor usage** - Check OpenAI dashboard regularly
 
 ## Support Resources

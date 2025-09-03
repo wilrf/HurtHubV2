@@ -6,11 +6,9 @@
 
 import chalk from 'chalk';
 import fetch from 'node-fetch';
-import { config } from 'dotenv';
 
-// Load environment variables
-config({ path: '.env.local' });
-config({ path: '.env' });
+// Vercel-only: Environment variables are auto-injected by Vercel
+// No local .env files needed or supported
 
 const COLORS = {
   success: chalk.green,
@@ -20,15 +18,22 @@ const COLORS = {
   dim: chalk.gray
 };
 
-// Determine base URL
+// Determine base URL - Vercel-only, no localhost fallback
 const getBaseUrl = () => {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
+  
+  // Production URL for manual checks
   if (process.env.NODE_ENV === 'production') {
     return 'https://hurt-hub-v2.vercel.app';
   }
-  return 'http://localhost:3000';
+  
+  // No localhost fallback - this app only runs on Vercel
+  throw new Error(
+    'VERCEL_URL environment variable required. ' +
+    'This script only runs in Vercel deployment environments.'
+  );
 };
 
 // Wait for server to be ready

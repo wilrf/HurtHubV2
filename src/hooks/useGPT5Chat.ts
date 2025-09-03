@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { api } from "@/services/api";
 import {
   createChatCompletion,
   retrieveContext,
@@ -197,7 +198,8 @@ How can I help you understand Charlotte's business community?`;
     setMessages((prev) => [...prev, streamMessage]);
 
     try {
-      const response = await fetch("/api/ai-chat-simple", {
+      // For streaming, we need to use the raw fetch through the API service URL helper
+      const response = await fetch(api.getUrl("/ai-chat-simple"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

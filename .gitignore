@@ -205,3 +205,5 @@ storybook-static
 .vercel
 
 .vercel
+
+.env*.local

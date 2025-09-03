@@ -157,14 +157,14 @@ vercel env pull .env.production.local --environment=production
 ### Framework-Specific Prefixes
 Different frameworks have specific prefixes for client-side exposure:
 
-#### Next.js
-- `NEXT_PUBLIC_*`: Exposed to the browser
+#### Vite + React
+- `VITE_*`: Exposed to the browser
 - Without prefix: Server-side only
 
 Example:
 ```javascript
 // Available in browser and server
-const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+const publicUrl = import.meta.env.VITE_API_URL;
 
 // Server-side only
 const secretKey = process.env.SECRET_API_KEY;

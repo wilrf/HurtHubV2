@@ -90,7 +90,7 @@ async function storeContext(
     const embeddings = await generateEmbeddings(messages);
 
     // Store conversation in Supabase
-    const { data, error } = await supabase
+    const { data: _data, error } = await supabase
       .from('ai_conversations')
       .insert({
         session_id: sessionId,

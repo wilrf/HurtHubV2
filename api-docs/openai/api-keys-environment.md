@@ -163,8 +163,8 @@ export default async function handler(req, res) {
 
 ### 2. Never Expose to Client
 ```javascript
-// ❌ WRONG - Don't prefix with NEXT_PUBLIC_
-NEXT_PUBLIC_OPENAI_API_KEY=sk-proj-... // This exposes to browser!
+// ❌ WRONG - Don't prefix with VITE_ (exposes to browser)
+VITE_OPENAI_API_KEY=sk-proj-... // This exposes to browser!
 
 // ✅ CORRECT - No prefix for server-only
 OPENAI_API_KEY=sk-proj-... // Server-side only

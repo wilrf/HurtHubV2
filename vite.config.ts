@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
-    exclude: ["tests/e2e/**", "node_modules/**", "dist/**", ".vercel/**"],
+    exclude: ["tests/**", "node_modules/**", "dist/**", ".vercel/**"],
   },
   css: {
     postcss: "./config/postcss.config.js",

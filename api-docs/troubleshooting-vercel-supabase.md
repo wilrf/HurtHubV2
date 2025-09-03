@@ -6,16 +6,16 @@
 
 #### Problem: Environment variables undefined in production
 **Symptoms:**
-- `process.env.NEXT_PUBLIC_SUPABASE_URL` returns `undefined`
+- `import.meta.env.VITE_SUPABASE_URL` returns `undefined`
 - API calls fail with "URL not configured" errors
 - Works locally but not on Vercel
 
 **Solutions:**
 ```bash
 # 1. Verify exact variable names (case-sensitive!)
-NEXT_PUBLIC_SUPABASE_URL       # ✅ Correct
-NEXT_PUBLIC_SUPABASE_URL       # ❌ Wrong (trailing space)
-next_public_supabase_url       # ❌ Wrong (lowercase)
+VITE_SUPABASE_URL       # ✅ Correct
+VITE_SUPABASE_URL       # ❌ Wrong (trailing space)
+vite_supabase_url       # ❌ Wrong (lowercase)
 
 # 2. Check Vercel Dashboard
 # Go to: Project → Settings → Environment Variables
@@ -41,11 +41,11 @@ vercel --prod --force
 // ❌ WRONG - Won't be exposed to browser
 SUPABASE_URL=https://xxx.supabase.co
 
-// ✅ CORRECT - NEXT_PUBLIC_ prefix required for client
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+// ✅ CORRECT - VITE_ prefix required for client
+VITE_SUPABASE_URL=https://xxx.supabase.co
 
 // In component:
-console.log(process.env.NEXT_PUBLIC_SUPABASE_URL) // Works!
+console.log(import.meta.env.VITE_SUPABASE_URL) // Works!
 ```
 
 ### 2. Supabase Connection Issues
@@ -58,7 +58,7 @@ console.log(process.env.NEXT_PUBLIC_SUPABASE_URL) // Works!
 **Check these keys:**
 ```bash
 # 1. Verify you're using the correct key type
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJ... # For client (anon key)
+VITE_SUPABASE_ANON_KEY=eyJ... # For client (anon key)
 SUPABASE_SERVICE_ROLE_KEY=eyJ...            # For server only
 
 # 2. Check key hasn't been regenerated
@@ -77,11 +77,11 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...            # For server only
 ```javascript
 // 1. Check URL format
 // ❌ WRONG
-NEXT_PUBLIC_SUPABASE_URL=xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_URL=http://xxx.supabase.co
+VITE_SUPABASE_URL=xxx.supabase.co
+VITE_SUPABASE_URL=http://xxx.supabase.co
 
 // ✅ CORRECT - Must include https://
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_URL=https://xxx.supabase.co
 
 // 2. Add domain to Supabase allowed origins
 // Supabase Dashboard → Authentication → URL Configuration
@@ -133,8 +133,8 @@ http://localhost:3000/**
 // 2. Use dynamic redirect URLs
 const getURL = () => {
   let url =
-    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set in Vercel
-    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel
+    process?.env?.VITE_SITE_URL ?? // Set in Vercel
+    process?.env?.VITE_VERCEL_URL ?? // Automatically set by Vercel
     'http://localhost:3000/'
   
   // Include https:// for production
@@ -174,8 +174,8 @@ export async function middleware(request: NextRequest) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    import.meta.env.VITE_SUPABASE_URL!,
+    import.meta.env.VITE_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
@@ -236,11 +236,11 @@ npm install --save @supabase/supabase-js @supabase/ssr
 **Solutions:**
 ```javascript
 // 1. For build-time variables, use fallbacks
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!
 // Better:
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 if (!supabaseUrl) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL')
+  throw new Error('Missing VITE_SUPABASE_URL')
 }
 
 // 2. Check build command includes env loading
@@ -274,8 +274,8 @@ vercel env pull .env.local
 
 # 4. Debug loading
 console.log('ENV:', {
-  url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  url: import.meta.env.VITE_SUPABASE_URL,
+  hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
 })
 ```
 
@@ -304,11 +304,11 @@ type User = Database['public']['Tables']['users']['Row']
 // Add to app/api/debug/route.ts (REMOVE IN PRODUCTION!)
 export async function GET() {
   return Response.json({
-    hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    urlStart: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20),
-    nodeEnv: process.env.NODE_ENV,
-    vercelEnv: process.env.VERCEL_ENV,
+    hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+    hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+    urlStart: import.meta.env.VITE_SUPABASE_URL?.substring(0, 20),
+    nodeEnv: import.meta.env.NODE_ENV,
+    vercelEnv: import.meta.env.VERCEL_ENV,
   })
 }
 ```
@@ -359,12 +359,12 @@ VERCEL_URL                    # Your deployment URL
 VERCEL_ENV                    # "production", "preview", or "development"
 
 # You must set these
-NEXT_PUBLIC_SUPABASE_URL      # Your Supabase project URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  # Anon/public key
+VITE_SUPABASE_URL      # Your Supabase project URL
+VITE_SUPABASE_ANON_KEY  # Anon/public key
 SUPABASE_SERVICE_ROLE_KEY     # Service role key (server-only)
 
 # Optional but recommended
-NEXT_PUBLIC_SITE_URL          # Your production domain
+VITE_SITE_URL          # Your production domain
 ```
 
 ### Vercel Project Settings
@@ -408,7 +408,7 @@ vercel env pull .env.backup
 # Settings → Environment Variables → Remove all
 
 # 3. Re-add from backup
-vercel env add NEXT_PUBLIC_SUPABASE_URL
+vercel env add VITE_SUPABASE_URL
 # ... repeat for each
 
 # 4. Force redeploy
@@ -419,11 +419,11 @@ vercel --prod --force
 ```javascript
 // If client won't work, use fetch directly
 const response = await fetch(
-  `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/users`,
+  `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/users`,
   {
     headers: {
-      'apikey': process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}`,
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY!,
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
     },
   }

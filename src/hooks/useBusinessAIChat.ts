@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 import { businessDataService } from "@/services/businessDataService";
-import { createChatCompletion } from "@/services/aiService";
+import { api } from "@/services/api";
 
 import type { Business, BusinessAnalytics } from "@/types/business";
 
@@ -107,48 +107,23 @@ export function useBusinessAIChat(
 
   const generateAIResponse = async (userMessage: string): Promise<string> => {
     try {
-      // Use the consolidated Charlotte AI Chat API
-      const response = await fetch("/api/ai-chat-simple", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: userMessage }],
-          module,
-          model: "gpt-4o-mini",
-          temperature: 0.7,
-        }),
+      // Use the centralized API service
+      const data = await api.post<{ content: string }>("/ai-chat-simple", {
+        messages: [{ role: "user", content: userMessage }],
+        module,
+        model: "gpt-4o-mini",
+        temperature: 0.7,
       });
 
-      if (!response.ok) {
-        throw new Error(`Charlotte AI API failed: ${response.status}`);
-      }
-
-      const data = await response.json();
       if (data.content) {
         return data.content;
       }
       throw new Error("No content in response");
     } catch (error) {
-      console.warn("Charlotte AI API failed, using fallback:", error);
-
-      // Fallback to aiService with basic OpenAI integration
-      const messagesPayload = [
-        {
-          role: "system",
-          content:
-            module === "business-intelligence"
-              ? `You are a Charlotte Business Intelligence AI assistant. Focus on market trends and business analysis for Charlotte, NC.`
-              : `You are a Charlotte Community Pulse AI assistant. Focus on community engagement and local business relationships in Charlotte, NC.`,
-        },
-        { role: "user", content: userMessage },
-      ];
-
-      const reply = await createChatCompletion({
-        messages: messagesPayload as any,
-        model: "gpt-4o-mini",
-        temperature: 0.7,
-      });
-      return reply.content?.trim() || "";
+      console.error("Charlotte AI API failed:", error);
+      
+      // NO FALLBACK - Enforce database-only context per CLAUDE.md
+      throw new Error(`AI chat service unavailable: ${error instanceof Error ? error.message : 'Unknown error'}. All responses must use database context.`);
     }
   };
 

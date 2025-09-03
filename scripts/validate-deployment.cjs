@@ -102,17 +102,13 @@ function validateSupabase() {
   logSection('Supabase Configuration');
   
   const urlKeys = [
-    'VITE_SUPABASE_URL',
-    'SUPABASE_SUPABASE_URL',
     'SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_URL'
+    'SUPABASE_SUPABASE_URL'
   ];
   
   const anonKeys = [
-    'VITE_SUPABASE_ANON_KEY',
     'SUPABASE_ANON_KEY',
-    'SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+    'SUPABASE_SUPABASE_ANON_KEY'
   ];
   
   const serviceKeys = [

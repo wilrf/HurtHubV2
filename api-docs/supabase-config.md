@@ -1,17 +1,17 @@
-# Supabase Configuration Documentation for Next.js & Vercel
+# Supabase Configuration Documentation for Vite + React & Vercel
 
 ## Overview
-Supabase is an open-source Firebase alternative that provides a PostgreSQL database, authentication, real-time subscriptions, and storage. This guide covers configuration for Next.js applications deployed on Vercel.
+Supabase is an open-source Firebase alternative that provides a PostgreSQL database, authentication, real-time subscriptions, and storage. This guide covers configuration for Vite + React applications deployed on Vercel.
 
 ## Environment Variables
 
 ### Required Environment Variables
-For Next.js projects, you need these environment variables:
+For Vite + React projects, you need these environment variables:
 
 ```bash
 # Public variables (safe to expose to browser)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # Server-only variables (never expose to browser)
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
@@ -21,8 +21,8 @@ SUPABASE_DB_URL=postgresql://postgres:[password]@[host]:[port]/postgres
 ### Environment Variable Types
 
 #### 1. Public Variables (Browser-Safe)
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Anonymous key (safe with Row Level Security)
+- `VITE_SUPABASE_URL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Anonymous key (safe with Row Level Security)
 
 #### 2. Secret Variables (Server-Only)
 - `SUPABASE_SERVICE_ROLE_KEY`: Bypasses Row Level Security - NEVER expose to client
@@ -31,69 +31,100 @@ SUPABASE_DB_URL=postgresql://postgres:[password]@[host]:[port]/postgres
 ### Default Supabase Edge Function Variables
 When using Edge Functions, these are automatically available:
 - `SUPABASE_URL`: API gateway for the project
-- `SUPABASE_PUBLISHABLE_KEY`: Safe to use in browser with RLS
+- `SUPABASE_ANON_KEY`: Safe to use in browser with RLS
 - `SUPABASE_SERVICE_ROLE_KEY`: Bypasses RLS (server-only)
 - `SUPABASE_DB_URL`: Direct Postgres connection URL
 
-## Setting Up Supabase with Next.js
+## Setting Up Supabase with Vite + React
 
 ### 1. Install Dependencies
 ```bash
-npm install @supabase/supabase-js @supabase/ssr
+npm install @supabase/supabase-js
 ```
 
 ### 2. Create Environment File
-Create `.env.local` in your project root:
+Create `.env` in your project root:
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+# Client-side (browser accessible)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Server-side only (for API routes)
+SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ### 3. Configure Supabase Client
 
-#### Server Client (App Router)
-Create `utils/supabase/server.ts`:
+#### Client-Side (React Components)
+Create `src/lib/supabase.ts`:
 ```typescript
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
-export async function createClient() {
-  const cookieStore = await cookies()
+// Client-side configuration - accessible in browser
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+})
+```
+
+#### Server-Side (API Routes)
+Create server client in `api/` functions:
+```typescript
+import { createClient } from '@supabase/supabase-js'
+
+// Server-side configuration - NOT accessible in browser
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing server Supabase environment variables')
+}
+
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
+```
+
+### 4. Using the Clients
+
+#### In React Components
+```typescript
+import { supabase } from '@/lib/supabase'
+
+function MyComponent() {
+  const [data, setData] = useState([])
   
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // Handle cookie setting in Server Components
-          }
-        },
-      },
-    }
-  )
+  useEffect(() => {
+    // Uses VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+    supabase.from('companies').select('*').then(({ data }) => {
+      setData(data || [])
+    })
+  }, [])
 }
 ```
 
-#### Client Component
-Create `utils/supabase/client.ts`:
+#### In API Routes
 ```typescript
-import { createBrowserClient } from '@supabase/ssr'
+// api/companies.ts
+import { supabaseAdmin } from './supabase-admin'
 
-export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  )
+export default async function handler(req, res) {
+  // Uses SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+  const { data } = await supabaseAdmin.from('companies').select('*')
+  res.json(data)
 }
 ```
 
@@ -103,8 +134,8 @@ export function createClient() {
 1. Go to Vercel Dashboard → Your Project → Settings
 2. Navigate to "Environment Variables"
 3. Add each variable:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` (if needed)
 4. Select environments (Production, Preview, Development)
 5. Save and redeploy
@@ -134,7 +165,7 @@ vercel link
 vercel env pull .env.local
 
 # Add new environment variable
-vercel env add NEXT_PUBLIC_SUPABASE_URL
+vercel env add VITE_SUPABASE_URL
 
 # List environment variables
 vercel env ls
@@ -159,77 +190,71 @@ POSTGRES_URL_NON_POOLING=postgresql://[user]:[password]@[supavisor-host]:5432/po
 
 ## Authentication Setup
 
-### Cookie-Based Auth (App Router)
-The Next.js App Router requires cookie-based authentication:
+### Client-Side Authentication (Vite + React)
+Vite + React uses localStorage for session persistence by default:
 
 ```typescript
-// middleware.ts
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+// src/hooks/useAuth.ts
+import { useEffect, useState } from 'react'
+import { User, Session } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-  await supabase.auth.getUser()
-  return supabaseResponse
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  return { user, session, loading }
 }
 ```
 
-### Redirect URLs
+### Authentication URLs
 Configure in Supabase Dashboard → Authentication → URL Configuration:
 ```
 Site URL: https://your-domain.vercel.app
 Redirect URLs:
-- https://your-domain.vercel.app/**
-- https://*.your-project.vercel.app/**  (for preview deployments)
+- https://your-domain.vercel.app/auth/callback
+- https://*.your-project.vercel.app/auth/callback  (for preview deployments)
+- http://localhost:3000/auth/callback  (for development)
 ```
 
 ## Local Development
 
 ### Setup Local Environment
-1. Create `.env.local` file:
+1. Create `.env` file (not `.env.local` - Vite uses `.env`):
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+# Client-side variables
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Server-side variables (for API routes)
+SUPABASE_URL=your-project-url
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-2. Use Vercel CLI to sync:
+2. Run development server:
 ```bash
-vercel env pull .env.local
-```
-
-3. Run development server:
-```bash
-npm run dev
-# or
-vercel dev  # Automatically loads environment variables
+npm run dev  # Vite automatically loads .env
 ```
 
 ### Using Supabase CLI
@@ -247,8 +272,8 @@ supabase link --project-ref your-project-ref
 supabase start
 
 # Local environment variables
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-local-anon-key
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_ANON_KEY=your-local-anon-key
 ```
 
 ## Security Best Practices
@@ -304,7 +329,7 @@ export async function POST(request: Request) {
 **Solution:**
 1. Verify variable names match exactly (case-sensitive)
 2. Redeploy after adding/changing variables
-3. Check correct prefix (`NEXT_PUBLIC_` for client-side)
+3. Check correct prefix (`VITE_` for client-side)
 4. Ensure `.env.local` is in project root
 
 ### Issue: Authentication Not Working in Production
@@ -350,8 +375,8 @@ export async function createTypedClient() {
 ### Environment Setup for Tests
 Create `.env.test`:
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=test-anon-key
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_ANON_KEY=test-anon-key
 SUPABASE_SERVICE_ROLE_KEY=test-service-role-key
 ```
 
@@ -393,8 +418,8 @@ if (error) console.error('Auth error:', error)
 - Review Auth logs
 
 ## References
-- [Supabase Next.js Quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
+- [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript/installing)
 - [Vercel Integration](https://supabase.com/partners/integrations/vercel)
 - [Environment Variables](https://supabase.com/docs/guides/functions/secrets)
-- [Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
+- [Vite Environment Variables](https://vite.dev/guide/env-and-mode.html)
 - [TypeScript Support](https://supabase.com/docs/reference/typescript-support)

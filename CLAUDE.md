@@ -32,6 +32,58 @@ const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) throw new Error('OPENAI_API_KEY is required');
 ```
 
+### **TESTING TOOL REQUIREMENTS**
+**NEVER SUBSTITUTE SPECIFIED TESTING TOOLS.**
+- ❌ NO switching from requested testing framework without explicit permission
+- ❌ NO "shortcuts" that bypass user-specified tools (e.g., Playwright MCP)
+- ❌ NO API-only testing when browser testing was requested
+- ✅ PERSIST with requested tool even if setup takes longer
+- ✅ DEBUG tool issues rather than switching approaches
+- ✅ DELIVER visual evidence (screenshots) when using browser testing tools
+
+**Critical Rule:** When user specifies Playwright, use Playwright MCP specifically. Browser-based testing catches issues that API testing misses.
+
+## 🚨🚨🚨 CRITICAL TESTING RULES - VIOLATION = FAILURE 🚨🚨🚨
+
+### **PLAYWRIGHT IS MANDATORY - NO EXCEPTIONS**
+**IF USER REQUESTS PLAYWRIGHT, YOU MUST USE PLAYWRIGHT. PERIOD.**
+
+- ❌ **ABSOLUTELY FORBIDDEN**: Switching to curl, Node.js scripts, PowerShell, or ANY other testing method
+- ❌ **ABSOLUTELY FORBIDDEN**: Giving up when Playwright takes time to configure
+- ❌ **ABSOLUTELY FORBIDDEN**: Making excuses about ports, timeouts, or setup issues
+- ✅ **REQUIRED**: Debug Playwright issues until it works
+- ✅ **REQUIRED**: Use `npx playwright test --headed` if needed to see what's happening
+- ✅ **REQUIRED**: Kill conflicting processes if ports are blocked
+- ✅ **REQUIRED**: Configure Playwright to use the CORRECT port (not assume defaults)
+
+### **WHY THIS MATTERS**
+- **API tests DON'T catch browser issues** (like manifest.json parsing errors)
+- **Console errors ONLY show in browsers** (Vite import-analysis errors)
+- **Screenshots provide evidence** (for debugging and documentation)
+- **Browser testing catches REAL user experience issues**
+
+### **CONSEQUENCES OF DISOBEDIENCE**
+When you abandon Playwright for "easier" alternatives:
+1. You miss critical browser-specific bugs
+2. You waste the user's time with incomplete testing
+3. You fail to deliver the visual evidence needed
+4. You demonstrate unreliability that could cost someone their job
+
+### **THE RULE**
+If Playwright is requested → Use Playwright
+If Playwright fails → Fix Playwright
+If fixing takes time → Keep fixing Playwright
+NEVER substitute without explicit permission
+
+### **PORT CONFLICT RESOLUTION**
+When testing with Playwright + Vercel dev:
+1. Check what port Vercel dev actually started on
+2. Update the Playwright test BASE_URL to match
+3. Use `webServer: null` in playwright.config if Vercel is already running
+4. Or use different ports for each service
+
+**NO EXCUSES. NO SHORTCUTS. NO SUBSTITUTIONS.**
+
 ### Codebase Navigation & Documentation
 **ALWAYS consult `.claude/` directory for comprehensive codebase documentation:**
 - **`.claude/PROJECT_OVERVIEW.md`**: Complete architecture overview and tech stack
@@ -75,12 +127,21 @@ See `.claude/DOCUMENTATION_MAINTENANCE.md` for the complete maintenance guide.
 
 ### API Documentation Reference
 **ALWAYS check `api-docs/` folder BEFORE any API-related work:**
+- **Canonical Patterns**: See `api-docs/CANONICAL_ENV_VAR_PATTERNS.md` for official environment variable guidance
 - **Vercel**: See `api-docs/vercel-env-vars.md` for environment variables
 - **Supabase**: See `api-docs/supabase-config.md` for configuration
 - **Troubleshooting**: See `api-docs/troubleshooting-vercel-supabase.md` for common issues
 - **Client Reference**: See `api-docs/supabase/javascript-client-reference.md` for API methods
 
 This prevents configuration errors and ensures correct implementation.
+
+### 🚨 CRITICAL: External Service Configuration Process
+**When working with external APIs or services (Supabase, OpenAI, etc.):**
+1. **FIRST**: Fetch and read official documentation from canonical sources
+2. **THEN**: Understand the service's environment variable patterns and security model
+3. **FINALLY**: Implement configuration following official patterns, not assumptions
+
+**Never make configuration changes without consulting official documentation first.**
 
 ## Project Overview
 - **Name**: Hurt Hub V2
@@ -116,9 +177,40 @@ npm run build
 2. **CORS errors**: Verify https:// in URLs, add domain to Supabase
 3. **Auth redirects**: Configure all URL patterns in Supabase Dashboard
 4. **Database timeouts**: Use Supavisor URLs for IPv4 on Vercel
+5. **vercel.json rewrite issues**: Catch-all rewrites serve HTML for static assets, breaking Vite import analysis
+
+## Vercel Development Issues
+**KNOWN ISSUE: vercel.json rewrites cause static asset problems**
+- `vercel dev` serves HTML for all non-API requests (including manifest.json)
+- This breaks Vite's import analysis and browser asset loading
+- **Fix**: Add explicit static asset rewrites before catch-all rule in vercel.json
+- **Testing**: Always test with `vercel dev` (not `npm run dev`) for accurate Vercel environment
+- **Detection**: Only browser-based testing (like Playwright) catches these frontend issues
+
+## Testing Protocol for Vercel Projects
+**STANDARD APPROACH: When testing Vercel projects**
+1. **Use Playwright MCP** for browser-based testing (when requested)
+2. **Test with `vercel dev`** (not `npm run dev`) for accurate environment
+3. **Test actual frontend rendering**, not just API endpoints  
+4. **Capture screenshots** for visual evidence of issues
+5. **Check static assets** (manifest.json, icons) load correctly in browser
+6. **Never substitute testing approaches** without explicit user permission
 
 ## Before Committing
 - Run lint and typecheck
 - Verify environment variables are not exposed
 - Test authentication flows
 - Check API endpoints work locally
+- Test frontend with `vercel dev` if using Vercel deployment
+
+## 2025-09-03 Project Status Update
+
+### Semantic Search
+- Semantic search infrastructure (vector column, pgvector, `generate-embeddings.ts`) **exists but is not yet enabled**.
+- Remaining work: enable pgvector in Supabase, add `embedding vector(1536)` column to `companies`, create `semantic_business_search()` function, run `/api/generate-embeddings` to populate vectors.
+
+### Deployment Strategy
+- Local `vercel dev` has unresolved env-var loading issues that break API functions.
+- **Decision:** Use production deployments for testing until local issues are resolved.
+- Workflow: edit locally → `vercel --prod` → test at live URL.
+- Local frontend dev remains available via `npm run dev` (APIs disabled).

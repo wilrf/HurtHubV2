@@ -1,3 +1,5 @@
+import { api } from "@/services/api";
+
 export type ChatRole = "system" | "user" | "assistant";
 
 export interface ChatMessage {
@@ -56,32 +58,41 @@ export async function createChatCompletion(
   req: ChatRequest,
 ): Promise<ChatResponse> {
   try {
-    const res = await fetch("/api/ai-chat-simple", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: req.messages,
-        model: req.model || "gpt-4o-mini", // Default to gpt-4o-mini
-        temperature: req.temperature || 0.7,
-        stream: req.stream || false,
-        sessionId: req.sessionId || generateSessionId(),
-        module: req.module || "business-intelligence",
-      }),
-    });
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      throw new Error(
-        `GPT-4 API failed: ${res.status} - ${detail.substring(0, 200)}`,
-      );
-    }
-
     if (req.stream) {
-      // Handle streaming response
+      // For streaming, use raw fetch with API URL helper
+      const res = await fetch(api.getUrl("/ai-chat-simple"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: req.messages,
+          model: req.model || "gpt-4o-mini", // Default to gpt-4o-mini
+          temperature: req.temperature || 0.7,
+          stream: req.stream || false,
+          sessionId: req.sessionId || generateSessionId(),
+          module: req.module || "business-intelligence",
+        }),
+      });
+
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        throw new Error(
+          `GPT-4 API failed: ${res.status} - ${detail.substring(0, 200)}`,
+        );
+      }
+
       return handleStreamingResponse(res);
     }
 
-    const data = await res.json();
+    // For non-streaming, use the API service
+    const data = await api.post("/ai-chat-simple", {
+      messages: req.messages,
+      model: req.model || "gpt-4o-mini",
+      temperature: req.temperature || 0.7,
+      stream: false,
+      sessionId: req.sessionId || generateSessionId(),
+      module: req.module || "business-intelligence",
+    });
+
     return {
       content: data.content || "",
       sessionId: data.sessionId,
@@ -100,9 +111,7 @@ export async function createChatCompletion(
 // Health Check Function
 export async function checkDatabaseHealth(): Promise<any> {
   try {
-    const res = await fetch("/api/health-check");
-    if (!res.ok) throw new Error("Health check failed");
-    return await res.json();
+    return await api.get("/health-check");
   } catch (error) {
     console.error("Database health check failed:", error);
     return null;
@@ -117,19 +126,12 @@ export async function queryBusinessData(
   context?: string
 ): Promise<any> {
   try {
-    const res = await fetch("/api/data-query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query,
-        type,
-        filters,
-        context
-      }),
+    return await api.post("/data-query", {
+      query,
+      type,
+      filters,
+      context
     });
-
-    if (!res.ok) throw new Error(`Data query failed: ${res.status}`);
-    return await res.json();
   } catch (error) {
     console.error("Business data query failed:", error);
     return null;
@@ -182,23 +184,12 @@ export async function performDeepAnalysis(
   req: AnalysisRequest,
 ): Promise<AnalysisResponse> {
   try {
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: req.type,
-        data: req.data,
-        depth: req.depth || "standard",
-        context: req.context,
-      }),
+    return await api.post("/analyze", {
+      type: req.type,
+      data: req.data,
+      depth: req.depth || "standard",
+      context: req.context,
     });
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      throw new Error(`Analysis API failed: ${res.status} - ${detail}`);
-    }
-
-    return await res.json();
   } catch (error) {
     console.error("Analysis Error:", error);
     throw error instanceof Error ? error : new Error("Analysis failed");
@@ -211,17 +202,12 @@ export async function storeContext(
   messages: ChatMessage[],
 ): Promise<boolean> {
   try {
-    const res = await fetch("/api/context", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "store",
-        sessionId,
-        messages,
-      }),
+    await api.post("/context", {
+      action: "store",
+      sessionId,
+      messages,
     });
-
-    return res.ok;
+    return true;
   } catch (error) {
     console.error("Failed to store context:", error);
     return false;
@@ -233,18 +219,11 @@ export async function retrieveContext(
   limit: number = 10,
 ): Promise<any> {
   try {
-    const res = await fetch("/api/context", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "retrieve",
-        sessionId,
-        limit,
-      }),
+    return await api.post("/context", {
+      action: "retrieve",
+      sessionId,
+      limit,
     });
-
-    if (!res.ok) throw new Error("Failed to retrieve context");
-    return await res.json();
   } catch (error) {
     console.error("Failed to retrieve context:", error);
     return null;
@@ -256,18 +235,11 @@ export async function searchContext(
   userId?: string,
 ): Promise<any> {
   try {
-    const res = await fetch("/api/context", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "search",
-        query,
-        userId,
-      }),
+    return await api.post("/context", {
+      action: "search",
+      query,
+      userId,
     });
-
-    if (!res.ok) throw new Error("Failed to search context");
-    return await res.json();
   } catch (error) {
     console.error("Failed to search context:", error);
     return null;
@@ -278,17 +250,10 @@ export async function summarizeConversation(
   sessionId: string,
 ): Promise<string> {
   try {
-    const res = await fetch("/api/context", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "summarize",
-        sessionId,
-      }),
+    const data = await api.post("/context", {
+      action: "summarize",
+      sessionId,
     });
-
-    if (!res.ok) throw new Error("Failed to summarize conversation");
-    const data = await res.json();
     return data.summary || "";
   } catch (error) {
     console.error("Failed to summarize conversation:", error);

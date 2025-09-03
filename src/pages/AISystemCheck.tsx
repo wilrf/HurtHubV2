@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Badge } from '@/components/ui/Badge';
 import { checkDatabaseHealth, queryBusinessData } from '@/services/aiService';
-import MainLayout from '@/components/layouts/MainLayout';
 
 interface HealthCheckResult {
   status: string;
@@ -124,9 +123,9 @@ const AISystemCheck: React.FC = () => {
       case 'healthy':
         return <Badge variant="success">Healthy</Badge>;
       case 'unhealthy':
-        return <Badge variant="error">Unhealthy</Badge>;
+        return <Badge variant="destructive">Unhealthy</Badge>;
       case 'error':
-        return <Badge variant="error">Error</Badge>;
+        return <Badge variant="destructive">Error</Badge>;
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
@@ -135,21 +134,20 @@ const AISystemCheck: React.FC = () => {
   const getTableStatus = (available: boolean) => {
     return available ?
       <Badge variant="success">Available</Badge> :
-      <Badge variant="error">Unavailable</Badge>;
+      <Badge variant="destructive">Unavailable</Badge>;
   };
 
   return (
-    <MainLayout>
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">AI System Diagnostics</h1>
-          <p className="text-gray-600">
-            Check database connectivity and test AI intelligence capabilities
-          </p>
-        </div>
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI System Diagnostics</h1>
+        <p className="text-gray-600">
+          Check database connectivity and test AI intelligence capabilities
+        </p>
+      </div>
 
-        {/* Database Health Check */}
-        <Card>
+      {/* Database Health Check */}
+      <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
@@ -181,7 +179,7 @@ const AISystemCheck: React.FC = () => {
                     <div className="mt-1">
                       {healthCheck.database.connected ?
                         <Badge variant="success">Connected</Badge> :
-                        <Badge variant="error">Disconnected</Badge>
+                        <Badge variant="destructive">Disconnected</Badge>
                       }
                       {healthCheck.database.latency > 0 && (
                         <span className="ml-2 text-sm text-gray-600">
@@ -279,7 +277,7 @@ const AISystemCheck: React.FC = () => {
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{result.query}</span>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={result.success ? 'success' : 'error'}>
+                        <Badge variant={result.success ? 'success' : 'destructive'}>
                           {result.success ? 'Success' : 'Failed'}
                         </Badge>
                         <span className="text-xs text-gray-500">
@@ -346,7 +344,6 @@ const AISystemCheck: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
   );
 };
 

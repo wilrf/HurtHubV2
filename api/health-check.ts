@@ -1,10 +1,18 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+// Validate environment variables
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+if (!supabaseUrl) {
+  throw new Error('VITE_SUPABASE_URL environment variable is required');
+}
+
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!supabaseKey) {
+  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
@@ -70,7 +78,7 @@ async function performDatabaseHealthCheck() {
 
   try {
     // Test basic connectivity
-    const { data: testData, error: testError } = await supabase
+    const { data: _testData, error: testError } = await supabase
       .from('companies')
       .select('count', { count: 'exact', head: true });
 

@@ -154,34 +154,3 @@ export async function testOpenAIConnection(): Promise<{
   }
 }
 
-/**
- * Test OpenAI connection with a minimal API call
- * @returns {Promise<boolean>} True if connection successful
- */
-export async function testOpenAIConnection(): Promise<{
-  success: boolean;
-  response?: string;
-  error?: string;
-  model?: string;
-}> {
-  try {
-    const openai = getOpenAIClient();
-    
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: 'Reply with OK' }],
-      max_tokens: 5
-    });
-    
-    return {
-      success: true,
-      response: completion.choices[0]?.message?.content || 'No response',
-      model: completion.model
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-}

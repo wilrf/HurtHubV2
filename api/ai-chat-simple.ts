@@ -64,20 +64,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
     // The correct project is osnbklmavnsxpgktdeun (has 299 companies)
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseUrl = process.env.SUPABASE_URL;
     if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL environment variable is required');
-    }
-    if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL or SUPABASE_SUPABASE_URL is required');
+      throw new Error('SUPABASE_URL environment variable is required');
     }
 
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseKey) {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
-    }
-    if (!supabaseKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
     }
 
     // Trim keys to handle any whitespace issues
@@ -149,10 +143,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Add debugging info in development
     const debugInfo = process.env.NODE_ENV !== 'production' ? {
       hasOpenAI: !!process.env.OPENAI_API_KEY,
-      hasSupabaseUrl: !!supabaseUrl,
-      hasSupabaseKey: !!supabaseKey,
+      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       errorType: error.constructor.name,
-      errorCode: error.code
+      errorCode: (error as any).code
     } : {};
     
     if (error.status === 401) {
@@ -181,10 +175,14 @@ async function fetchRelevantBusinessData(query: string) {
 
   try {
     // Use AI-powered search for better results - NO FALLBACKS
-    if (!process.env.VERCEL_URL) {
-      throw new Error('VERCEL_URL environment variable is required for API calls');
+    // Get base URL for API calls - Vercel-only deployment
+    const vercelUrl = process.env.VERCEL_URL;
+    if (!vercelUrl) {
+      throw new Error('VERCEL_URL environment variable is required - this app only runs on Vercel');
     }
-    const baseUrl = `https://${process.env.VERCEL_URL}`;
+    const baseUrl = `https://${vercelUrl}`;
+    
+    console.log(`Making AI search request to: ${baseUrl}/api/ai-search`);
     const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -217,7 +215,7 @@ async function fetchRelevantBusinessData(query: string) {
     console.log(`AI Search returned ${searchData.results.length} relevant companies`);
     return data;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('AI-powered search failed:', error);
     throw new Error(`Failed to fetch business data: ${error.message}`);
   }
@@ -303,7 +301,7 @@ async function storeConversation(
       // NO FALLBACK - Let it fail
       throw error;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error storing conversation:', error);
     throw new Error(`Failed to store conversation: ${error.message}`);
   }

@@ -125,6 +125,7 @@ export interface BusinessSearchFilters {
   query?: string;
   industry?: string[];
   neighborhood?: string[];
+  location?: string[]; // Added for API compatibility
   employeeRange?: {
     min?: number;
     max?: number;
@@ -151,14 +152,17 @@ export interface BusinessSearchResult {
   businesses: Business[];
   total: number;
   page: number;
-  pageSize: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
   filters: BusinessSearchFilters;
+  analytics: BusinessAnalytics;
 }
 
 // Analytics types
 export interface BusinessAnalytics {
   totalBusinesses: number;
+  totalCompanies: number; // Added for API compatibility
   totalRevenue: number;
   totalEmployees: number;
   averageRevenue: number;
@@ -168,6 +172,10 @@ export interface BusinessAnalytics {
     count: number;
     totalRevenue: number;
     totalEmployees: number;
+  }>;
+  revenueByIndustry: Array<{
+    industry: string;
+    revenue: number;
   }>;
   topNeighborhoods: Array<{
     neighborhood: string;

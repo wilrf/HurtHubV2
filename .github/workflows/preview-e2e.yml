@@ -1,0 +1,112 @@
+name: Preview E2E Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Wait for Vercel preview deployment
+        id: vercel-preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 600
+          check_interval: 10
+
+      - name: Run Playwright tests against preview
+        env:
+          VERCEL_URL: ${{ steps.vercel-preview.outputs.url }}
+        run: npx playwright test
+        
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload test screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-screenshots-${{ github.sha }}
+          path: test-results/
+          retention-days: 7
+
+      - name: Comment PR with test results
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read test results if available
+            let testResults = '';
+            const reportPath = 'playwright-report/index.html';
+            
+            if (fs.existsSync(reportPath)) {
+              const testPassed = '${{ job.status }}' === 'success';
+              const previewUrl = '${{ steps.vercel-preview.outputs.url }}';
+              
+              testResults = `## 🎭 Playwright E2E Test Results
+            
+              **Preview URL:** ${previewUrl}
+              **Status:** ${testPassed ? '✅ PASSED' : '❌ FAILED'}
+              
+              ${testPassed ? 
+                '✅ All end-to-end tests passed successfully!' : 
+                '❌ Some tests failed. Check the artifacts above for detailed reports and screenshots.'
+              }
+              
+              **Test Artifacts:**
+              - 📊 [Playwright Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              ${!testPassed ? '- 📸 Screenshots of failures available in artifacts' : ''}
+              
+              ---
+              🚀 **Quick Preview Testing:**
+              1. Visit the preview URL above
+              2. Test key user journeys manually
+              3. Check browser console for any errors
+              `;
+            } else {
+              testResults = `## 🎭 Playwright E2E Tests
+              
+              ❌ Test results not available - check workflow logs for details.
+              
+              **Preview URL:** ${{ steps.vercel-preview.outputs.url }}
+              `;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: testResults
+            });

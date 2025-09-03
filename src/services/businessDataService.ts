@@ -1,485 +1,300 @@
 /**
- * Business Data Service - Loads and manages demo business data
+ * Business Data Service - API-based business data management
  */
 
+import { api } from "@/services/api";
 import type {
   Business,
-  DemoDataset,
   BusinessSearchFilters,
   BusinessSearchResult,
   BusinessAnalytics,
-  BusinessSortField,
 } from "@/types/business";
 
+interface ApiResponse {
+  businesses: Business[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  filters: {
+    industries: string[];
+    locations: string[];
+    neighborhoods: string[];
+    businessTypes: string[];
+    clusters: string[];
+  };
+  analytics: BusinessAnalytics;
+  source: string;
+}
+
 class BusinessDataService {
-  private data: DemoDataset | null = null;
-  private businesses: Business[] = [];
-  private isLoaded = false;
   private cache = new Map<string, any>();
-  private searchIndex = new Map<string, Set<number>>();
+  private filterOptionsCache: any = null;
+  private analyticsCache: BusinessAnalytics | null = null;
+  private allBusinessesCache: Business[] = [];
+  private cacheTimestamp = 0;
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.loadData();
+    // No longer loading static data
   }
 
   /**
-   * Load demo data from JSON file
+   * Ensure data is available (for backward compatibility)
    */
-  private async loadData(): Promise<void> {
-    if (this.isLoaded) return;
+  async ensureLoaded(): Promise<void> {
+    // Check if cache is still valid
+    if (this.cacheTimestamp && (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION) {
+      return;
+    }
 
+    // Refresh cache by fetching some data
     try {
-      const response = await fetch("/improvedDemoData.json");
-      if (!response.ok) {
-        throw new Error(`Failed to load demo data: ${response.statusText}`);
-      }
-
-      this.data = (await response.json()) as DemoDataset;
-      this.businesses = this.data.businesses;
-      this.isLoaded = true;
-
-      // Build search index
-      this.buildSearchIndex();
+      await this.getAllBusinesses();
     } catch (error) {
-      console.error("❌ Failed to load demo data:", error);
+      console.error("❌ Failed to ensure data is loaded:", error);
       throw error;
     }
   }
 
   /**
-   * Build search index for fast text search (optimized with chunking)
-   */
-  private buildSearchIndex(): void {
-    // Process in chunks to avoid blocking the main thread
-    const chunkSize = 50;
-    let currentIndex = 0;
-
-    const processChunk = () => {
-      const endIndex = Math.min(
-        currentIndex + chunkSize,
-        this.businesses.length,
-      );
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const business = this.businesses[i];
-        const searchTerms = [
-          business.name.toLowerCase(),
-          business.industry.toLowerCase(),
-          business.cluster.toLowerCase(),
-          business.neighborhood.toLowerCase(),
-          business.businessType.toLowerCase(),
-          business.owner.toLowerCase(),
-          business.naics,
-          ...business.name.toLowerCase().split(" "),
-          ...business.industry.toLowerCase().split(" "),
-        ];
-
-        searchTerms.forEach((term) => {
-          if (!term.trim()) return;
-
-          if (!this.searchIndex.has(term)) {
-            this.searchIndex.set(term, new Set());
-          }
-          this.searchIndex.get(term)!.add(i);
-        });
-      }
-
-      currentIndex = endIndex;
-
-      // Continue processing if more chunks remain
-      if (currentIndex < this.businesses.length) {
-        // Use setTimeout to yield control back to the browser
-        setTimeout(processChunk, 0);
-      }
-    };
-
-    // Start processing
-    processChunk();
-  }
-
-  /**
-   * Ensure data is loaded
-   */
-  async ensureLoaded(): Promise<void> {
-    if (!this.isLoaded) {
-      await this.loadData();
-    }
-  }
-
-  /**
-   * Get all businesses (cached copy)
+   * Get all businesses from API
    */
   async getAllBusinesses(): Promise<Business[]> {
-    await this.ensureLoaded();
-
     const cacheKey = "allBusinesses";
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+    
+    // Return cached data if available and fresh
+    if (this.allBusinessesCache.length > 0 && this.isCacheValid()) {
+      return this.allBusinessesCache;
     }
 
-    // Cache the businesses array to avoid repeated copying
-    const businessesCopy = [...this.businesses];
-    this.cache.set(cacheKey, businessesCopy);
-    return businessesCopy;
-  }
+    try {
+      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1000 });
+      
+      this.allBusinessesCache = data.businesses;
+      this.filterOptionsCache = data.filters;
+      this.analyticsCache = data.analytics;
+      this.cacheTimestamp = Date.now();
+      this.cache.set(cacheKey, data.businesses);
 
-  /**
-   * Get business by ID
-   */
-  async getBusinessById(id: string): Promise<Business | null> {
-    await this.ensureLoaded();
-    return this.businesses.find((b) => b.id === id) || null;
+      console.log(`✅ Loaded ${data.businesses.length} businesses from database`);
+      return data.businesses;
+    } catch (error) {
+      console.error("❌ Failed to fetch all businesses:", error);
+      throw new Error(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
    * Search businesses with filters
    */
   async searchBusinesses(
-    filters: BusinessSearchFilters = {},
+    filters: BusinessSearchFilters,
     page: number = 1,
-    pageSize: number = 25,
+    limit: number = 20,
   ): Promise<BusinessSearchResult> {
-    await this.ensureLoaded();
-
-    const cacheKey = JSON.stringify({ filters, page, pageSize });
-    if (this.cache.has(cacheKey)) {
+    const cacheKey = `search_${JSON.stringify(filters)}_${page}_${limit}`;
+    
+    if (this.cache.has(cacheKey) && this.isCacheValid()) {
       return this.cache.get(cacheKey);
     }
 
-    let filteredBusinesses = [...this.businesses];
+    try {
+      // Build query parameters object
+      const queryParams: Record<string, string | number | boolean | undefined> = {
+        page,
+        limit,
+      };
 
-    // Text search
-    if (filters.query) {
-      const queryLower = filters.query.toLowerCase();
-      const matchingIndices = new Set<number>();
+      // Add filters to query params
+      if (filters.query) queryParams.query = filters.query;
+      if (filters.revenueRange?.min !== undefined) queryParams.minRevenue = filters.revenueRange.min;
+      if (filters.revenueRange?.max !== undefined) queryParams.maxRevenue = filters.revenueRange.max;
+      if (filters.employeeRange?.min !== undefined) queryParams.minEmployees = filters.employeeRange.min;
+      if (filters.employeeRange?.max !== undefined) queryParams.maxEmployees = filters.employeeRange.max;
 
-      // Search in index
-      for (const [term, indices] of this.searchIndex.entries()) {
-        if (term.includes(queryLower)) {
-          indices.forEach((idx) => matchingIndices.add(idx));
+      // Handle array parameters (industry, location, neighborhood)
+      const searchParams = new URLSearchParams();
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, String(value));
         }
+      });
+
+      if (filters.industry?.length) {
+        filters.industry.forEach(ind => searchParams.append('industry', ind));
+      }
+      if (filters.location?.length) {
+        filters.location.forEach(loc => searchParams.append('location', loc));
+      }
+      if (filters.neighborhood?.length) {
+        filters.neighborhood.forEach(loc => searchParams.append('location', loc));
       }
 
-      filteredBusinesses = Array.from(matchingIndices)
-        .map((idx) => this.businesses[idx])
-        .filter(Boolean);
+      const data: ApiResponse = await api.get(`/businesses?${searchParams.toString()}`);
+
+      const result: BusinessSearchResult = {
+        businesses: data.businesses,
+        total: data.total,
+        page: data.page,
+        totalPages: data.totalPages,
+        hasNextPage: data.page < data.totalPages,
+        hasPreviousPage: data.page > 1,
+        filters: {
+          query: filters.query,
+          industry: filters.industry,
+          location: filters.location,
+          neighborhood: filters.neighborhood,
+          revenueRange: filters.revenueRange,
+          employeeRange: filters.employeeRange,
+        },
+        analytics: data.analytics,
+      };
+
+      this.cache.set(cacheKey, result);
+      return result;
+    } catch (error) {
+      console.error("❌ Failed to search businesses:", error);
+      throw new Error(`Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    // Industry filter
-    if (filters.industry?.length) {
-      filteredBusinesses = filteredBusinesses.filter((b) =>
-        filters.industry!.includes(b.industry),
-      );
-    }
-
-    // Neighborhood filter
-    if (filters.neighborhood?.length) {
-      filteredBusinesses = filteredBusinesses.filter((b) =>
-        filters.neighborhood!.includes(b.neighborhood),
-      );
-    }
-
-    // Employee range filter
-    if (filters.employeeRange) {
-      const { min, max } = filters.employeeRange;
-      filteredBusinesses = filteredBusinesses.filter((b) => {
-        if (min !== undefined && b.employees < min) return false;
-        if (max !== undefined && b.employees > max) return false;
-        return true;
-      });
-    }
-
-    // Revenue range filter
-    if (filters.revenueRange) {
-      const { min, max } = filters.revenueRange;
-      filteredBusinesses = filteredBusinesses.filter((b) => {
-        if (min !== undefined && b.revenue < min) return false;
-        if (max !== undefined && b.revenue > max) return false;
-        return true;
-      });
-    }
-
-    // Business type filter
-    if (filters.businessType?.length) {
-      filteredBusinesses = filteredBusinesses.filter((b) =>
-        filters.businessType!.includes(b.businessType),
-      );
-    }
-
-    // NAICS filter
-    if (filters.naics?.length) {
-      filteredBusinesses = filteredBusinesses.filter((b) =>
-        filters.naics!.some(
-          (naics) =>
-            b.naics.startsWith(naics) ||
-            b.naicsLevels.naics2 === naics ||
-            b.naicsLevels.naics3 === naics ||
-            b.naicsLevels.naics4 === naics,
-        ),
-      );
-    }
-
-    // Year established filter
-    if (filters.yearEstablished) {
-      const { min, max } = filters.yearEstablished;
-      filteredBusinesses = filteredBusinesses.filter((b) => {
-        if (min !== undefined && b.yearEstablished < min) return false;
-        if (max !== undefined && b.yearEstablished > max) return false;
-        return true;
-      });
-    }
-
-    // Rating filter
-    if (filters.rating?.min) {
-      filteredBusinesses = filteredBusinesses.filter(
-        (b) => b.rating >= filters.rating!.min!,
-      );
-    }
-
-    // Features filter
-    if (filters.features) {
-      filteredBusinesses = filteredBusinesses.filter((b) => {
-        for (const [feature, required] of Object.entries(filters.features!)) {
-          if (required && !b.features[feature as keyof typeof b.features]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    }
-
-    // Sorting
-    if (filters.sortBy) {
-      filteredBusinesses.sort((a, b) => {
-        const field = filters.sortBy as BusinessSortField;
-        let aVal = a[field];
-        let bVal = b[field];
-
-        // Handle string sorting
-        if (typeof aVal === "string" && typeof bVal === "string") {
-          aVal = aVal.toLowerCase();
-          bVal = bVal.toLowerCase();
-        }
-
-        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-        return filters.sortOrder === "desc" ? -comparison : comparison;
-      });
-    }
-
-    // Pagination
-    const total = filteredBusinesses.length;
-    const totalPages = Math.ceil(total / pageSize);
-    const startIndex = (page - 1) * pageSize;
-    const paginatedBusinesses = filteredBusinesses.slice(
-      startIndex,
-      startIndex + pageSize,
-    );
-
-    const result: BusinessSearchResult = {
-      businesses: paginatedBusinesses,
-      total,
-      page,
-      pageSize,
-      totalPages,
-      filters,
-    };
-
-    // Cache result
-    this.cache.set(cacheKey, result);
-    return result;
   }
 
   /**
    * Get business analytics
    */
   async getAnalytics(): Promise<BusinessAnalytics> {
-    await this.ensureLoaded();
-
-    const cacheKey = "analytics";
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+    if (this.analyticsCache && this.isCacheValid()) {
+      return this.analyticsCache;
     }
 
-    const totalBusinesses = this.businesses.length;
-    const totalRevenue = this.businesses.reduce((sum, b) => sum + b.revenue, 0);
-    const totalEmployees = this.businesses.reduce(
-      (sum, b) => sum + b.employees,
-      0,
-    );
-
-    // Industry analysis
-    const industryMap = new Map<
-      string,
-      { count: number; revenue: number; employees: number }
-    >();
-    this.businesses.forEach((b) => {
-      if (!industryMap.has(b.industry)) {
-        industryMap.set(b.industry, { count: 0, revenue: 0, employees: 0 });
-      }
-      const industry = industryMap.get(b.industry)!;
-      industry.count++;
-      industry.revenue += b.revenue;
-      industry.employees += b.employees;
-    });
-
-    const topIndustries = Array.from(industryMap.entries())
-      .map(([industry, data]) => ({
-        industry,
-        count: data.count,
-        totalRevenue: data.revenue,
-        totalEmployees: data.employees,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-
-    // Neighborhood analysis
-    const neighborhoodMap = new Map<
-      string,
-      { count: number; revenue: number; ratings: number[] }
-    >();
-    this.businesses.forEach((b) => {
-      if (!neighborhoodMap.has(b.neighborhood)) {
-        neighborhoodMap.set(b.neighborhood, {
-          count: 0,
-          revenue: 0,
-          ratings: [],
-        });
-      }
-      const neighborhood = neighborhoodMap.get(b.neighborhood)!;
-      neighborhood.count++;
-      neighborhood.revenue += b.revenue;
-      neighborhood.ratings.push(b.rating);
-    });
-
-    const topNeighborhoods = Array.from(neighborhoodMap.entries())
-      .map(([neighborhood, data]) => ({
-        neighborhood,
-        count: data.count,
-        totalRevenue: data.revenue,
-        avgRating:
-          data.ratings.reduce((sum, r) => sum + r, 0) / data.ratings.length,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-
-    // Business age distribution
-    const currentYear = new Date().getFullYear();
-    const ageRanges = [
-      { label: "0-1 years", min: 0, max: 1 },
-      { label: "2-5 years", min: 2, max: 5 },
-      { label: "6-10 years", min: 6, max: 10 },
-      { label: "11-20 years", min: 11, max: 20 },
-      { label: "20+ years", min: 21, max: Infinity },
-    ];
-
-    const businessAgeDistribution = ageRanges.map((range) => ({
-      ageRange: range.label,
-      count: this.businesses.filter((b) => {
-        const age = currentYear - b.yearEstablished;
-        return age >= range.min && age <= range.max;
-      }).length,
-    }));
-
-    // Revenue distribution
-    const revenueRanges = [
-      { label: "Under $100K", min: 0, max: 100000 },
-      { label: "$100K - $500K", min: 100000, max: 500000 },
-      { label: "$500K - $1M", min: 500000, max: 1000000 },
-      { label: "$1M - $5M", min: 1000000, max: 5000000 },
-      { label: "$5M+", min: 5000000, max: Infinity },
-    ];
-
-    const revenueDistribution = revenueRanges.map((range) => ({
-      range: range.label,
-      count: this.businesses.filter(
-        (b) => b.revenue >= range.min && b.revenue < range.max,
-      ).length,
-    }));
-
-    // Monthly trends (aggregate all businesses)
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    const monthlyTrends = monthNames.map((month, index) => {
-      const totalRevenue = this.businesses.reduce(
-        (sum, b) => sum + (b.monthlyRevenue[index] || 0),
-        0,
-      );
-      const avgRevenue = totalRevenue / totalBusinesses;
-
+    try {
+      // Analytics are included in the businesses API response
+      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1 });
+      this.analyticsCache = data.analytics;
+      return data.analytics;
+    } catch (error) {
+      console.error("❌ Failed to fetch analytics:", error);
+      // Return default analytics on error
       return {
-        month,
-        totalRevenue,
-        avgRevenue,
-        businessCount: totalBusinesses,
+        totalBusinesses: 0,
+        totalCompanies: 0,
+        totalRevenue: 0,
+        totalEmployees: 0,
+        averageRevenue: 0,
+        averageEmployees: 0,
+        topIndustries: [],
+        revenueByIndustry: [],
+        topNeighborhoods: [],
+        businessAgeDistribution: [],
+        revenueDistribution: [],
+        monthlyTrends: [],
       };
-    });
-
-    const analytics: BusinessAnalytics = {
-      totalBusinesses,
-      totalRevenue,
-      totalEmployees,
-      averageRevenue: totalRevenue / totalBusinesses,
-      averageEmployees: totalEmployees / totalBusinesses,
-      topIndustries,
-      topNeighborhoods,
-      businessAgeDistribution,
-      revenueDistribution,
-      monthlyTrends,
-    };
-
-    this.cache.set(cacheKey, analytics);
-    return analytics;
+    }
   }
 
   /**
-   * Get unique values for filters
+   * Get filter options for search UI
    */
-  async getFilterOptions(): Promise<{
-    industries: string[];
-    neighborhoods: string[];
-    businessTypes: string[];
-    clusters: string[];
-  }> {
-    await this.ensureLoaded();
+  async getFilterOptions() {
+    if (this.filterOptionsCache && this.isCacheValid()) {
+      return this.filterOptionsCache;
+    }
 
-    return {
-      industries: [...new Set(this.businesses.map((b) => b.industry))].sort(),
-      neighborhoods: [
-        ...new Set(this.businesses.map((b) => b.neighborhood)),
-      ].sort(),
-      businessTypes: [
-        ...new Set(this.businesses.map((b) => b.businessType)),
-      ].sort(),
-      clusters: [...new Set(this.businesses.map((b) => b.cluster))].sort(),
-    };
+    try {
+      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1 });
+      this.filterOptionsCache = data.filters;
+      return data.filters;
+    } catch (error) {
+      console.error("❌ Failed to fetch filter options:", error);
+      return {
+        industries: [],
+        neighborhoods: [],
+        businessTypes: [],
+        clusters: [],
+      };
+    }
   }
 
   /**
-   * Clear cache
+   * Get a specific business by ID
+   */
+  async getBusinessById(id: string): Promise<Business | null> {
+    try {
+      // First try to find in cache
+      const allBusinesses = await this.getAllBusinesses();
+      const business = allBusinesses.find(b => b.id === id);
+      
+      if (business) {
+        return business;
+      }
+
+      // If not in cache, make specific API call
+      const data: ApiResponse = await api.getWithParams("/businesses", { companyIds: id, limit: 1 });
+      return data.businesses.length > 0 ? data.businesses[0] : null;
+    } catch (error) {
+      console.error(`❌ Failed to fetch business ${id}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get businesses by industry
+   */
+  async getBusinessesByIndustry(industry: string): Promise<Business[]> {
+    try {
+      return this.searchBusinesses({ industry: [industry] }, 1, 100).then(result => result.businesses);
+    } catch (error) {
+      console.error(`❌ Failed to fetch businesses for industry ${industry}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent businesses (by creation date)
+   */
+  async getRecentBusinesses(limit: number = 10): Promise<Business[]> {
+    try {
+      const data: ApiResponse = await api.getWithParams("/businesses", {
+        limit,
+        sortBy: "created_at",
+        sortOrder: "desc"
+      });
+      return data.businesses;
+    } catch (error) {
+      console.error("❌ Failed to fetch recent businesses:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Check if cache is still valid
+   */
+  private isCacheValid(): boolean {
+    return this.cacheTimestamp > 0 && (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION;
+  }
+
+  /**
+   * Clear all caches
    */
   clearCache(): void {
     this.cache.clear();
+    this.filterOptionsCache = null;
+    this.analyticsCache = null;
+    this.allBusinessesCache = [];
+    this.cacheTimestamp = 0;
   }
 
   /**
-   * Get data metadata
+   * Generate embeddings for all businesses (utility method)
    */
-  async getMetadata() {
-    await this.ensureLoaded();
-    return this.data?.metadata;
+  async generateEmbeddings(batchSize: number = 20): Promise<void> {
+    try {
+      const result = await api.post('/generate-embeddings', { batchSize });
+      console.log('✅ Embeddings generated:', result);
+    } catch (error) {
+      console.error("❌ Failed to generate embeddings:", error);
+      throw error;
+    }
   }
 }
 

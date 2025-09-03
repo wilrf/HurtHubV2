@@ -132,13 +132,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Check 2: Supabase Configuration
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || 
-                     process.env.SUPABASE_SUPABASE_URL || 
-                     process.env.SUPABASE_URL;
+  const supabaseUrl = process.env.SUPABASE_URL || 
+                     process.env.SUPABASE_SUPABASE_URL;
   
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 
-                          process.env.SUPABASE_ANON_KEY || 
-                          process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 
+                          process.env.SUPABASE_SUPABASE_ANON_KEY;
   
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
                              process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY;
@@ -148,9 +146,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     hasAnonKey: !!supabaseAnonKey,
     hasServiceKey: !!supabaseServiceKey,
     urlValue: supabaseUrl ? supabaseUrl.substring(0, 50) : undefined,
-    urlSource: supabaseUrl === process.env.VITE_SUPABASE_URL ? 'VITE_SUPABASE_URL' :
-               supabaseUrl === process.env.SUPABASE_SUPABASE_URL ? 'SUPABASE_SUPABASE_URL' :
-               supabaseUrl === process.env.SUPABASE_URL ? 'SUPABASE_URL' : 'unknown',
   };
 
   // Check 3: Test Supabase Connection
@@ -162,7 +157,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
       
       // First try a simple connection test
-      const { data: testData, error: testError } = await supabase
+      const { data: _testData, error: testError } = await supabase
         .from('companies')
         .select('id')
         .limit(1);

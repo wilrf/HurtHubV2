@@ -52,9 +52,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseUrl = process.env.SUPABASE_URL;
     if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL environment variable is required');
+      throw new Error('SUPABASE_URL environment variable is required');
     }
 
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -89,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('Search Intent:', searchIntent);
 
     // Step 2: Build smart database query based on intent
-    const searchResults = await performSmartSearch(searchIntent, limit, supabase);
+    const searchResults = await performSmartSearch(searchIntent, limit, supabase, query, openai);
     console.log(`Found ${searchResults.length} results`);
 
     // Step 3: If requested, enhance results with AI context
@@ -158,14 +158,83 @@ async function analyzeSearchIntent(query: string, openai: OpenAI) {
 
     const intentJson = completion.choices[0]?.message?.content;
     return intentJson ? JSON.parse(intentJson) : {};
-  } catch (error) {
+  } catch (error: any) {
     console.error('Intent analysis failed:', error);
     throw new Error(`Failed to analyze search intent: ${error.message}`);
   }
 }
 
-// Perform smart database search based on intent
-async function performSmartSearch(intent: any, limit: number, supabase: any) {
+// Perform smart database search with semantic search
+async function performSmartSearch(intent: any, limit: number, supabase: any, originalQuery: string, openai: OpenAI) {
+  // Strategy 1: Try semantic search first if embeddings are available
+  let semanticResults: any[] = [];
+  try {
+    semanticResults = await performSemanticSearch(originalQuery, openai, supabase, Math.ceil(limit * 0.7));
+    console.log(`Semantic search returned ${semanticResults.length} results`);
+  } catch (error) {
+    console.warn('Semantic search failed, falling back to keyword search:', error);
+  }
+
+  // Strategy 2: Keyword-based search for remaining slots
+  const keywordLimit = semanticResults.length > 0 ? limit - semanticResults.length : limit;
+  let keywordResults: any[] = [];
+  
+  if (keywordLimit > 0) {
+    keywordResults = await performKeywordSearch(intent, keywordLimit, supabase);
+    console.log(`Keyword search returned ${keywordResults.length} results`);
+  }
+
+  // Combine and deduplicate results
+  const allResults = [...semanticResults, ...keywordResults];
+  const uniqueResults = deduplicateResults(allResults);
+  
+  // Sort by relevance score if available, otherwise by revenue
+  return uniqueResults
+    .sort((a, b) => (b.similarity || b.revenue || 0) - (a.similarity || a.revenue || 0))
+    .slice(0, limit);
+}
+
+// Semantic search using vector embeddings
+async function performSemanticSearch(query: string, openai: OpenAI, supabase: any, limit: number) {
+  try {
+    // Generate embedding for the search query
+    const queryEmbedding = await generateQueryEmbedding(query, openai);
+    
+    // Call the semantic_business_search function
+    const { data, error } = await supabase.rpc('semantic_business_search', {
+      query_embedding: queryEmbedding,
+      similarity_threshold: 0.3,
+      match_count: limit
+    });
+
+    if (error) {
+      throw new Error(`Semantic search failed: ${error.message}`);
+    }
+
+    return (data || []).map((item: any) => ({
+      ...item,
+      similarity: item.similarity,
+      searchType: 'semantic'
+    }));
+  } catch (error) {
+    console.error('Semantic search error:', error);
+    return [];
+  }
+}
+
+// Generate embedding for search query
+async function generateQueryEmbedding(query: string, openai: OpenAI): Promise<number[]> {
+  const response = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: query,
+    encoding_format: 'float'
+  });
+
+  return response.data[0].embedding;
+}
+
+// Traditional keyword-based search as fallback
+async function performKeywordSearch(intent: any, limit: number, supabase: any) {
   let query = supabase
     .from('companies')
     .select('*')
@@ -224,7 +293,20 @@ async function performSmartSearch(intent: any, limit: number, supabase: any) {
     throw error;
   }
 
-  return data || [];
+  return (data || []).map((item: any) => ({
+    ...item,
+    searchType: 'keyword'
+  }));
+}
+
+// Remove duplicate results based on company ID
+function deduplicateResults(results: any[]): any[] {
+  const seen = new Set();
+  return results.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
 }
 
 // Enhance results with AI-generated context

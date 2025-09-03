@@ -60,14 +60,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ];
 
     // Use smart AI completion that includes database context
-    const smartRequest = {
-      messages: contextualMessages,
-      model,
-      temperature,
-      stream,
-      sessionId: sessionId || generateSessionId(),
-      module
-    };
 
     if (stream) {
       // For streaming, we'll use the regular OpenAI call but with enhanced context

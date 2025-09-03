@@ -65,7 +65,16 @@
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:platform.openai.com)",
       "WebFetch(domain:community.openai.com)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(copy .env.development .env.local)",
+      "Bash(dir /b .env*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(dir:*)",
+      "Bash(cmd /c:*)",
+      "WebFetch(domain:vitejs.dev)",
+      "WebFetch(domain:vite.dev)",
+      "Bash(del scriptstest-deployment.js)",
+      "Bash(npm run ci:*)"
     ],
     "deny": [],
     "ask": []

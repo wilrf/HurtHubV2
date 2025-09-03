@@ -1,17 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
+import { env } from "@/config/env";
 import type { Database } from "../types/database.types";
 
-// Use only VITE_ prefixed variables (required for Vite client-side access)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use environment configuration for Vercel-only deployment
+const { url, anonKey } = env.supabase;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Supabase credentials are required. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file",
-  );
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(url, anonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,

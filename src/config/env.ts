@@ -19,6 +19,10 @@ interface EnvConfig {
   SENTRY_DSN?: string;
   HOTJAR_ID?: string;
 
+  // Supabase Configuration
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_ANON_KEY?: string;
+
   // Feature Flags
   ENABLE_AI_FEATURES: boolean;
   ENABLE_REAL_TIME: boolean;
@@ -39,29 +43,37 @@ class Environment {
   }
 
   private loadConfig(): EnvConfig {
-    // Required environment variables  
-    const requiredVars = {
-      VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-      VITE_WEBSOCKET_URL: import.meta.env.VITE_WEBSOCKET_URL,
-      VITE_VERCEL_URL: import.meta.env.VITE_VERCEL_URL,
-      VITE_VERCEL_GIT_COMMIT_SHA: import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA,
-      VITE_VERCEL_ENV: import.meta.env.VITE_VERCEL_ENV,
-      VITE_ENABLE_AI_FEATURES: import.meta.env.VITE_ENABLE_AI_FEATURES,
-      VITE_ENABLE_REAL_TIME: import.meta.env.VITE_ENABLE_REAL_TIME,
-      VITE_ENABLE_ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS,
-      VITE_ENABLE_EXPORT: import.meta.env.VITE_ENABLE_EXPORT,
-      VITE_DEBUG_MODE: import.meta.env.VITE_DEBUG_MODE,
-      VITE_SHOW_DEV_TOOLS: import.meta.env.VITE_SHOW_DEV_TOOLS,
-    };
-
-    // Check for missing required vars
-    const missing = Object.entries(requiredVars)
-      .filter(([_, value]) => !value)
-      .map(([key, _]) => key);
-
-    if (missing.length > 0) {
-      throw new Error(`Missing required environment variables: ${missing.join(', ')}. Please check your .env file.`);
+    // Critical Vercel-only validation
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
+    
+    if (!vercelUrl || !vercelEnv) {
+      throw new Error(
+        'VITE_VERCEL_URL and VITE_VERCEL_ENV are required. ' +
+        'This application only runs on Vercel deployments. ' +
+        'Push your changes to a branch for preview deployment.'
+      );
     }
+
+    // Validate Supabase configuration
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error(
+        'Supabase configuration missing. ' +
+        'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY required. ' +
+        'Add to Vercel Dashboard → Environment Variables.'
+      );
+    }
+
+    // Feature flags with defaults
+    const enableAI = this.parseBoolean(import.meta.env.VITE_ENABLE_AI_FEATURES, true);
+    const enableRealTime = this.parseBoolean(import.meta.env.VITE_ENABLE_REAL_TIME, true);
+    const enableAnalytics = this.parseBoolean(import.meta.env.VITE_ENABLE_ANALYTICS, false);
+    const enableExport = this.parseBoolean(import.meta.env.VITE_ENABLE_EXPORT, true);
+    const debugMode = this.parseBoolean(import.meta.env.VITE_DEBUG_MODE, !this.isVercelProduction(vercelEnv));
+    const showDevTools = this.parseBoolean(import.meta.env.VITE_SHOW_DEV_TOOLS, !this.isVercelProduction(vercelEnv));
 
     return {
       // Application (Vercel-based)
@@ -69,9 +81,9 @@ class Environment {
       APP_VERSION: this.getAppVersion(),
       APP_ENV: this.getAppEnv(),
 
-      // API (required)
-      API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-      WEBSOCKET_URL: import.meta.env.VITE_WEBSOCKET_URL,
+      // API (dynamically constructed from Vercel URL)
+      API_BASE_URL: this.getApiBaseUrl(),
+      WEBSOCKET_URL: this.getWebSocketUrl(),
 
       // External Services (client-side only)
       MAPBOX_ACCESS_TOKEN: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
@@ -79,47 +91,56 @@ class Environment {
       SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
       HOTJAR_ID: import.meta.env.VITE_HOTJAR_ID,
 
-      // Feature Flags (required)
-      ENABLE_AI_FEATURES: this.parseBoolean(import.meta.env.VITE_ENABLE_AI_FEATURES),
-      ENABLE_REAL_TIME: this.parseBoolean(import.meta.env.VITE_ENABLE_REAL_TIME),
-      ENABLE_ANALYTICS: this.parseBoolean(import.meta.env.VITE_ENABLE_ANALYTICS),
-      ENABLE_EXPORT: this.parseBoolean(import.meta.env.VITE_ENABLE_EXPORT),
+      // Supabase Configuration
+      VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+      VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
 
-      // Development (required)
-      DEBUG_MODE: this.parseBoolean(import.meta.env.VITE_DEBUG_MODE),
-      SHOW_DEV_TOOLS: this.parseBoolean(import.meta.env.VITE_SHOW_DEV_TOOLS),
+      // Feature Flags (with sensible defaults)
+      ENABLE_AI_FEATURES: enableAI,
+      ENABLE_REAL_TIME: enableRealTime,
+      ENABLE_ANALYTICS: enableAnalytics,
+      ENABLE_EXPORT: enableExport,
+
+      // Development (auto-configured based on environment)
+      DEBUG_MODE: debugMode,
+      SHOW_DEV_TOOLS: showDevTools,
     };
   }
 
   private getAppName(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
-    if (!vercelUrl) {
-      throw new Error('VITE_VERCEL_URL is required. This should be automatically provided by Vercel.');
-    }
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
     return vercelUrl.replace('.vercel.app', '');
+  }
+
+  private getApiBaseUrl(): string {
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
+    return `https://${vercelUrl}`;
+  }
+
+  private getWebSocketUrl(): string {
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
+    return `wss://${vercelUrl}/ws`;
   }
 
   private getAppVersion(): string {
     const gitSha = import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA;
     if (!gitSha) {
-      throw new Error('VITE_VERCEL_GIT_COMMIT_SHA is required. This should be automatically provided by Vercel.');
+      console.warn('VITE_VERCEL_GIT_COMMIT_SHA not available, using timestamp');
+      return new Date().toISOString().slice(0, 10);
     }
     return gitSha.slice(0, 7); // Short commit hash
   }
 
   private getAppEnv(): EnvConfig["APP_ENV"] {
-    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
-    if (!vercelEnv) {
-      throw new Error('VITE_VERCEL_ENV is required. This should be automatically provided by Vercel.');
-    }
+    const vercelEnv = import.meta.env.VITE_VERCEL_ENV!; // Already validated in loadConfig
     if (vercelEnv === 'production') return 'production';
     if (vercelEnv === 'preview') return 'staging';
     return 'development';
   }
 
-  private parseBoolean(value: string | undefined): boolean {
+  private parseBoolean(value: string | undefined, defaultValue: boolean = false): boolean {
     if (value === undefined) {
-      throw new Error('Boolean environment variable is required but not provided');
+      return defaultValue;
     }
     // Trim whitespace and remove any quotes or special characters
     const cleanValue = value
@@ -127,6 +148,10 @@ class Environment {
       .replace(/["'\r\n]/g, "")
       .toLowerCase();
     return cleanValue === "true";
+  }
+
+  private isVercelProduction(vercelEnv: string): boolean {
+    return vercelEnv === 'production';
   }
 
   private validateConfig(): void {
@@ -213,6 +238,20 @@ class Environment {
     return this.config.WEBSOCKET_URL;
   }
 
+  get supabase(): { url: string; anonKey: string } {
+    const url = this.config.VITE_SUPABASE_URL;
+    const anonKey = this.config.VITE_SUPABASE_ANON_KEY;
+    
+    if (!url || !anonKey) {
+      throw new Error(
+        'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required. ' +
+        'Configure in Vercel Dashboard → Environment Variables.'
+      );
+    }
+    
+    return { url, anonKey };
+  }
+
   // OpenAI API key removed - handled server-side only for security
 
   get mapboxAccessToken(): string | undefined {
@@ -289,6 +328,45 @@ class Environment {
   // Get full config (for debugging)
   getConfig(): Readonly<EnvConfig> {
     return Object.freeze({ ...this.config });
+  }
+
+  // Vercel-only API helpers
+  /**
+   * Construct API endpoint paths
+   * @param endpoint - The API endpoint (with or without leading slash)
+   * @returns Full URL to the API endpoint
+   */
+  apiPath(endpoint: string): string {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${this.config.API_BASE_URL}/api${cleanEndpoint}`;
+  }
+
+  /**
+   * Get deployment environment (Vercel-specific)
+   */
+  get vercelEnvironment(): 'production' | 'preview' {
+    return this.config.APP_ENV === 'production' ? 'production' : 'preview';
+  }
+
+  /**
+   * Check if running in Vercel preview environment
+   */
+  get isVercelPreview(): boolean {
+    return this.vercelEnvironment === 'preview';
+  }
+
+  /**
+   * Get deployment metadata
+   */
+  get deploymentInfo() {
+    return {
+      environment: this.vercelEnvironment,
+      url: this.config.API_BASE_URL,
+      appName: this.config.APP_NAME,
+      version: this.config.APP_VERSION,
+      isProduction: this.isProduction(),
+      isPreview: this.isVercelPreview,
+    };
   }
 
   // Update feature flags at runtime (for testing)

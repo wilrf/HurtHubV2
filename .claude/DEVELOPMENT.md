@@ -736,3 +736,23 @@ async function searchCompanies(query: string) {
 *Development Environment: Node.js 18+ with Vite*  
 *Total Scripts: 15+ build and utility scripts*  
 *Code Quality: ESLint + Prettier + TypeScript strict mode*
+
+## ⚠️ 2025-09-03 Development Environment Advisory
+**vercel dev limitations**
+- Env vars set in the Vercel dashboard do NOT load reliably in `vercel dev`.
+- APIs fail with 500 (missing `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`).
+- Debugging consumed significant time; root cause still open.
+
+**Recommended workflow**
+1. Run frontend locally with Vite for UI work:
+   ```bash
+   npm run dev  # http://localhost:3000 (APIs mocked/disabled)
+   ```
+2. For full-stack testing deploy directly to production:
+   ```bash
+   vercel --prod
+   # test at https://hurt-hub-v2.vercel.app
+   ```
+3. Iterate: edit → deploy → test.
+
+This avoids the `vercel dev` blocker until we complete a root-cause fix.

@@ -1,8 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import OpenAI from 'openai';
 
+const apiKey = process.env.OPENAI_API_KEY;
+if (!apiKey) {
+  throw new Error('OPENAI_API_KEY is required but not found in environment variables');
+}
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
+  apiKey: apiKey,
 });
 
 export const config = {
@@ -76,17 +81,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-function getAnalysisPrompt(type: string, depth: string): string {
+function getAnalysisPrompt(type: 'code' | 'business' | 'market' | 'competitive', depth: 'quick' | 'standard' | 'deep'): string {
   const basePrompt = `You are GPT-5, an advanced AI with superior reasoning and analytical capabilities. 
   Perform a ${depth} analysis with the following characteristics:`;
 
-  const depthGuidelines = {
+  const depthGuidelines: Record<'quick' | 'standard' | 'deep', string> = {
     quick: 'Provide key insights and immediate actionable recommendations.',
     standard: 'Deliver comprehensive analysis with supporting data and strategic recommendations.',
     deep: 'Conduct exhaustive analysis using advanced reasoning, identify hidden patterns, predict future trends, and provide detailed strategic roadmap.'
   };
 
-  const typePrompts = {
+  const typePrompts: Record<'code' | 'business' | 'market' | 'competitive', string> = {
     code: `${basePrompt} ${depthGuidelines[depth]}
     
     Analyze the code for:
@@ -128,7 +133,7 @@ function getAnalysisPrompt(type: string, depth: string): string {
     - Potential competitive responses`
   };
 
-  return typePrompts[type] || basePrompt;
+  return typePrompts[type];
 }
 
 function formatDataForAnalysis(type: string, data: any, context?: string): string {
@@ -152,12 +157,12 @@ function formatDataForAnalysis(type: string, data: any, context?: string): strin
 function extractInsights(analysis: string, type: string): any {
   // Extract structured insights from the analysis
   const insights = {
-    keyFindings: [],
-    recommendations: [],
-    risks: [],
-    opportunities: [],
-    metrics: {},
-    priority: 'medium',
+    keyFindings: [] as string[],
+    recommendations: [] as string[],
+    risks: [] as string[],
+    opportunities: [] as string[],
+    metrics: {} as Record<string, any>,
+    priority: 'medium' as string,
   };
 
   // Parse sections from the analysis

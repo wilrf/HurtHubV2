@@ -9,7 +9,7 @@ A comprehensive web application providing real-time economic intelligence, commu
 - **Dashboard** - Central navigation and key metrics overview
 - **Community Pulse** - Real-time community development monitoring with news aggregation and trend analysis
 - **Business Intelligence** - Advanced analytics including competitive analysis, sector performance, and market trends
-- **AI Assistant** - Integrated chatbot with RAG pipeline for intelligent queries
+- **AI Assistant** - Integrated chatbot backed by Supabase. Semantic search with embeddings is planned and tracked (see Roadmap).
 - **Company Database** - Comprehensive search and filtering of 12,000+ local businesses
 - **Real-time Updates** - WebSocket integration for live data feeds
 - **Interactive Visualizations** - Charts, maps, and data displays
