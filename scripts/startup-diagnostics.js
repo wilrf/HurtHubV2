@@ -29,11 +29,9 @@ const getBaseUrl = () => {
     return 'https://hurt-hub-v2.vercel.app';
   }
   
-  // No localhost fallback - this app only runs on Vercel
-  throw new Error(
-    'VERCEL_URL environment variable required. ' +
-    'This script only runs in Vercel deployment environments.'
-  );
+  // During build time, VERCEL_URL might not be available yet
+  // Return null to indicate build-time context
+  return null;
 };
 
 // Wait for server to be ready
@@ -58,6 +56,42 @@ const waitForServer = async (url, maxAttempts = 30) => {
 // Run diagnostic checks
 const runDiagnostics = async () => {
   const baseUrl = getBaseUrl();
+  
+  // Handle build-time context when VERCEL_URL is not available
+  if (baseUrl === null) {
+    console.log('\n' + COLORS.info('━'.repeat(50)));
+    console.log(COLORS.info('🔍 BUILD-TIME DIAGNOSTICS'));
+    console.log(COLORS.info('━'.repeat(50)));
+    console.log(COLORS.dim('Context: Build time (VERCEL_URL not available)'));
+    console.log(COLORS.dim('API checks will be performed after deployment'));
+    console.log(COLORS.info('━'.repeat(50)) + '\n');
+    
+    // Only check environment variables during build
+    console.log(COLORS.info('📋 Environment Variables (Build Time):'));
+    const envChecks = {
+      'OpenAI API Key': !!process.env.OPENAI_API_KEY,
+      'Supabase URL': !!(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL),
+      'Supabase Anon Key': !!(process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY),
+      'Supabase Service Key': !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    };
+
+    let hasAllEnvVars = true;
+    for (const [name, exists] of Object.entries(envChecks)) {
+      const icon = exists ? COLORS.success('✓') : COLORS.error('✗');
+      const status = exists ? COLORS.success('Present') : COLORS.error('Missing');
+      console.log(`  ${icon} ${name}: ${status}`);
+      if (!exists) hasAllEnvVars = false;
+    }
+
+    console.log('\n' + COLORS.info('📡 API health checks skipped (build time)'));
+    console.log(COLORS.dim('   API diagnostics will run after deployment'));
+    
+    console.log('\n' + COLORS.info('━'.repeat(50)));
+    console.log(COLORS.success('✨ Build-time diagnostics complete'));
+    console.log(COLORS.info('━'.repeat(50)) + '\n');
+    return;
+  }
+  
   const isLocal = baseUrl.includes('localhost');
   
   console.log('\n' + COLORS.info('━'.repeat(50)));

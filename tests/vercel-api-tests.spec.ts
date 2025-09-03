@@ -7,13 +7,14 @@ import { test, expect } from '@playwright/test';
  * Prerequisites: Run `vercel dev` before executing these tests
  */
 
-const BASE_URL = 'http://localhost:3005';
+// Use baseURL from Playwright config (supports both localhost and Vercel URLs)
+// Will be set by playwright.config.ts based on environment
 
 test.describe('Database-First API Implementation', () => {
   
   test.describe('/api/businesses endpoint', () => {
     test('should fetch businesses from database', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/businesses?limit=10`);
+      const response = await request.get(`/api/businesses?limit=10`);
       
       expect(response.status()).toBe(200);
       const data = await response.json();
@@ -36,7 +37,7 @@ test.describe('Database-First API Implementation', () => {
     });
 
     test('should handle business search with filters', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/businesses?query=financial&industry=Financial Services&limit=5`);
+      const response = await request.get(`/api/businesses?query=financial&industry=Financial Services&limit=5`);
       
       expect(response.status()).toBe(200);
       const data = await response.json();
@@ -48,7 +49,7 @@ test.describe('Database-First API Implementation', () => {
     });
 
     test('should provide analytics data', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/businesses?limit=1`);
+      const response = await request.get(`/api/businesses?limit=1`);
       
       expect(response.status()).toBe(200);
       const data = await response.json();
@@ -63,8 +64,8 @@ test.describe('Database-First API Implementation', () => {
     });
 
     test('should handle pagination correctly', async ({ request }) => {
-      const page1 = await request.get(`${BASE_URL}/api/businesses?page=1&limit=5`);
-      const page2 = await request.get(`${BASE_URL}/api/businesses?page=2&limit=5`);
+      const page1 = await request.get(`/api/businesses?page=1&limit=5`);
+      const page2 = await request.get(`/api/businesses?page=2&limit=5`);
       
       expect(page1.status()).toBe(200);
       expect(page2.status()).toBe(200);
@@ -88,7 +89,7 @@ test.describe('Database-First API Implementation', () => {
         useAI: true
       };
 
-      const response = await request.post(`${BASE_URL}/api/ai-search`, {
+      const response = await request.post(`/api/ai-search`, {
         data: searchQuery
       });
       
@@ -106,7 +107,7 @@ test.describe('Database-First API Implementation', () => {
     });
 
     test('should handle semantic search with embeddings', async ({ request }) => {
-      const response = await request.post(`${BASE_URL}/api/ai-search`, {
+      const response = await request.post(`/api/ai-search`, {
         data: {
           query: 'technology innovation startups',
           limit: 3
@@ -127,7 +128,7 @@ test.describe('Database-First API Implementation', () => {
   test.describe('/api/generate-embeddings endpoint', () => {
     test('should check embedding generation capability', async ({ request }) => {
       // Test with a small batch to avoid timeout
-      const response = await request.post(`${BASE_URL}/api/generate-embeddings`, {
+      const response = await request.post(`/api/generate-embeddings`, {
         data: {
           batchSize: 1,
           forceRegenerate: false
@@ -147,7 +148,7 @@ test.describe('Database-First API Implementation', () => {
 
   test.describe('Error Handling (No Fallbacks)', () => {
     test('should fail explicitly with missing parameters', async ({ request }) => {
-      const response = await request.post(`${BASE_URL}/api/ai-search`, {
+      const response = await request.post(`/api/ai-search`, {
         data: {} // Missing required query
       });
       
@@ -162,7 +163,7 @@ test.describe('Database-First API Implementation', () => {
 
 test.describe('Frontend Database Integration', () => {
   test('should load business data in frontend', async ({ page }) => {
-    await page.goto(`${BASE_URL}/business-intelligence`);
+    await page.goto(`/business-intelligence`);
     
     // Wait for data to load
     await page.waitForSelector('[data-testid="business-count"], .business-card, .loading', { timeout: 10000 });
@@ -184,7 +185,7 @@ test.describe('Frontend Database Integration', () => {
   });
 
   test('should perform search through new API', async ({ page }) => {
-    await page.goto(`${BASE_URL}/business-intelligence`);
+    await page.goto(`/business-intelligence`);
     
     // Wait for page to load
     await page.waitForLoadState('networkidle');
@@ -210,7 +211,7 @@ test.describe('Frontend Database Integration', () => {
 test.describe('AI Chat Database Integration', () => {
   test('should use database context in AI chat', async ({ page }) => {
     // Navigate to AI chat
-    await page.goto(`${BASE_URL}/business-intelligence`);
+    await page.goto(`/business-intelligence`);
     await page.waitForLoadState('networkidle');
     
     // Look for AI chat interface

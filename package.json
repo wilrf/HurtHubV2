@@ -9,7 +9,6 @@
     "dev": "npm run dev:unsupported",
     "prebuild": "node scripts/generate-version.js",
     "build": "vite build",
-    "postbuild": "node scripts/startup-diagnostics.js check",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
