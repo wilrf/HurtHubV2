@@ -198,7 +198,10 @@ export function CommunityPulse() {
       {/* AI Assistant - Redesigned with Split Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* AI Chat Section - Takes 2/3 width on larger screens */}
-        <Card variant={isDarkMode ? "glass" : "elevated"} className="lg:col-span-2">
+        <Card
+          variant={isDarkMode ? "glass" : "elevated"}
+          className="lg:col-span-2"
+        >
           <CardHeader className="pb-4 border-b border-midnight-700/50">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -211,7 +214,10 @@ export function CommunityPulse() {
                   neighborhood developments
                 </p>
               </div>
-              <Badge variant="secondary" className="flex items-center px-3 py-1.5">
+              <Badge
+                variant="secondary"
+                className="flex items-center px-3 py-1.5"
+              >
                 <Zap className="h-3 w-3 mr-1" />
                 AI Powered
               </Badge>
@@ -233,7 +239,7 @@ export function CommunityPulse() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <button 
+              <button
                 className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
                 onClick={() => {}}
               >
@@ -241,9 +247,11 @@ export function CommunityPulse() {
                   <span className="text-xs font-medium">Trending Topics</span>
                   <TrendingUp className="h-3 w-3 text-sapphire-400" />
                 </div>
-                <span className="text-xs text-muted-foreground">Partnership networks, NoDa growth</span>
+                <span className="text-xs text-muted-foreground">
+                  Partnership networks, NoDa growth
+                </span>
               </button>
-              <button 
+              <button
                 className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
                 onClick={() => {}}
               >
@@ -251,9 +259,11 @@ export function CommunityPulse() {
                   <span className="text-xs font-medium">Hot Neighborhoods</span>
                   <MapPin className="h-3 w-3 text-sapphire-400" />
                 </div>
-                <span className="text-xs text-muted-foreground">South End, Plaza Midwood</span>
+                <span className="text-xs text-muted-foreground">
+                  South End, Plaza Midwood
+                </span>
               </button>
-              <button 
+              <button
                 className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
                 onClick={() => {}}
               >
@@ -261,7 +271,9 @@ export function CommunityPulse() {
                   <span className="text-xs font-medium">Community Events</span>
                   <Calendar className="h-3 w-3 text-sapphire-400" />
                 </div>
-                <span className="text-xs text-muted-foreground">{communityMetrics?.eventsThisMonth || 0} this month</span>
+                <span className="text-xs text-muted-foreground">
+                  {communityMetrics?.eventsThisMonth || 0} this month
+                </span>
               </button>
             </CardContent>
           </Card>
@@ -280,7 +292,9 @@ export function CommunityPulse() {
                   <div className="w-2 h-2 bg-sapphire-400 rounded-full mt-1.5 animate-pulse" />
                   <div className="flex-1">
                     <p className="text-xs font-medium">New Partnership</p>
-                    <p className="text-xs text-muted-foreground">15 businesses joined network</p>
+                    <p className="text-xs text-muted-foreground">
+                      15 businesses joined network
+                    </p>
                     <p className="text-xs text-sapphire-400">2 mins ago</p>
                   </div>
                 </div>
@@ -288,7 +302,9 @@ export function CommunityPulse() {
                   <div className="w-2 h-2 bg-sapphire-500 rounded-full mt-1.5" />
                   <div className="flex-1">
                     <p className="text-xs font-medium">Event Scheduled</p>
-                    <p className="text-xs text-muted-foreground">Tech Meetup in NoDa</p>
+                    <p className="text-xs text-muted-foreground">
+                      Tech Meetup in NoDa
+                    </p>
                     <p className="text-xs text-sapphire-400">15 mins ago</p>
                   </div>
                 </div>
@@ -296,7 +312,9 @@ export function CommunityPulse() {
                   <div className="w-2 h-2 bg-sapphire-300 rounded-full mt-1.5" />
                   <div className="flex-1">
                     <p className="text-xs font-medium">Growth Alert</p>
-                    <p className="text-xs text-muted-foreground">23% increase in Plaza</p>
+                    <p className="text-xs text-muted-foreground">
+                      23% increase in Plaza
+                    </p>
                     <p className="text-xs text-sapphire-400">1 hour ago</p>
                   </div>
                 </div>
@@ -322,7 +340,9 @@ export function CommunityPulse() {
                 className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
                 onClick={() => {
                   // Could integrate with AI chat to auto-populate question
-                  console.log("Question clicked: What's the business growth trend in NoDa?");
+                  console.log(
+                    "Question clicked: What's the business growth trend in NoDa?",
+                  );
                 }}
               >
                 "What's the business growth trend in NoDa?"
@@ -330,7 +350,9 @@ export function CommunityPulse() {
               <button
                 className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
                 onClick={() => {
-                  console.log("Question clicked: Which neighborhoods have the most partnerships?");
+                  console.log(
+                    "Question clicked: Which neighborhoods have the most partnerships?",
+                  );
                 }}
               >
                 "Which neighborhoods have the most partnerships?"
@@ -338,7 +360,9 @@ export function CommunityPulse() {
               <button
                 className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
                 onClick={() => {
-                  console.log("Question clicked: Show me community engagement metrics");
+                  console.log(
+                    "Question clicked: Show me community engagement metrics",
+                  );
                 }}
               >
                 "Show me community engagement metrics"

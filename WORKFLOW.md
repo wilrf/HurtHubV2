@@ -30,6 +30,7 @@ git push origin feature/my-feature
 ## 🤔 Why Vercel-Only?
 
 ### ✅ **Advantages**
+
 - **No Environment Issues** - Vercel handles all environment variables
 - **Real APIs Always** - Every change tested with actual backend services
 - **Zero Configuration** - No `.env` files, no local setup required
@@ -40,8 +41,9 @@ git push origin feature/my-feature
 - **Production Parity** - Preview environments match production exactly
 
 ### ❌ **What We Eliminated**
+
 - Environment variable configuration issues
-- Local database connection problems  
+- Local database connection problems
 - API endpoint inconsistencies
 - SSL/HTTPS certificate issues
 - Port conflicts and local server problems
@@ -49,33 +51,37 @@ git push origin feature/my-feature
 
 ## 📋 Available Commands
 
-| Command | Runs Where | Purpose | Notes |
-|---------|------------|---------|-------|
-| `npm run quality` | Local | Lint + type-check + format-check | Uses mocked environment |
-| `npm run test` | Local | Unit tests | Uses mocked environment |
-| `npm run ci` | CI/GitHub Actions | Full quality + build check | Used in automation |
-| `npm run build` | Local/CI | Production build | Requires valid env vars |
-| `git push` | → Vercel | Deploy preview | Automatic via git integration |
-| `npm run dev` | ❌ Disabled | Shows helpful error message | Redirects to proper workflow |
+| Command           | Runs Where        | Purpose                          | Notes                         |
+| ----------------- | ----------------- | -------------------------------- | ----------------------------- |
+| `npm run quality` | Local             | Lint + type-check + format-check | Uses mocked environment       |
+| `npm run test`    | Local             | Unit tests                       | Uses mocked environment       |
+| `npm run ci`      | CI/GitHub Actions | Full quality + build check       | Used in automation            |
+| `npm run build`   | Local/CI          | Production build                 | Requires valid env vars       |
+| `git push`        | → Vercel          | Deploy preview                   | Automatic via git integration |
+| `npm run dev`     | ❌ Disabled       | Shows helpful error message      | Redirects to proper workflow  |
 
 ## 🧪 Testing Strategy
 
-### **Unit Tests** 
+### **Unit Tests**
+
 - ✅ Run locally with mocked environment
 - ✅ Fast feedback loop for business logic
 - ✅ No real API dependencies
 
 ### **Integration Testing**
+
 - ✅ Test on preview deployments
 - ✅ Real database connections
 - ✅ Actual API responses
 
 ### **End-to-End Testing**
+
 - ✅ Automated against preview URLs via Playwright
 - ✅ Full user journey validation
 - ✅ Visual regression testing
 
 ### **Manual QA**
+
 - ✅ Always performed on real Vercel URLs
 - ✅ Cross-browser testing on live deployments
 - ✅ Mobile device testing on HTTPS URLs
@@ -83,6 +89,7 @@ git push origin feature/my-feature
 ## 🔧 Development Workflow
 
 ### **Daily Development**
+
 ```bash
 # Morning setup
 git pull origin main
@@ -103,12 +110,14 @@ git push origin feature/new-feature
 ```
 
 ### **Code Review Process**
+
 1. **Create Pull Request** - Preview deployment starts automatically
 2. **Code Review** - Reviewers check both code AND live preview
 3. **QA Testing** - Test actual functionality on preview URL
 4. **Merge** - Deploys to production automatically
 
 ### **Hotfix Workflow**
+
 ```bash
 # Emergency fixes
 git checkout main
@@ -132,12 +141,15 @@ git push origin hotfix/critical-fix
 ## 🌍 Environment Strategy
 
 ### **Vercel Environments**
+
 - **Production** (`main` branch) - Live application at custom domain
 - **Preview** (feature branches) - Temporary URLs for testing
 - **Development** - N/A (eliminated by design)
 
 ### **Environment Variables**
+
 All managed in Vercel Dashboard:
+
 - `VITE_VERCEL_URL` - Auto-injected by Vercel
 - `VITE_VERCEL_ENV` - Auto-injected (`production`/`preview`)
 - `VITE_SUPABASE_URL` - Configured in Vercel Dashboard
@@ -146,6 +158,7 @@ All managed in Vercel Dashboard:
 - `OPENAI_API_KEY` - Server-side only
 
 ### **No Local Environment Files**
+
 - ❌ No `.env` files in the project
 - ❌ No environment setup documentation
 - ❌ No local configuration steps
@@ -154,26 +167,32 @@ All managed in Vercel Dashboard:
 ## 🚨 Troubleshooting
 
 ### **"I can't run the app locally!"**
+
 ✅ **This is intentional.** Push your branch to see changes.
 
 ### **"npm run dev doesn't work!"**
+
 ✅ **Expected behavior.** The command shows instructions to push your code.
 
-### **"My API calls are failing in tests!"**  
+### **"My API calls are failing in tests!"**
+
 ✅ **Check the mocked environment** in `src/test/setup.ts` - unit tests use mocks, integration tests use real APIs.
 
 ### **"Preview deployment failed!"**
+
 1. Check GitHub Actions for build errors
 2. Run `npm run quality` locally first
 3. Verify all required environment variables are set in Vercel Dashboard
 4. Check Vercel deployment logs in the dashboard
 
 ### **"Environment variable is undefined!"**
+
 1. Add it to Vercel Dashboard (Settings → Environment Variables)
 2. Redeploy by pushing another commit
 3. Verify the variable is properly referenced in `src/config/env.ts`
 
 ### **"How do I debug issues?"**
+
 1. Use browser DevTools on the preview deployment
 2. Check Network tab for API call failures
 3. Use console.log statements (visible in browser console)
@@ -182,6 +201,7 @@ All managed in Vercel Dashboard:
 ## 📚 Team Onboarding
 
 ### **New Developer Setup** (< 5 minutes)
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/yourorg/hurt-hub-v2
@@ -206,6 +226,7 @@ git push origin feature/my-first-change
 ```
 
 ### **What New Developers DON'T Need**
+
 - ❌ Docker installation
 - ❌ Local database setup
 - ❌ Environment variable configuration
@@ -215,8 +236,9 @@ git push origin feature/my-first-change
 - ❌ Local hosting setup
 
 ### **Learning Curve**
+
 - **Existing React/TypeScript developers**: ~30 minutes
-- **Developers new to Vercel**: ~1 hour  
+- **Developers new to Vercel**: ~1 hour
 - **Junior developers**: ~2 hours
 
 All learning time is spent on business logic, not environment setup!
@@ -227,7 +249,7 @@ Since implementing Vercel-only deployment:
 
 - **Zero "works on my machine" issues** - Eliminated environment discrepancies
 - **50% faster PR-to-preview time** - No local build/deploy steps
-- **100% API availability during development** - Always testing against real services  
+- **100% API availability during development** - Always testing against real services
 - **Zero environment configuration issues** - No local env setup required
 - **Simplified onboarding** - Clone → npm install → push → done
 

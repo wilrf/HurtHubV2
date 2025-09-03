@@ -1,6 +1,6 @@
 /**
  * Application constants
- * 
+ *
  * Note: APP_NAME and APP_VERSION are now handled by env.ts using Vercel variables
  * Use env.appName and env.appVersion instead
  */

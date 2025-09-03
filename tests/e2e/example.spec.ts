@@ -3,10 +3,12 @@ import { test, expect } from "@playwright/test";
 test.describe.skip("Charlotte Economic Development Platform", () => {
   test("should display the homepage correctly", async ({ page }) => {
     // Add retry logic for initial page load
-    await page.goto("/", { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto("/", { waitUntil: "networkidle", timeout: 30000 });
 
     // Check if the page loads
-    await expect(page).toHaveTitle(/Charlotte Economic Development Platform/, { timeout: 10000 });
+    await expect(page).toHaveTitle(/Charlotte Economic Development Platform/, {
+      timeout: 10000,
+    });
 
     // Check for main navigation elements
     await expect(page.locator("nav")).toBeVisible({ timeout: 10000 });
@@ -65,15 +67,15 @@ test.describe.skip("Search Functionality", () => {
     await page.goto("/");
 
     // Look for search input - use first() to handle multiple matches
-    const searchInput = page.locator(
-      'input[type="search"], input[placeholder*="search" i]',
-    ).first();
+    const searchInput = page
+      .locator('input[type="search"], input[placeholder*="search" i]')
+      .first();
     if (await searchInput.isVisible()) {
       await searchInput.fill("test company");
       await searchInput.press("Enter");
 
       // Wait for search results (use proper wait instead of timeout)
-      await page.waitForLoadState('networkidle', { timeout: 5000 });
+      await page.waitForLoadState("networkidle", { timeout: 5000 });
 
       // Check if search results are displayed
       await expect(page.locator("main")).toContainText(

@@ -10,13 +10,15 @@ export default defineConfig({
   fullyParallel: true,
   retries: 1, // Retry once for network flakiness
   workers: 1,
-  reporter: [['list'], ['html']],
+  reporter: [["list"], ["html"]],
   use: {
     // Use Vercel URL from environment or fallback to production
-    baseURL: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://charlotte-econdev-platform.vercel.app',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://charlotte-econdev-platform.vercel.app",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {

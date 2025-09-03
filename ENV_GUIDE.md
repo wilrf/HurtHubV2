@@ -4,11 +4,11 @@
 
 We now have **ONLY 3 environment files** (down from 9!):
 
-| File | Purpose | Committed to Git? | Used Where |
-|------|---------|------------------|------------|
-| `.env` | Local development | ❌ NO | Your machine |
-| `.env.production` | Production values | ❌ NO | Vercel deployment |
-| `.env.example` | Template/Documentation | ✅ YES | Reference for developers |
+| File              | Purpose                | Committed to Git? | Used Where               |
+| ----------------- | ---------------------- | ----------------- | ------------------------ |
+| `.env`            | Local development      | ❌ NO             | Your machine             |
+| `.env.production` | Production values      | ❌ NO             | Vercel deployment        |
+| `.env.example`    | Template/Documentation | ✅ YES            | Reference for developers |
 
 ## 📁 File Structure
 
@@ -44,12 +44,14 @@ npm run dev
 ### Production (Vercel)
 
 **Option 1: Vercel Dashboard (Recommended)**
+
 1. Go to your project in Vercel
 2. Settings → Environment Variables
 3. Add each variable from `.env.production`
 4. Deploy
 
 **Option 2: Using .env.production file**
+
 1. Copy `.env.example` to `.env.production`
 2. Fill in production values
 3. Deploy: `vercel --prod`
@@ -57,6 +59,7 @@ npm run dev
 ## ⚠️ Critical Rules
 
 ### 1. NO NEWLINES IN VALUES
+
 ```bash
 # ❌ WRONG - Has newline
 VITE_APP_NAME="My App\n"
@@ -66,10 +69,12 @@ VITE_APP_NAME="My App"
 ```
 
 ### 2. Use Correct Supabase Project
+
 - **Correct**: `osnbklmavnsxpgktdeun` (299 companies)
 - **Wrong**: `vueccqtftltszqropcyk` (old/empty)
 
 ### 3. Variable Prefixes
+
 - `VITE_*` → Available in browser (public)
 - No prefix → Server-side only (secret)
 - `NEXT_PUBLIC_*` → Don't use (we're Vite, not Next.js)
@@ -77,6 +82,7 @@ VITE_APP_NAME="My App"
 ## 🔑 Required Variables
 
 ### Minimum for Development
+
 ```env
 # OpenAI
 OPENAI_API_KEY=sk-proj-...
@@ -88,6 +94,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 
 ### Additional for Production
+
 - All the above PLUS
 - Vercel auto-adds: `SUPABASE_SUPABASE_*` variables
 - App config: `VITE_APP_ENV=production`
@@ -95,16 +102,19 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ## 🐛 Troubleshooting
 
 ### "Environment variable not found"
+
 1. Check spelling (case-sensitive!)
 2. Restart dev server after changes
 3. Verify no newlines in values
 
 ### "Invalid API key"
+
 1. Check for whitespace/newlines
 2. Verify key format (sk-proj-... for OpenAI)
 3. Ensure using correct Supabase project
 
 ### API routes failing on Vercel
+
 1. Check Vercel dashboard for env vars
 2. Redeploy after adding variables
 3. Test with `/api/diagnose` endpoint
@@ -112,6 +122,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ## 🗑️ Cleanup Notes
 
 The following files were archived to `.env-backup/` and can be deleted:
+
 - `.env.local` - Redundant with `.env`
 - `.env.gpt5.example` - Outdated
 - `.env.vercel` - Had placeholders

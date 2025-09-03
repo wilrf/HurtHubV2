@@ -5,6 +5,7 @@
 The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globally distributed API endpoints. All APIs are built with TypeScript and follow RESTful principles with proper CORS configuration.
 
 ### Base URL
+
 - **Production**: `https://hurt-hub-v2.vercel.app/api/`
 - **Development**: `http://localhost:3000/api/`
 
@@ -13,6 +14,7 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 ## 🔧 Diagnostic & Testing APIs
 
 ### **`/api/diagnose`** - Comprehensive System Diagnostics
+
 **Purpose**: Full health check for OpenAI and Supabase configurations
 
 - **Method**: `GET`
@@ -23,12 +25,14 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 **Response**: Detailed system health report including API keys validation, connection tests, and recommendations
 
 ### **`/api/test-openai`** - OpenAI Connection Test
+
 **Purpose**: Quick test specifically for OpenAI API connectivity
 
 - **Method**: `GET`
 - **Response**: Connection status and key validation info
 
 ### **`/api/test-env`** - Environment Variables Check
+
 **Purpose**: Lists which environment variables are present (not values)
 
 - **Method**: `GET`
@@ -41,6 +45,7 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 ## 🤖 AI & Chat APIs
 
 ### 1. **`/api/ai-chat-simple`** - Primary AI Chat Endpoint
+
 **Purpose**: Main AI conversation interface with business context injection
 
 - **Method**: `POST`
@@ -50,6 +55,7 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 - **Initialization**: Lazy-loaded OpenAI client via singleton pattern
 
 **Request Format**:
+
 ```typescript
 {
   messages: ChatMessage[];        // Conversation history
@@ -61,16 +67,18 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 ```
 
 **Response Format**:
+
 ```typescript
 {
-  content: string;               // AI response
-  usage: OpenAI.Usage;          // Token usage stats
-  model: string;                // Model used
-  sessionId: string;            // Session identifier
+  content: string; // AI response
+  usage: OpenAI.Usage; // Token usage stats
+  model: string; // Model used
+  sessionId: string; // Session identifier
 }
 ```
 
 **Key Features**:
+
 - ✅ **Smart Business Context**: Automatically queries Supabase for relevant business data
 - ✅ **Session Management**: Persistent conversation tracking
 - ✅ **Context Enhancement**: Injects real Charlotte business data into AI responses
@@ -79,12 +87,14 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 - ✅ **Environment Safety**: Lazy initialization ensures env vars are loaded
 
 **Data Flow**:
+
 ```
-Request → Analyze Query → Fetch Business Data → 
+Request → Analyze Query → Fetch Business Data →
 Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 ### 2. **`/api/chat`** - Alternative Chat Interface
+
 **Purpose**: Legacy chat endpoint with GPT-5 integration support
 
 - **Method**: `POST`
@@ -92,6 +102,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Features**: Streaming support, session management
 
 **Request Format**:
+
 ```typescript
 {
   messages: ChatMessage[];
@@ -104,13 +115,15 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 ### 3. **`/api/analyze`** - Deep Analysis Engine
+
 **Purpose**: Advanced business analysis with GPT-4 reasoning
 
-- **Method**: `POST`  
+- **Method**: `POST`
 - **Max Duration**: 120 seconds (extended for deep analysis)
 - **Authentication**: None
 
 **Request Format**:
+
 ```typescript
 {
   type: 'code' | 'business' | 'market' | 'competitive';
@@ -121,12 +134,14 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Analysis Types**:
+
 - **`business`**: Company performance, metrics, trends
 - **`market`**: Industry analysis, competitive landscape
 - **`competitive`**: Competitor analysis and positioning
 - **`code`**: Technical code analysis and recommendations
 
-### 4. **`/api/context`** - Conversation Context Management  
+### 4. **`/api/context`** - Conversation Context Management
+
 **Purpose**: Advanced conversation context storage and retrieval
 
 - **Methods**: `GET`, `POST`
@@ -134,6 +149,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Features**: Semantic search, conversation summaries
 
 **Actions Supported**:
+
 ```typescript
 {
   action: 'store' | 'retrieve' | 'search' | 'summarize';
@@ -146,8 +162,9 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Features**:
+
 - **Context Storage**: Persistent conversation history
-- **Semantic Search**: Find relevant past conversations  
+- **Semantic Search**: Find relevant past conversations
 - **Summarization**: AI-powered conversation summaries
 - **User-based Context**: User-specific conversation retrieval
 
@@ -156,6 +173,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ## 📊 Data & Query APIs
 
 ### 5. **`/api/data-query`** - Business Data Query Engine
+
 **Purpose**: Structured business data retrieval with smart filtering
 
 - **Method**: `POST`
@@ -163,6 +181,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Response Time**: ~200-500ms
 
 **Request Format**:
+
 ```typescript
 {
   query: string;                // Natural language or structured query
@@ -179,6 +198,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Query Types**:
+
 - **`companies`**: Business entity data, revenue, employees
 - **`developments`**: Business news, updates, announcements
 - **`economic`**: Economic indicators, GDP, unemployment data
@@ -186,6 +206,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **`search`**: Full-text search across all business data
 
 **Response Format**:
+
 ```typescript
 {
   success: boolean;
@@ -211,6 +232,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ## 🏥 System Health & Monitoring
 
 ### 6. **`/api/diagnose`** - Comprehensive Diagnostics Endpoint
+
 **Purpose**: Deep system diagnostics and environment validation
 
 - **Method**: `GET`
@@ -218,6 +240,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Use Cases**: Deployment verification, debugging, monitoring
 
 **Response Format**:
+
 ```typescript
 {
   timestamp: string;
@@ -263,6 +286,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Diagnostic Features**:
+
 - ✅ **OpenAI Key Validation**: Format, length, whitespace detection
 - ✅ **Supabase Configuration**: Multi-source env var checking
 - ✅ **Live Connection Tests**: Actual API calls to verify credentials
@@ -270,6 +294,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - ✅ **Status Codes**: 200 (healthy), 503 (degraded), 500 (critical)
 
 ### 7. **`/api/health-check`** - System Health Monitoring
+
 **Purpose**: Comprehensive system health and database status
 
 - **Method**: `GET`
@@ -277,6 +302,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Use Cases**: Monitoring, debugging, system diagnostics
 
 **Response Format**:
+
 ```typescript
 {
   status: 'healthy' | 'unhealthy' | 'error';
@@ -304,13 +330,15 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Health Checks**:
+
 - ✅ **Database Connectivity**: Supabase connection test
-- ✅ **Table Accessibility**: RLS policy verification  
+- ✅ **Table Accessibility**: RLS policy verification
 - ✅ **Data Integrity**: Record counts and validation
 - ✅ **Performance Monitoring**: Query latency tracking
 - ✅ **Automated Recommendations**: System optimization suggestions
 
 ### 8. **`/api/test-openai`** - OpenAI Configuration Test
+
 **Purpose**: Isolated OpenAI API key validation and testing
 
 - **Method**: `GET`
@@ -318,18 +346,21 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Features**: Key format validation, trimming detection, live API test
 
 ### 9. **`/api/test-db`** - Database Testing Utility
+
 **Purpose**: Environment variable and database configuration testing
 
 - **Method**: `GET`, `POST`
 - **Use Cases**: Deployment verification, configuration testing
 
 **Features**:
+
 - Environment variable availability check
 - Database connection testing with multiple credential sources
 - Company data validation (should show ~299 Charlotte businesses)
 - Configuration recommendations
 
 ### 10. **`/api/ai-search`** - AI-Powered Business Search
+
 **Purpose**: Smart search with OpenAI intent analysis and context enhancement
 
 - **Method**: `POST`
@@ -337,6 +368,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 - **Features**: Intent analysis, smart filtering, AI-enhanced results
 
 **Request Format**:
+
 ```typescript
 {
   query: string;                // Natural language search
@@ -346,6 +378,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ```
 
 **Search Flow**:
+
 1. **Intent Analysis**: OpenAI analyzes search intent
 2. **Smart Query**: Builds database query based on intent
 3. **AI Enhancement**: Enriches results with contextual information
@@ -355,6 +388,7 @@ Enhance Context → OpenAI API → Store Conversation → Response
 ## 🔐 Security & Environment Variables
 
 ### **Server-Side Environment Variables**
+
 **Required for API functionality**:
 
 ```bash
@@ -369,6 +403,7 @@ SUPABASE_SUPABASE_SERVICE_ROLE_KEY=... # Vercel integration key
 ```
 
 ### **API Security Features**
+
 - ✅ **CORS Configuration**: Proper cross-origin resource sharing
 - ✅ **Environment Isolation**: Server-side only API keys
 - ✅ **Input Validation**: Request body validation and sanitization
@@ -379,6 +414,7 @@ SUPABASE_SUPABASE_SERVICE_ROLE_KEY=... # Vercel integration key
 - ✅ **Key Validation**: Format and length checking with trimming
 
 ### **Authentication Flow**
+
 - **Public Endpoints**: No authentication required for basic queries
 - **Supabase RLS**: Row-level security for database access
 - **API Key Security**: OpenAI keys never exposed to client-side
@@ -388,18 +424,21 @@ SUPABASE_SUPABASE_SERVICE_ROLE_KEY=... # Vercel integration key
 ## 🗄️ Database Integration
 
 ### **Primary Database**: Supabase (PostgreSQL)
+
 - **Project ID**: `osnbklmavnsxpgktdeun`
 - **Connection**: Supavisor pooling for optimal performance
 - **Tables**: 5 core tables with full relationships
 
 ### **Database Tables**:
+
 1. **`companies`** (~299 records) - Charlotte business entities
-2. **`developments`** - Business news and updates  
+2. **`developments`** - Business news and updates
 3. **`economic_indicators`** - Regional economic data
 4. **`ai_conversations`** - Chat history and session logs
 5. **`ai_session_summaries`** - Conversation metadata and summaries
 
 ### **Query Patterns**:
+
 - **Real-time Queries**: Direct Supabase client queries
 - **Complex Analytics**: JOIN queries across multiple tables
 - **AI Context**: Dynamic data injection based on user queries
@@ -410,16 +449,19 @@ SUPABASE_SUPABASE_SERVICE_ROLE_KEY=... # Vercel integration key
 ## 🚀 Performance Optimization
 
 ### **Edge Function Benefits**:
+
 - **Global Distribution**: Sub-100ms response times worldwide
 - **Auto-scaling**: Handles traffic spikes automatically
 - **Cold Start Optimization**: Minimal initialization overhead
 
 ### **Database Performance**:
+
 - **Connection Pooling**: Supavisor for PostgreSQL optimization
 - **Query Optimization**: Indexed searches and efficient JOINs
 - **Caching Strategy**: SWR on frontend for data caching
 
 ### **AI API Performance**:
+
 - **Context Optimization**: Smart data retrieval to minimize token usage
 - **Model Selection**: GPT-4o-mini for optimal speed/quality balance
 - **Streaming Support**: Available for real-time responses
@@ -429,11 +471,12 @@ SUPABASE_SUPABASE_SERVICE_ROLE_KEY=... # Vercel integration key
 ## 🧪 Testing & Development
 
 ### **API Testing Commands**:
+
 ```bash
 # Test AI Chat
 node scripts/test-ai-simple.js
 
-# Test Database Connection  
+# Test Database Connection
 curl https://hurt-hub-v2.vercel.app/api/health-check
 
 # Test Business Data Query
@@ -443,6 +486,7 @@ curl -X POST https://hurt-hub-v2.vercel.app/api/data-query \
 ```
 
 ### **Development Tools**:
+
 - **Vercel CLI**: Local API development and deployment
 - **Supabase Dashboard**: Database management and query testing
 - **OpenAI Playground**: AI model testing and prompt optimization
@@ -452,11 +496,13 @@ curl -X POST https://hurt-hub-v2.vercel.app/api/data-query \
 ## 📈 Usage Analytics
 
 ### **Current Data Volume**:
+
 - **Charlotte Businesses**: 299+ companies indexed
 - **API Calls**: Real-time chat and data queries
 - **Response Times**: <500ms average for data queries, <3s for AI responses
 
 ### **Common API Patterns**:
+
 1. **Business Intelligence Queries**: Revenue, employment, industry analysis
 2. **AI-Powered Insights**: Contextual business recommendations
 3. **Real-time Data**: Live business metrics and updates
@@ -464,15 +510,16 @@ curl -X POST https://hurt-hub-v2.vercel.app/api/data-query \
 
 ---
 
-*Last Updated: 2025-01-09*  
-*Total Endpoints: 10*  
-*API Coverage: 100% documented*
+_Last Updated: 2025-01-09_  
+_Total Endpoints: 10_  
+_API Coverage: 100% documented_
 
 ---
 
 ## 🛠️ Recent Changes & Improvements
 
 ### **2025-01-09 Updates**:
+
 - **OpenAI Singleton Pattern**: Implemented `lib/openai-singleton.ts` for reliable client initialization
 - **Lazy Loading**: All API routes now use lazy initialization to prevent env var timing issues
 - **Diagnostic Endpoint**: Added `/api/diagnose` for comprehensive system health checks

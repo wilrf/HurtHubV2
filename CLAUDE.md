@@ -1,7 +1,9 @@
 # Claude Code Project Context
 
 ## 🖥️ OS DETECTION & COMMAND USAGE
+
 **Always check user's OS before running commands:**
+
 - **Windows**: Use PowerShell commands or Windows-native commands
   - `taskkill /F /IM process.exe` (not `pkill`)
   - `Get-Process` (not `ps`)
@@ -14,7 +16,9 @@
 ## 🚨 CRITICAL REQUIREMENTS
 
 ### **NEVER USE FALLBACKS RULE**
+
 **FALLBACKS ARE FORBIDDEN. ALWAYS FAIL FAST AND REPORT ERRORS.**
+
 - ❌ NO `||` operators for environment variables
 - ❌ NO empty string fallbacks `|| ''`
 - ❌ NO hardcoded fallback values
@@ -23,17 +27,20 @@
 - ✅ ALWAYS validate environment variables on startup
 
 **Example:**
+
 ```typescript
 // ❌ WRONG - Silent failure
-const apiKey = process.env.OPENAI_API_KEY || '';
+const apiKey = process.env.OPENAI_API_KEY || "";
 
 // ✅ CORRECT - Explicit failure
 const apiKey = process.env.OPENAI_API_KEY;
-if (!apiKey) throw new Error('OPENAI_API_KEY is required');
+if (!apiKey) throw new Error("OPENAI_API_KEY is required");
 ```
 
 ### **TESTING TOOL REQUIREMENTS**
+
 **NEVER SUBSTITUTE SPECIFIED TESTING TOOLS.**
+
 - ❌ NO switching from requested testing framework without explicit permission
 - ❌ NO "shortcuts" that bypass user-specified tools (e.g., Playwright MCP)
 - ❌ NO API-only testing when browser testing was requested
@@ -46,6 +53,7 @@ if (!apiKey) throw new Error('OPENAI_API_KEY is required');
 ## 🚨🚨🚨 CRITICAL TESTING RULES - VIOLATION = FAILURE 🚨🚨🚨
 
 ### **PLAYWRIGHT IS MANDATORY - NO EXCEPTIONS**
+
 **IF USER REQUESTS PLAYWRIGHT, YOU MUST USE PLAYWRIGHT. PERIOD.**
 
 - ❌ **ABSOLUTELY FORBIDDEN**: Switching to curl, Node.js scripts, PowerShell, or ANY other testing method
@@ -57,26 +65,32 @@ if (!apiKey) throw new Error('OPENAI_API_KEY is required');
 - ✅ **REQUIRED**: Configure Playwright to use the CORRECT port (not assume defaults)
 
 ### **WHY THIS MATTERS**
+
 - **API tests DON'T catch browser issues** (like manifest.json parsing errors)
 - **Console errors ONLY show in browsers** (Vite import-analysis errors)
 - **Screenshots provide evidence** (for debugging and documentation)
 - **Browser testing catches REAL user experience issues**
 
 ### **CONSEQUENCES OF DISOBEDIENCE**
+
 When you abandon Playwright for "easier" alternatives:
+
 1. You miss critical browser-specific bugs
 2. You waste the user's time with incomplete testing
 3. You fail to deliver the visual evidence needed
 4. You demonstrate unreliability that could cost someone their job
 
 ### **THE RULE**
+
 If Playwright is requested → Use Playwright
 If Playwright fails → Fix Playwright
 If fixing takes time → Keep fixing Playwright
 NEVER substitute without explicit permission
 
 ### **PORT CONFLICT RESOLUTION**
+
 When testing with Playwright + Vercel dev:
+
 1. Check what port Vercel dev actually started on
 2. Update the Playwright test BASE_URL to match
 3. Use `webServer: null` in playwright.config if Vercel is already running
@@ -85,7 +99,9 @@ When testing with Playwright + Vercel dev:
 **NO EXCUSES. NO SHORTCUTS. NO SUBSTITUTIONS.**
 
 ### Codebase Navigation & Documentation
+
 **ALWAYS consult `.claude/` directory for comprehensive codebase documentation:**
+
 - **`.claude/PROJECT_OVERVIEW.md`**: Complete architecture overview and tech stack
 - **`.claude/API_INDEX.md`**: All API endpoints with request/response formats
 - **`.claude/FRONTEND_INDEX.md`**: React components, hooks, and state management
@@ -95,13 +111,16 @@ When testing with Playwright + Vercel dev:
 - **`.claude/DOCUMENTATION_MAINTENANCE.md`**: 🆕 Guide for keeping docs updated over time
 
 **Use this documentation to:**
+
 - ✅ **Navigate the codebase**: Find the right files for specific functionality
 - ✅ **Assess change locations**: Identify likely places to implement features/fixes
 - ✅ **Understand relationships**: See how components, APIs, and data interact
 - ✅ **Verify implementations**: Cross-reference with documentation before changes
 
 ### Documentation Maintenance
+
 **Keep documentation synchronized with code changes:**
+
 ```bash
 # Validate that documentation is complete and up-to-date
 npm run docs:validate
@@ -114,11 +133,13 @@ git diff --name-only HEAD~1
 ```
 
 **When making code changes:**
+
 1. **Update relevant `.claude/*.md` files** in the same commit
 2. **Run `npm run docs:validate`** before committing to catch missing docs
 3. **Ask for help** if unsure what to document - just mention what you changed
 
 **Automated helpers:**
+
 - **Validation script** (`scripts/validate-docs.js`): Checks for undocumented APIs, components, and tables
 - **Update script** (`scripts/update-docs.js`): Updates dates and finds new endpoints/components
 - **Git hooks**: Remind you to update docs when changing critical files
@@ -126,7 +147,9 @@ git diff --name-only HEAD~1
 See `.claude/DOCUMENTATION_MAINTENANCE.md` for the complete maintenance guide.
 
 ### API Documentation Reference
+
 **ALWAYS check `api-docs/` folder BEFORE any API-related work:**
+
 - **Canonical Patterns**: See `api-docs/CANONICAL_ENV_VAR_PATTERNS.md` for official environment variable guidance
 - **Vercel**: See `api-docs/vercel-env-vars.md` for environment variables
 - **Supabase**: See `api-docs/supabase-config.md` for configuration
@@ -136,7 +159,9 @@ See `.claude/DOCUMENTATION_MAINTENANCE.md` for the complete maintenance guide.
 This prevents configuration errors and ensures correct implementation.
 
 ### 🚨 CRITICAL: External Service Configuration Process
+
 **When working with external APIs or services (Supabase, OpenAI, etc.):**
+
 1. **FIRST**: Fetch and read official documentation from canonical sources
 2. **THEN**: Understand the service's environment variable patterns and security model
 3. **FINALLY**: Implement configuration following official patterns, not assumptions
@@ -144,11 +169,13 @@ This prevents configuration errors and ensures correct implementation.
 **Never make configuration changes without consulting official documentation first.**
 
 ## Project Overview
+
 - **Name**: Hurt Hub V2
 - **Stack**: Vite + React, TypeScript, Supabase, Vercel
 - **Purpose**: Business directory and networking platform
 
 ## Key Environment Variables
+
 ```bash
 # Client-side (MUST have VITE_ prefix for Vite projects)
 VITE_SUPABASE_URL
@@ -160,12 +187,15 @@ OPENAI_API_KEY
 ```
 
 ## Database Connection (Vercel)
+
 Use IPv4 via Supavisor:
+
 ```
 postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
 ```
 
 ## Testing Commands
+
 ```bash
 npm run lint
 npm run typecheck
@@ -173,6 +203,7 @@ npm run build
 ```
 
 ## Common Issues & Solutions
+
 1. **Undefined env vars**: Check prefix, redeploy after changes
 2. **CORS errors**: Verify https:// in URLs, add domain to Supabase
 3. **Auth redirects**: Configure all URL patterns in Supabase Dashboard
@@ -180,7 +211,9 @@ npm run build
 5. **vercel.json rewrite issues**: Catch-all rewrites serve HTML for static assets, breaking Vite import analysis
 
 ## Vercel Development Issues
+
 **KNOWN ISSUE: vercel.json rewrites cause static asset problems**
+
 - `vercel dev` serves HTML for all non-API requests (including manifest.json)
 - This breaks Vite's import analysis and browser asset loading
 - **Fix**: Add explicit static asset rewrites before catch-all rule in vercel.json
@@ -188,15 +221,18 @@ npm run build
 - **Detection**: Only browser-based testing (like Playwright) catches these frontend issues
 
 ## Testing Protocol for Vercel Projects
+
 **STANDARD APPROACH: When testing Vercel projects**
+
 1. **Use Playwright MCP** for browser-based testing (when requested)
 2. **Test with `vercel dev`** (not `npm run dev`) for accurate environment
-3. **Test actual frontend rendering**, not just API endpoints  
+3. **Test actual frontend rendering**, not just API endpoints
 4. **Capture screenshots** for visual evidence of issues
 5. **Check static assets** (manifest.json, icons) load correctly in browser
 6. **Never substitute testing approaches** without explicit user permission
 
 ## Before Committing
+
 - Run lint and typecheck
 - Verify environment variables are not exposed
 - Test authentication flows
@@ -206,10 +242,12 @@ npm run build
 ## 2025-09-03 Project Status Update
 
 ### Semantic Search
+
 - Semantic search infrastructure (vector column, pgvector, `generate-embeddings.ts`) **exists but is not yet enabled**.
 - Remaining work: enable pgvector in Supabase, add `embedding vector(1536)` column to `companies`, create `semantic_business_search()` function, run `/api/generate-embeddings` to populate vectors.
 
 ### Deployment Strategy
+
 - Local `vercel dev` has unresolved env-var loading issues that break API functions.
 - **Decision:** Use production deployments for testing until local issues are resolved.
 - Workflow: edit locally → `vercel --prod` → test at live URL.

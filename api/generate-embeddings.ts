@@ -1,6 +1,6 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { createClient } from "@supabase/supabase-js";
+import OpenAI from "openai";
 
 export const config = {
   maxDuration: 300, // 5 minutes for embedding generation
@@ -14,16 +14,16 @@ interface EmbeddingRequest {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   // Initialize clients
@@ -34,12 +34,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Initialize Supabase
     const supabaseUrl = process.env.SUPABASE_URL;
     if (!supabaseUrl) {
-      throw new Error('SUPABASE_URL environment variable is required');
+      throw new Error("SUPABASE_URL environment variable is required");
     }
 
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+      throw new Error(
+        "SUPABASE_SERVICE_ROLE_KEY environment variable is required",
+      );
     }
 
     supabase = createClient(supabaseUrl.trim(), supabaseKey.trim());
@@ -47,41 +49,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Initialize OpenAI
     const openaiApiKey = process.env.OPENAI_API_KEY?.trim();
     if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY not configured');
+      throw new Error("OPENAI_API_KEY not configured");
     }
 
-    openai = new OpenAI({ 
+    openai = new OpenAI({
       apiKey: openaiApiKey,
       maxRetries: 3,
-      timeout: 30000
+      timeout: 30000,
     });
-
   } catch (error: any) {
-    console.error('Client initialization failed:', error.message);
-    return res.status(500).json({ 
-      error: 'Service configuration error',
-      details: error.message 
+    console.error("Client initialization failed:", error.message);
+    return res.status(500).json({
+      error: "Service configuration error",
+      details: error.message,
     });
   }
 
   try {
-    const { 
-      batchSize = 20, 
-      forceRegenerate = false, 
-      companyIds 
+    const {
+      batchSize = 20,
+      forceRegenerate = false,
+      companyIds,
     } = req.body as EmbeddingRequest;
 
-    console.log('Starting embedding generation:', { batchSize, forceRegenerate, companyIds });
+    console.log("Starting embedding generation:", {
+      batchSize,
+      forceRegenerate,
+      companyIds,
+    });
 
     // Get companies that need embeddings
-    const companies = await getCompaniesNeedingEmbeddings(supabase, forceRegenerate, companyIds);
-    
+    const companies = await getCompaniesNeedingEmbeddings(
+      supabase,
+      forceRegenerate,
+      companyIds,
+    );
+
     if (companies.length === 0) {
       return res.status(200).json({
-        message: 'All companies already have embeddings',
+        message: "All companies already have embeddings",
         processed: 0,
         skipped: 0,
-        errors: []
+        errors: [],
       });
     }
 
@@ -91,13 +100,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const results = {
       processed: 0,
       skipped: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     // Process companies in batches
     for (let i = 0; i < companies.length; i += batchSize) {
       const batch = companies.slice(i, i + batchSize);
-      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}: ${batch.length} companies`);
+      console.log(
+        `Processing batch ${Math.floor(i / batchSize) + 1}: ${batch.length} companies`,
+      );
 
       const batchResults = await processBatch(batch, openai, supabase);
       results.processed += batchResults.processed;
@@ -106,38 +117,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Add small delay between batches to avoid rate limits
       if (i + batchSize < companies.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
     return res.status(200).json({
       message: `Embedding generation completed`,
       totalCompanies: companies.length,
-      ...results
+      ...results,
     });
-
   } catch (error: any) {
-    console.error('Embedding generation error:', error);
+    console.error("Embedding generation error:", error);
     return res.status(500).json({
-      error: 'Failed to generate embeddings',
-      details: error.message
+      error: "Failed to generate embeddings",
+      details: error.message,
     });
   }
 }
 
-async function getCompaniesNeedingEmbeddings(supabase: any, forceRegenerate: boolean, companyIds?: string[]) {
+async function getCompaniesNeedingEmbeddings(
+  supabase: any,
+  forceRegenerate: boolean,
+  companyIds?: string[],
+) {
   let query = supabase
-    .from('companies')
-    .select('id, name, industry, description, headquarters, sector')
-    .eq('status', 'active');
+    .from("companies")
+    .select("id, name, industry, description, headquarters, sector")
+    .eq("status", "active");
 
   if (!forceRegenerate) {
     // Only get companies without embeddings
-    query = query.is('embedding', null);
+    query = query.is("embedding", null);
   }
 
   if (companyIds && companyIds.length > 0) {
-    query = query.in('id', companyIds);
+    query = query.in("id", companyIds);
   }
 
   const { data, error } = await query.limit(500); // Reasonable limit
@@ -153,7 +167,7 @@ async function processBatch(companies: any[], openai: OpenAI, supabase: any) {
   const results = {
     processed: 0,
     skipped: 0,
-    errors: [] as string[]
+    errors: [] as string[],
   };
 
   // Generate embeddings for all companies in batch
@@ -161,35 +175,34 @@ async function processBatch(companies: any[], openai: OpenAI, supabase: any) {
     try {
       // Create descriptive text for embedding
       const embeddingText = createEmbeddingText(company);
-      
+
       // Generate embedding
       const embedding = await generateEmbedding(embeddingText, openai);
-      
+
       // Update company with embedding
       const { error } = await supabase
-        .from('companies')
-        .update({ 
+        .from("companies")
+        .update({
           embedding: embedding,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', company.id);
+        .eq("id", company.id);
 
       if (error) {
-        throw new Error(`Failed to update company ${company.name}: ${error.message}`);
+        throw new Error(
+          `Failed to update company ${company.name}: ${error.message}`,
+        );
       }
 
       // Track the embedding update
-      await supabase
-        .from('embedding_updates')
-        .insert({
-          table_name: 'companies',
-          record_id: company.id,
-          model_used: 'text-embedding-3-small'
-        });
+      await supabase.from("embedding_updates").insert({
+        table_name: "companies",
+        record_id: company.id,
+        model_used: "text-embedding-3-small",
+      });
 
       console.log(`✅ Generated embedding for: ${company.name}`);
       results.processed++;
-
     } catch (error: any) {
       console.error(`❌ Failed to process ${company.name}:`, error.message);
       results.errors.push(`${company.name}: ${error.message}`);
@@ -226,39 +239,43 @@ function createEmbeddingText(company: any): string {
   // Description
   if (company.description) {
     // Limit description to avoid token limits
-    const description = company.description.length > 500 
-      ? company.description.substring(0, 500) + '...'
-      : company.description;
+    const description =
+      company.description.length > 500
+        ? company.description.substring(0, 500) + "..."
+        : company.description;
     parts.push(`Description: ${description}`);
   }
 
-  return parts.join('. ');
+  return parts.join(". ");
 }
 
-async function generateEmbedding(text: string, openai: OpenAI): Promise<number[]> {
+async function generateEmbedding(
+  text: string,
+  openai: OpenAI,
+): Promise<number[]> {
   try {
     const response = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
+      model: "text-embedding-3-small",
       input: text,
-      encoding_format: 'float'
+      encoding_format: "float",
     });
 
     return response.data[0].embedding;
   } catch (error: any) {
     if (error.status === 429) {
       // Rate limit - wait and retry once
-      console.log('Rate limited, waiting 2 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      console.log("Rate limited, waiting 2 seconds...");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const response = await openai.embeddings.create({
-        model: 'text-embedding-3-small',
+        model: "text-embedding-3-small",
         input: text,
-        encoding_format: 'float'
+        encoding_format: "float",
       });
 
       return response.data[0].embedding;
     }
-    
+
     throw error;
   }
 }

@@ -200,7 +200,10 @@ export function BusinessIntelligence() {
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <BusinessAIChat module="business-intelligence" className="min-h-[700px]" />
+          <BusinessAIChat
+            module="business-intelligence"
+            className="min-h-[700px]"
+          />
         </CardContent>
       </Card>
 

@@ -1,22 +1,22 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { createClient } from "@supabase/supabase-js";
 
 // Validate environment variables
 const supabaseUrl = process.env.SUPABASE_URL;
 if (!supabaseUrl) {
-  throw new Error('SUPABASE_URL environment variable is required');
+  throw new Error("SUPABASE_URL environment variable is required");
 }
 
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseKey) {
-  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is required");
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface DataQueryRequest {
   query: string;
-  type: 'companies' | 'developments' | 'economic' | 'comprehensive' | 'search';
+  type: "companies" | "developments" | "economic" | "comprehensive" | "search";
   filters?: {
     industry?: string;
     sector?: string;
@@ -29,16 +29,16 @@ interface DataQueryRequest {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
@@ -55,15 +55,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: {
         queryType: type,
         filters: filters,
-        resultCount: getResultCount(data)
-      }
+        resultCount: getResultCount(data),
+      },
     });
   } catch (error: any) {
-    console.error('Data query error:', error);
+    console.error("Data query error:", error);
     return res.status(500).json({
-      error: 'Failed to query business data',
+      error: "Failed to query business data",
       details: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }
@@ -72,32 +72,42 @@ async function fetchBusinessData(
   query: string,
   type: string,
   filters: any,
-  context?: string
+  context?: string,
 ) {
   const results: any = {};
 
   switch (type) {
-    case 'companies':
+    case "companies":
       results.companies = await queryCompanies(query, filters);
       break;
 
-    case 'developments':
+    case "developments":
       results.developments = await queryDevelopments(query, filters);
       break;
 
-    case 'economic':
-      results.economicIndicators = await queryEconomicIndicators(query, filters);
+    case "economic":
+      results.economicIndicators = await queryEconomicIndicators(
+        query,
+        filters,
+      );
       break;
 
-    case 'comprehensive':
+    case "comprehensive":
       results.companies = await queryCompanies(query, filters);
       results.developments = await queryDevelopments(query, filters);
-      results.economicIndicators = await queryEconomicIndicators(query, filters);
+      results.economicIndicators = await queryEconomicIndicators(
+        query,
+        filters,
+      );
       results.marketSummary = await generateMarketSummary(results);
       break;
 
-    case 'search':
-      results.searchResults = await performIntelligentSearch(query, filters, context);
+    case "search":
+      results.searchResults = await performIntelligentSearch(
+        query,
+        filters,
+        context,
+      );
       break;
 
     default:
@@ -109,17 +119,17 @@ async function fetchBusinessData(
 
 async function queryCompanies(query: string, filters: any) {
   let supabaseQuery = supabase
-    .from('companies')
-    .select('*')
-    .eq('status', 'active');
+    .from("companies")
+    .select("*")
+    .eq("status", "active");
 
   // Apply filters
   if (filters.industry) {
-    supabaseQuery = supabaseQuery.ilike('industry', `%${filters.industry}%`);
+    supabaseQuery = supabaseQuery.ilike("industry", `%${filters.industry}%`);
   }
 
   if (filters.sector) {
-    supabaseQuery = supabaseQuery.ilike('sector', `%${filters.sector}%`);
+    supabaseQuery = supabaseQuery.ilike("sector", `%${filters.sector}%`);
   }
 
   if (filters.limit) {
@@ -129,13 +139,15 @@ async function queryCompanies(query: string, filters: any) {
   }
 
   // Add search functionality
-  if (query && query !== 'all') {
+  if (query && query !== "all") {
     supabaseQuery = supabaseQuery.or(
-      `name.ilike.%${query}%,description.ilike.%${query}%,industry.ilike.%${query}%`
+      `name.ilike.%${query}%,description.ilike.%${query}%,industry.ilike.%${query}%`,
     );
   }
 
-  const { data, error } = await supabaseQuery.order('revenue', { ascending: false });
+  const { data, error } = await supabaseQuery.order("revenue", {
+    ascending: false,
+  });
 
   if (error) throw error;
 
@@ -143,9 +155,7 @@ async function queryCompanies(query: string, filters: any) {
 }
 
 async function queryDevelopments(query: string, filters: any) {
-  let supabaseQuery = supabase
-    .from('developments')
-    .select(`
+  let supabaseQuery = supabase.from("developments").select(`
       *,
       companies:company_id (
         name,
@@ -157,18 +167,18 @@ async function queryDevelopments(query: string, filters: any) {
   // Apply date range filter
   if (filters.dateRange) {
     supabaseQuery = supabaseQuery
-      .gte('published_at', filters.dateRange.start)
-      .lte('published_at', filters.dateRange.end);
+      .gte("published_at", filters.dateRange.start)
+      .lte("published_at", filters.dateRange.end);
   }
 
   if (filters.companyId) {
-    supabaseQuery = supabaseQuery.eq('company_id', filters.companyId);
+    supabaseQuery = supabaseQuery.eq("company_id", filters.companyId);
   }
 
   // Add search functionality
-  if (query && query !== 'all') {
+  if (query && query !== "all") {
     supabaseQuery = supabaseQuery.or(
-      `title.ilike.%${query}%,content.ilike.%${query}%,source.ilike.%${query}%`
+      `title.ilike.%${query}%,content.ilike.%${query}%,source.ilike.%${query}%`,
     );
   }
 
@@ -178,8 +188,9 @@ async function queryDevelopments(query: string, filters: any) {
     supabaseQuery = supabaseQuery.limit(20);
   }
 
-  const { data, error } = await supabaseQuery
-    .order('published_at', { ascending: false });
+  const { data, error } = await supabaseQuery.order("published_at", {
+    ascending: false,
+  });
 
   if (error) throw error;
 
@@ -187,15 +198,13 @@ async function queryDevelopments(query: string, filters: any) {
 }
 
 async function queryEconomicIndicators(query: string, filters: any) {
-  let supabaseQuery = supabase
-    .from('economic_indicators')
-    .select('*');
+  let supabaseQuery = supabase.from("economic_indicators").select("*");
 
   // Apply date range filter
   if (filters.dateRange) {
     supabaseQuery = supabaseQuery
-      .gte('date', filters.dateRange.start)
-      .lte('date', filters.dateRange.end);
+      .gte("date", filters.dateRange.start)
+      .lte("date", filters.dateRange.end);
   }
 
   if (filters.limit) {
@@ -204,19 +213,25 @@ async function queryEconomicIndicators(query: string, filters: any) {
     supabaseQuery = supabaseQuery.limit(12); // Last 12 months
   }
 
-  const { data, error } = await supabaseQuery.order('date', { ascending: false });
+  const { data, error } = await supabaseQuery.order("date", {
+    ascending: false,
+  });
 
   if (error) throw error;
 
   return data || [];
 }
 
-async function performIntelligentSearch(query: string, filters: any, context?: string) {
+async function performIntelligentSearch(
+  query: string,
+  filters: any,
+  context?: string,
+) {
   const results = {
     companies: [] as any[],
     developments: [] as any[],
     economic: [] as any[],
-    relevance: {} as any
+    relevance: {} as any,
   };
 
   // Search companies
@@ -228,23 +243,33 @@ async function performIntelligentSearch(query: string, filters: any, context?: s
   results.developments = developments;
 
   // Search economic indicators (if query mentions economic terms)
-  if (query.toLowerCase().includes('economic') ||
-      query.toLowerCase().includes('gdp') ||
-      query.toLowerCase().includes('unemployment') ||
-      query.toLowerCase().includes('growth')) {
-    const economic = await queryEconomicIndicators(query, { ...filters, limit: 3 });
+  if (
+    query.toLowerCase().includes("economic") ||
+    query.toLowerCase().includes("gdp") ||
+    query.toLowerCase().includes("unemployment") ||
+    query.toLowerCase().includes("growth")
+  ) {
+    const economic = await queryEconomicIndicators(query, {
+      ...filters,
+      limit: 3,
+    });
     results.economic = economic;
   }
 
   // Calculate relevance scores
   results.relevance = {
-    totalResults: companies.length + developments.length + results.economic.length,
-    queryTerms: query.toLowerCase().split(' '),
+    totalResults:
+      companies.length + developments.length + results.economic.length,
+    queryTerms: query.toLowerCase().split(" "),
     context: context,
     topMatches: [
-      ...companies.slice(0, 3).map(c => ({ type: 'company', name: c.name, relevance: 0.9 })),
-      ...developments.slice(0, 3).map(d => ({ type: 'development', title: d.title, relevance: 0.8 }))
-    ]
+      ...companies
+        .slice(0, 3)
+        .map((c) => ({ type: "company", name: c.name, relevance: 0.9 })),
+      ...developments
+        .slice(0, 3)
+        .map((d) => ({ type: "development", title: d.title, relevance: 0.8 })),
+    ],
   };
 
   return results;
@@ -257,40 +282,45 @@ async function generateMarketSummary(data: any) {
     overview: {
       totalCompanies: companies?.length || 0,
       totalDevelopments: developments?.length || 0,
-      latestEconomicData: economicIndicators?.[0] || null
+      latestEconomicData: economicIndicators?.[0] || null,
     },
     insights: {
       topIndustries: companies ? getTopIndustries(companies) : [],
       recentActivity: developments ? getRecentActivity(developments) : [],
-      economicTrends: economicIndicators ? analyzeEconomicTrends(economicIndicators) : {}
-    }
+      economicTrends: economicIndicators
+        ? analyzeEconomicTrends(economicIndicators)
+        : {},
+    },
   };
 }
 
 function getTopIndustries(companies: any[]) {
   const industryCount: { [key: string]: number } = {};
 
-  companies.forEach(company => {
-    const industry = company.industry || 'Unknown';
+  companies.forEach((company) => {
+    const industry = company.industry || "Unknown";
     industryCount[industry] = (industryCount[industry] || 0) + 1;
   });
 
   return Object.entries(industryCount)
-    .sort(([,a], [,b]) => (b as number) - (a as number))
+    .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 5)
     .map(([industry, count]) => ({ industry, count }));
 }
 
 function getRecentActivity(developments: any[]) {
   return developments
-    .filter(d => d.published_at)
-    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+    .filter((d) => d.published_at)
+    .sort(
+      (a, b) =>
+        new Date(b.published_at).getTime() - new Date(a.published_at).getTime(),
+    )
     .slice(0, 3)
-    .map(d => ({
+    .map((d) => ({
       title: d.title,
       company: d.companies?.name,
       date: d.published_at,
-      category: d.category
+      category: d.category,
     }));
 }
 
@@ -305,7 +335,7 @@ function analyzeEconomicTrends(indicators: any[]) {
     gdpGrowth: latest.gdp_growth,
     jobGrowth: latest.job_growth,
     retailSalesGrowth: latest.retail_sales_growth,
-    trend: latest.gdp_growth > 0 ? 'positive' : 'negative'
+    trend: latest.gdp_growth > 0 ? "positive" : "negative",
   };
 }
 
@@ -316,9 +346,10 @@ function getResultCount(data: any): number {
   if (data.developments) count += data.developments.length;
   if (data.economicIndicators) count += data.economicIndicators.length;
   if (data.searchResults) {
-    count += (data.searchResults.companies?.length || 0) +
-             (data.searchResults.developments?.length || 0) +
-             (data.searchResults.economic?.length || 0);
+    count +=
+      (data.searchResults.companies?.length || 0) +
+      (data.searchResults.developments?.length || 0) +
+      (data.searchResults.economic?.length || 0);
   }
 
   return count;
