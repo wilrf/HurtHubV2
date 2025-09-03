@@ -1,5 +1,7 @@
 # Vercel-Only Development Workflow
 
+<!-- Testing PR workflow trigger -->
+
 This project runs **EXCLUSIVELY** on Vercel. No local development is supported by design.
 
 ## 🚀 Quick Start
