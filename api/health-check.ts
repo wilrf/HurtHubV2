@@ -2,9 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
 // Validate environment variables
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseUrl = process.env.SUPABASE_URL;
 if (!supabaseUrl) {
-  throw new Error('VITE_SUPABASE_URL environment variable is required');
+  throw new Error('SUPABASE_URL environment variable is required');
 }
 
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

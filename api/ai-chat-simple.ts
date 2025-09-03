@@ -143,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Add debugging info in development
     const debugInfo = process.env.NODE_ENV !== 'production' ? {
       hasOpenAI: !!process.env.OPENAI_API_KEY,
-      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+      hasSupabaseUrl: !!process.env.SUPABASE_URL,
       hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       errorType: error.constructor.name,
       errorCode: (error as any).code

@@ -74,7 +74,8 @@
       "WebFetch(domain:vitejs.dev)",
       "WebFetch(domain:vite.dev)",
       "Bash(del scriptstest-deployment.js)",
-      "Bash(npm run ci:*)"
+      "Bash(npm run ci:*)",
+      "WebFetch(domain:stackoverflow.com)"
     ],
     "deny": [],
     "ask": []

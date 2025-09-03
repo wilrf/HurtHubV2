@@ -132,14 +132,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Check 2: Supabase Configuration
-  const supabaseUrl = process.env.SUPABASE_URL || 
-                     process.env.SUPABASE_SUPABASE_URL;
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 
-                          process.env.SUPABASE_SUPABASE_ANON_KEY;
-  
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-                             process.env.SUPABASE_SUPABASE_SERVICE_ROLE_KEY;
+  // Fail-fast validation
+  if (!supabaseUrl) {
+    throw new Error('SUPABASE_URL environment variable is required');
+  }
+  if (!supabaseServiceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+  }
 
   report.checks.supabase = {
     hasUrl: !!supabaseUrl,
