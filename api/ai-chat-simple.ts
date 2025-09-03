@@ -299,7 +299,10 @@ async function storeConversation(
     const { error } = await supabase.from("ai_conversations").insert({
       session_id: sessionId,
       user_message: userMessage,
-      ai_response: aiResponse,
+      messages: [
+        { role: "user", content: userMessage },
+        { role: "assistant", content: aiResponse }
+      ],
       module: "business-intelligence",
       token_usage: {
         total_tokens: 0, // Would need to calculate from OpenAI response
