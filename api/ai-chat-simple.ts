@@ -286,7 +286,7 @@ Reference specific businesses and real data from the database above.`;
   return systemMessage;
 }
 
-// Store conversation in Supabase
+// Store conversation in Supabase using proper schema
 async function storeConversation(
   sessionId: string,
   messages: ChatMessage[],
@@ -294,24 +294,35 @@ async function storeConversation(
   supabase: SupabaseClient,
 ): Promise<void> {
   try {
-    const userMessage = messages[messages.length - 1]?.content || "";
+    // Build complete conversation history including system message
+    const conversationMessages = [
+      ...messages,
+      { role: "assistant", content: aiResponse }
+    ];
 
     const { error } = await supabase.from("ai_conversations").insert({
       session_id: sessionId,
-      user_message: userMessage,
-      ai_response: aiResponse,
-      module: "business-intelligence",
-      token_usage: {
-        total_tokens: 0, // Would need to calculate from OpenAI response
+      user_id: null, // Anonymous for now - can be set when auth is implemented
+      messages: conversationMessages,
+      metadata: {
+        module: "business-intelligence",
+        model: "gpt-4o-mini",
+        token_usage: {
+          total_tokens: 0, // Would calculate from OpenAI response
+        },
+        conversation_length: conversationMessages.length,
+        created_via: "ai-chat-simple"
       },
+      // embeddings will be generated asynchronously if needed
       created_at: new Date().toISOString(),
     });
 
     if (error) {
       console.error("Failed to store conversation:", error);
-      // NO FALLBACK - Let it fail
       throw error;
     }
+
+    console.log(`✅ Conversation stored: ${sessionId} (${conversationMessages.length} messages)`);
   } catch (error: any) {
     console.error("Error storing conversation:", error);
     throw new Error(`Failed to store conversation: ${error.message}`);
