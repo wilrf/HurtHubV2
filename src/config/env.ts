@@ -43,17 +43,6 @@ class Environment {
   }
 
   private loadConfig(): EnvConfig {
-    // Critical Vercel-only validation
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
-    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
-
-    if (!vercelUrl || !vercelEnv) {
-      throw new Error(
-        "VITE_VERCEL_URL and VITE_VERCEL_ENV are required. " +
-          "This application only runs on Vercel deployments. " +
-          "Push your changes to a branch for preview deployment.",
-      );
-    }
 
     // Validate Supabase configuration
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -86,11 +75,11 @@ class Environment {
     );
     const debugMode = this.parseBoolean(
       import.meta.env.VITE_DEBUG_MODE,
-      !this.isVercelProduction(vercelEnv),
+      false,
     );
     const showDevTools = this.parseBoolean(
       import.meta.env.VITE_SHOW_DEV_TOOLS,
-      !this.isVercelProduction(vercelEnv),
+      false,
     );
 
     return {
@@ -126,18 +115,30 @@ class Environment {
   }
 
   private getAppName(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return vercelUrl.replace(".vercel.app", "");
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return vercelUrl.replace(".vercel.app", "");
+    }
+    return "Hurt Hub V2";
   }
 
   private getApiBaseUrl(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return `https://${vercelUrl}`;
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return `https://${vercelUrl}`;
+    }
+    // Fallback for local development or when VITE_VERCEL_URL is not set
+    return window.location.origin;
   }
 
   private getWebSocketUrl(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return `wss://${vercelUrl}/ws`;
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return `wss://${vercelUrl}/ws`;
+    }
+    // Fallback for local development or when VITE_VERCEL_URL is not set
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${wsProtocol}//${window.location.host}/ws`;
   }
 
   private getAppVersion(): string {
@@ -150,9 +151,10 @@ class Environment {
   }
 
   private getAppEnv(): EnvConfig["APP_ENV"] {
-    const vercelEnv = import.meta.env.VITE_VERCEL_ENV!; // Already validated in loadConfig
+    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
     if (vercelEnv === "production") return "production";
     if (vercelEnv === "preview") return "staging";
+    // Default to development when VITE_VERCEL_ENV is not available
     return "development";
   }
 
@@ -171,9 +173,6 @@ class Environment {
     return cleanValue === "true";
   }
 
-  private isVercelProduction(vercelEnv: string): boolean {
-    return vercelEnv === "production";
-  }
 
   private validateConfig(): void {
     const errors: string[] = [];

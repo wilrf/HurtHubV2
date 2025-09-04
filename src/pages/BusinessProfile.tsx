@@ -516,11 +516,11 @@ export function BusinessProfile() {
                       Full Address
                     </p>
                     <p className="text-sm">
-                      {business.address.line1}
+                      {business.address?.line1 || "Address not available"}
                       <br />
-                      {business.address.line2 && `${business.address.line2}\n`}
-                      {business.address.city}, {business.address.state}{" "}
-                      {business.address.zipCode}
+                      {business.address?.line2 && `${business.address.line2}\n`}
+                      {business.address?.city}, {business.address?.state}{" "}
+                      {business.address?.zipCode}
                     </p>
                   </div>
 

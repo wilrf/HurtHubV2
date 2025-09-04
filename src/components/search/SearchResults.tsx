@@ -133,8 +133,8 @@ export function SearchResults({
                     </div>
 
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                      {business.address.line1}, {business.address.city},{" "}
-                      {business.address.state}
+                      {business.address?.line1 || "Address not available"}, {business.address?.city},{" "}
+                      {business.address?.state}
                     </p>
                   </div>
                 </div>

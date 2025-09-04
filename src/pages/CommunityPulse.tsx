@@ -57,7 +57,7 @@ export function CommunityPulse() {
   };
 
   const getCommunityMetrics = () => {
-    if (!businesses.length) return null;
+    if (!businesses.length || !analytics) return null;
 
     // Community engagement metrics based on business data
     const highEngagementBusinesses = businesses.filter(
@@ -71,7 +71,7 @@ export function CommunityPulse() {
     const localBusinesses = businesses.filter(
       (b) => b?.businessType === "Local",
     ).length;
-    const neighborhoodDiversity = analytics?.topNeighborhoods.length || 0;
+    const neighborhoodDiversity = analytics.topNeighborhoods.length;
 
     const averageBusinessAge =
       businesses.length > 0
@@ -96,8 +96,10 @@ export function CommunityPulse() {
   };
 
   const getNeighborhoodPulse = () => {
-    return (
-      analytics?.topNeighborhoods.map((neighborhood) => ({
+    if (!analytics) {
+      throw new Error("Analytics data is required for neighborhood pulse");
+    }
+    return analytics.topNeighborhoods.map((neighborhood) => ({
         ...neighborhood,
         pulseScore: Math.round(
           (neighborhood.avgRating || 0) * 20 + Math.random() * 10,
@@ -106,8 +108,7 @@ export function CommunityPulse() {
           Math.random() > 0.3 ? "up" : Math.random() > 0.5 ? "down" : "stable",
         communityEvents: Math.floor(Math.random() * 8) + 2,
         businessGrowth: Math.random() > 0.4,
-      })) || []
-    );
+      }));
   };
 
   const getCommunityHighlights = () => {

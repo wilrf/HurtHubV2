@@ -587,11 +587,11 @@ export function Dashboard() {
                   Address
                 </p>
                 <p className="text-sm">
-                  {selectedBusiness.address.line1}
+                  {selectedBusiness.address?.line1 || "Address not available"}
                   <br />
-                  {selectedBusiness.address.city},{" "}
-                  {selectedBusiness.address.state}{" "}
-                  {selectedBusiness.address.zipCode}
+                  {selectedBusiness.address?.city},{" "}
+                  {selectedBusiness.address?.state}{" "}
+                  {selectedBusiness.address?.zipCode}
                 </p>
               </div>
 

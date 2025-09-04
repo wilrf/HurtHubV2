@@ -209,7 +209,7 @@ async function getBusinesses(request: BusinessesRequest, supabase: any) {
   const analytics = await getBusinessAnalytics(supabase, filters);
 
   return {
-    businesses: data || [],
+    businesses: (data || []).map(transformBusinessData),
     total: count || 0,
     page,
     limit,
@@ -218,6 +218,75 @@ async function getBusinesses(request: BusinessesRequest, supabase: any) {
     analytics,
     source: "database",
   };
+}
+
+function transformBusinessData(business: any) {
+  // Convert headquarters string to structured address object
+  const address = parseAddress(business.headquarters || "");
+  
+  return {
+    ...business,
+    address,
+  };
+}
+
+function parseAddress(headquarters: string) {
+  if (!headquarters || headquarters.trim() === "") {
+    return {
+      line1: "Address not available",
+      line2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    };
+  }
+
+  // Handle common patterns in the headquarters data
+  const cleaned = headquarters.trim();
+
+  // Simple parsing - could be enhanced with more sophisticated logic
+  const parts = cleaned.split(",").map(p => p.trim());
+  
+  if (parts.length >= 3) {
+    // "123 Main St, Charlotte, NC 28202"
+    return {
+      line1: parts[0] || "",
+      line2: "",
+      city: parts[1] || "",
+      state: parts[2] || "",
+      zipCode: parts[3] || "",
+    };
+  } else if (parts.length === 2) {
+    // "123 Main St, Charlotte" 
+    return {
+      line1: parts[0] || "",
+      line2: "",
+      city: parts[1] || "",
+      state: "NC", // Default to NC for Charlotte businesses
+      zipCode: "",
+    };
+  } else {
+    // Single string like "MOORESVILLE" or "123 Main St"
+    const isJustCity = cleaned.length < 50 && !cleaned.match(/\d/);
+    
+    if (isJustCity) {
+      return {
+        line1: "",
+        line2: "",
+        city: cleaned,
+        state: "NC",
+        zipCode: "",
+      };
+    } else {
+      return {
+        line1: cleaned,
+        line2: "",
+        city: "",
+        state: "NC",
+        zipCode: "",
+      };
+    }
+  }
 }
 
 async function getFilterOptions(supabase: any) {
@@ -289,6 +358,10 @@ async function getBusinessAnalytics(supabase: any, filters: any = {}) {
         averageEmployees: 0,
         topIndustries: [],
         revenueByIndustry: [],
+        topNeighborhoods: [],
+        businessAgeDistribution: [],
+        revenueDistribution: [],
+        monthlyTrends: [],
       };
     }
 
@@ -325,6 +398,31 @@ async function getBusinessAnalytics(supabase: any, filters: any = {}) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    // Neighborhood analytics
+    const neighborhoodStats = analyticsData.reduce((acc: any, company: any) => {
+      const neighborhood = company.neighborhood || "Unknown";
+      if (!acc[neighborhood]) {
+        acc[neighborhood] = { count: 0, totalRevenue: 0, totalRating: 0, ratingCount: 0 };
+      }
+      acc[neighborhood].count++;
+      acc[neighborhood].totalRevenue += company.revenue || 0;
+      if (company.rating) {
+        acc[neighborhood].totalRating += company.rating;
+        acc[neighborhood].ratingCount++;
+      }
+      return acc;
+    }, {});
+
+    const topNeighborhoods = Object.entries(neighborhoodStats)
+      .map(([neighborhood, stats]: [string, any]) => ({
+        neighborhood,
+        count: stats.count,
+        totalRevenue: stats.totalRevenue,
+        avgRating: stats.ratingCount > 0 ? stats.totalRating / stats.ratingCount : 0,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
     return {
       totalCompanies,
       totalRevenue,
@@ -337,6 +435,10 @@ async function getBusinessAnalytics(supabase: any, filters: any = {}) {
         industry: item.industry,
         revenue: item.revenue,
       })),
+      topNeighborhoods,
+      businessAgeDistribution: [],
+      revenueDistribution: [],
+      monthlyTrends: [],
     };
   } catch (error) {
     console.error("Error calculating analytics:", error);
@@ -348,6 +450,10 @@ async function getBusinessAnalytics(supabase: any, filters: any = {}) {
       averageEmployees: 0,
       topIndustries: [],
       revenueByIndustry: [],
+      topNeighborhoods: [],
+      businessAgeDistribution: [],
+      revenueDistribution: [],
+      monthlyTrends: [],
     };
   }
 }
