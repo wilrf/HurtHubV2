@@ -91,7 +91,7 @@ export function BusinessIntelligence() {
   const getTopPerformers = (
     metric: "revenue" | "employees" | "revenueGrowth" | "grossMargin",
   ) => {
-    return businesses.sort((a, b) => b[metric] - a[metric]).slice(0, 10);
+    return businesses.sort((a, b) => (b[metric] || 0) - (a[metric] || 0)).slice(0, 10);
   };
 
   const getIndustryInsights = () => {
@@ -360,8 +360,8 @@ export function BusinessIntelligence() {
                           : selectedMetric === "employees"
                             ? formatNumber(business.employees)
                             : selectedMetric === "growth"
-                              ? `${(business.revenueGrowth * 100).toFixed(1)}%`
-                              : `${(business.grossMargin * 100).toFixed(1)}%`}
+                              ? `${((business.revenueGrowth || 0) * 100).toFixed(1)}%`
+                              : `${((business.grossMargin || 0) * 100).toFixed(1)}%`}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {business.neighborhood}
@@ -565,7 +565,7 @@ export function BusinessIntelligence() {
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Market Leaders</h4>
                   <p className="text-2xl font-bold text-sapphire-500">
-                    {businesses.filter((b) => b.revenue > 5000000).length}
+                    {businesses.filter((b) => (b.revenue || 0) > 5000000).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Companies with $5M+ revenue
@@ -575,7 +575,7 @@ export function BusinessIntelligence() {
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Growth Champions</h4>
                   <p className="text-2xl font-bold text-sapphire-400">
-                    {businesses.filter((b) => b.revenueGrowth > 0.2).length}
+                    {businesses.filter((b) => (b.revenueGrowth || 0) > 0.2).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     20%+ revenue growth
@@ -586,7 +586,7 @@ export function BusinessIntelligence() {
                   <h4 className="font-semibold mb-2">High Efficiency</h4>
                   <p className="text-2xl font-bold text-sapphire-500">
                     {
-                      businesses.filter((b) => b.revenuePerEmployee > 100000)
+                      businesses.filter((b) => (b.revenuePerEmployee || 0) > 100000)
                         .length
                     }
                   </p>
