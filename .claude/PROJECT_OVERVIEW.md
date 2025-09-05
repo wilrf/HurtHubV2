@@ -12,6 +12,7 @@
 ### **Core Technology Stack**
 
 #### Frontend
+
 - **Framework**: React 18.2.0 + TypeScript
 - **Build Tool**: Vite 7.1.4
 - **Styling**: TailwindCSS 3.3.3 with custom design system
@@ -23,13 +24,15 @@
 - **Charts**: Recharts for data visualization
 
 #### Backend & APIs
+
 - **Runtime**: Vercel Edge Functions (Node.js)
-- **Database**: Supabase (PostgreSQL) 
+- **Database**: Supabase (PostgreSQL)
 - **AI Integration**: OpenAI GPT-4o-mini API
 - **Authentication**: Supabase Auth
 - **Real-time**: Socket.IO + SWR for data fetching
 
 #### Development Tools
+
 - **TypeScript**: 5.0.2 with strict mode
 - **Linting**: ESLint 9 with TypeScript support
 - **Testing**: Vitest + Playwright for E2E
@@ -39,25 +42,29 @@
 ### **Key Features & Modules**
 
 #### 1. **Business Intelligence** (`/business-intelligence`)
+
 - Real-time business analytics and insights
-- AI-powered market analysis with OpenAI integration  
+- AI-powered market analysis with OpenAI integration
 - Revenue, employment, and industry performance metrics
 - Geographic business distribution analysis
 - Competitive landscape intelligence
 
 #### 2. **Community Pulse** (`/community-pulse`)
+
 - Community engagement and sentiment analysis
 - Local business network analysis
 - Economic impact assessment
 - Neighborhood business clustering patterns
 
 #### 3. **AI Assistant System**
+
 - Multi-modal AI chat interface (`BusinessAIChat` component)
 - Context-aware responses with business data integration
 - Conversation persistence and session management
 - Real-time business data queries and analysis
 
 #### 4. **Business Search & Profiles**
+
 - Advanced business search with filtering
 - Detailed company profiles and analytics
 - Geographic and industry-based discovery
@@ -74,7 +81,7 @@
 ├── src/
 │   ├── components/           # Reusable React components
 │   │   ├── ai/              # AI chat components
-│   │   ├── ui/              # Design system components  
+│   │   ├── ui/              # Design system components
 │   │   ├── search/          # Business search components
 │   │   └── layouts/         # Layout components
 │   ├── pages/               # Route page components
@@ -100,6 +107,7 @@
 ## 🗄️ Database Architecture
 
 ### **Supabase Tables**
+
 - **`companies`** - Business entity information (299+ Charlotte businesses)
 - **`ai_conversations`** - Chat history and conversation logs
 - **`ai_session_summaries`** - Session metadata and summaries
@@ -107,6 +115,7 @@
 - **`economic_indicators`** - Regional economic data (GDP, unemployment, etc.)
 
 ### **Key Relationships**
+
 - Companies ←→ Developments (business news)
 - AI Conversations → Sessions (conversation grouping)
 - Economic Indicators → Regional analysis
@@ -114,6 +123,7 @@
 ## 🤖 AI Integration
 
 ### **OpenAI GPT-4o-mini Integration**
+
 - **Primary Endpoint**: `/api/ai-chat-simple`
 - **Model**: gpt-4o-mini (configurable)
 - **Context Enhancement**: Real-time business data injection
@@ -124,20 +134,23 @@
   - Session persistence and summaries
 
 ### **AI Chat Flow**
+
 ```
-User Input → BusinessAIChat → useBusinessAIChat → 
-/api/ai-chat-simple → Supabase Data Query → 
+User Input → BusinessAIChat → useBusinessAIChat →
+/api/ai-chat-simple → Supabase Data Query →
 OpenAI API → Context Enhancement → Response → UI
 ```
 
 ## 🔒 Security & Environment
 
 ### **Environment Variables**
-- **Client-side** (VITE_ prefix): UI configuration, public API endpoints
+
+- **Client-side** (VITE\_ prefix): UI configuration, public API endpoints
 - **Server-side**: OpenAI API keys, Supabase service role keys
 - **Security**: API keys never exposed to browser, server-side only
 
 ### **Authentication & Authorization**
+
 - Supabase Auth for user management
 - Row-level security (RLS) policies
 - Protected API endpoints with proper validation
@@ -145,13 +158,15 @@ OpenAI API → Context Enhancement → Response → UI
 ## 📊 Business Intelligence Features
 
 ### **Analytics Dashboards**
-- Market size and revenue analysis  
+
+- Market size and revenue analysis
 - Employment impact metrics
 - Industry diversity and performance
 - Geographic business distribution
 - Business maturity and age analysis
 
 ### **AI-Powered Insights**
+
 - Context-aware business queries
 - Industry trend analysis
 - Competitive landscape intelligence
@@ -161,12 +176,14 @@ OpenAI API → Context Enhancement → Response → UI
 ## 🚀 Deployment & DevOps
 
 ### **Deployment Pipeline**
+
 - **Platform**: Vercel with Edge Functions
 - **CI/CD**: Automated builds on push
 - **Environment Management**: Vercel environment variables
 - **Monitoring**: Built-in health checks and logging
 
 ### **Development Workflow**
+
 ```bash
 # Local Development
 npm run dev              # Start development server
@@ -174,7 +191,7 @@ npm run quality          # Run linting and type checking
 npm run test             # Run unit tests
 npm run test:e2e         # Run end-to-end tests
 
-# Deployment  
+# Deployment
 npm run build           # Production build
 npm run deploy:prod     # Deploy to production
 ```
@@ -191,12 +208,14 @@ npm run deploy:prod     # Deploy to production
 ## 📈 Performance Optimizations
 
 ### **Frontend Optimizations**
+
 - **Code Splitting**: Vendor, router, Redux, UI chunks
 - **Lazy Loading**: Route-based and component-based
 - **Caching**: SWR for data fetching with smart caching
 - **Bundle Size**: Chunk size warnings at 512KB
 
 ### **API Optimizations**
+
 - **Edge Functions**: Fast global response times
 - **Database Connection**: Supavisor pooling for PostgreSQL
 - **AI Context**: Smart data retrieval to minimize API calls
@@ -204,6 +223,7 @@ npm run deploy:prod     # Deploy to production
 ## 🧪 Testing Strategy
 
 ### **Testing Stack**
+
 - **Unit Tests**: Vitest with Jest DOM
 - **Integration Tests**: React Testing Library
 - **End-to-End**: Playwright with multi-browser support
@@ -211,6 +231,7 @@ npm run deploy:prod     # Deploy to production
 - **Test UI**: Vitest UI for visual test running
 
 ### **Quality Assurance**
+
 - **Code Quality**: ESLint + Prettier + TypeScript strict mode
 - **Pre-commit Hooks**: Husky + lint-staged
 - **CI Pipeline**: Automated testing on deployment
@@ -219,6 +240,7 @@ npm run deploy:prod     # Deploy to production
 ## 📚 Documentation Structure
 
 ### **Core Documentation** (`.claude/` directory)
+
 - **`PROJECT_OVERVIEW.md`** - This document, high-level architecture
 - **`API_INDEX.md`** - Complete API endpoint documentation
 - **`FRONTEND_INDEX.md`** - React components and frontend architecture
@@ -227,6 +249,7 @@ npm run deploy:prod     # Deploy to production
 - **`ARCHITECTURE_CICD.md`** - 🆕 Architecture patterns, CI/CD, and deployment
 
 ### **Project Documentation**
+
 - **`CLAUDE.md`** - Development guidelines and rules
 - **`api-docs/`** - API endpoint documentation
 - **`ENV_GUIDE.md`** - 🆕 Environment setup guide (9→3 files cleanup)
@@ -244,6 +267,6 @@ npm run deploy:prod     # Deploy to production
 
 ---
 
-*Generated: 2025-09-02*  
-*Last Updated: Based on codebase analysis*  
-*Total Files Analyzed: 100+*
+_Generated: 2025-09-02_  
+_Last Updated: Based on codebase analysis_  
+_Total Files Analyzed: 100+_

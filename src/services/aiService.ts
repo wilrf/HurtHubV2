@@ -121,16 +121,16 @@ export async function checkDatabaseHealth(): Promise<any> {
 // Smart Data Query Function
 export async function queryBusinessData(
   query: string,
-  type: 'companies' | 'developments' | 'economic' | 'comprehensive' | 'search',
+  type: "companies" | "developments" | "economic" | "comprehensive" | "search",
   filters?: any,
-  context?: string
+  context?: string,
 ): Promise<any> {
   try {
     return await api.post("/data-query", {
       query,
       type,
       filters,
-      context
+      context,
     });
   } catch (error) {
     console.error("Business data query failed:", error);
@@ -153,7 +153,7 @@ export async function createSmartChatCompletion(
         needsBusinessData.query,
         needsBusinessData.queryType,
         needsBusinessData.filters,
-        extractConversationContext(req.messages)
+        extractConversationContext(req.messages),
       );
     }
 
@@ -161,13 +161,13 @@ export async function createSmartChatCompletion(
     const enhancedMessages = await enhanceMessagesWithContext(
       req.messages,
       businessContext,
-      req.module
+      req.module,
     );
 
     // Create the enhanced request
     const enhancedReq: ChatRequest = {
       ...req,
-      messages: enhancedMessages
+      messages: enhancedMessages,
     };
 
     // Proceed with regular chat completion
@@ -311,47 +311,88 @@ function generateSessionId(): string {
 async function analyzeQueryForBusinessData(messages: ChatMessage[]): Promise<{
   needsData: boolean;
   query: string;
-  queryType: 'companies' | 'developments' | 'economic' | 'comprehensive' | 'search';
+  queryType:
+    | "companies"
+    | "developments"
+    | "economic"
+    | "comprehensive"
+    | "search";
   filters?: any;
 }> {
   const lastMessage = messages[messages.length - 1];
-  if (!lastMessage || lastMessage.role !== 'user') {
-    return { needsData: false, query: '', queryType: 'search' };
+  if (!lastMessage || lastMessage.role !== "user") {
+    return { needsData: false, query: "", queryType: "search" };
   }
 
   const userQuery = lastMessage.content.toLowerCase();
 
   // Keywords that indicate business data queries
   const businessKeywords = [
-    'company', 'companies', 'business', 'industry', 'sector',
-    'revenue', 'employees', 'market', 'economic', 'gdp',
-    'unemployment', 'growth', 'investment', 'development',
-    'news', 'charlotte', 'nc', 'analysis', 'data', 'statistics'
+    "company",
+    "companies",
+    "business",
+    "industry",
+    "sector",
+    "revenue",
+    "employees",
+    "market",
+    "economic",
+    "gdp",
+    "unemployment",
+    "growth",
+    "investment",
+    "development",
+    "news",
+    "charlotte",
+    "nc",
+    "analysis",
+    "data",
+    "statistics",
   ];
 
-  const needsData = businessKeywords.some(keyword => userQuery.includes(keyword));
+  const needsData = businessKeywords.some((keyword) =>
+    userQuery.includes(keyword),
+  );
 
   if (!needsData) {
-    return { needsData: false, query: '', queryType: 'search' };
+    return { needsData: false, query: "", queryType: "search" };
   }
 
   // Determine query type and filters based on content
-  let queryType: 'companies' | 'developments' | 'economic' | 'comprehensive' | 'search' = 'search';
+  let queryType:
+    | "companies"
+    | "developments"
+    | "economic"
+    | "comprehensive"
+    | "search" = "search";
   const filters: any = {};
 
-  if (userQuery.includes('company') || userQuery.includes('business')) {
-    queryType = 'companies';
-  } else if (userQuery.includes('news') || userQuery.includes('development')) {
-    queryType = 'developments';
-  } else if (userQuery.includes('economic') || userQuery.includes('gdp') || userQuery.includes('unemployment')) {
-    queryType = 'economic';
-  } else if (userQuery.includes('market') || userQuery.includes('analysis')) {
-    queryType = 'comprehensive';
+  if (userQuery.includes("company") || userQuery.includes("business")) {
+    queryType = "companies";
+  } else if (userQuery.includes("news") || userQuery.includes("development")) {
+    queryType = "developments";
+  } else if (
+    userQuery.includes("economic") ||
+    userQuery.includes("gdp") ||
+    userQuery.includes("unemployment")
+  ) {
+    queryType = "economic";
+  } else if (userQuery.includes("market") || userQuery.includes("analysis")) {
+    queryType = "comprehensive";
   }
 
   // Extract industry/sector filters
-  const industries = ['financial', 'technology', 'retail', 'healthcare', 'manufacturing', 'energy'];
-  const foundIndustry = industries.find(industry => userQuery.includes(industry));
+  const industries = [
+    "financial",
+    "technology",
+    "retail",
+    "healthcare",
+    "manufacturing",
+    "energy",
+  ];
+  const foundIndustry = industries.find((industry) =>
+    userQuery.includes(industry),
+  );
   if (foundIndustry) {
     filters.industry = foundIndustry;
   }
@@ -360,35 +401,33 @@ async function analyzeQueryForBusinessData(messages: ChatMessage[]): Promise<{
     needsData: true,
     query: lastMessage.content,
     queryType,
-    filters
+    filters,
   };
 }
 
 // Extract conversation context for better data querying
 function extractConversationContext(messages: ChatMessage[]): string {
   const recentMessages = messages.slice(-5); // Last 5 messages for context
-  return recentMessages
-    .map(msg => `${msg.role}: ${msg.content}`)
-    .join('\n');
+  return recentMessages.map((msg) => `${msg.role}: ${msg.content}`).join("\n");
 }
 
 // Enhance messages with business context
 async function enhanceMessagesWithContext(
   messages: ChatMessage[],
   businessContext: any,
-  module?: string
+  module?: string,
 ): Promise<ChatMessage[]> {
   if (!businessContext?.data) {
     return messages;
   }
 
   // Create enhanced system message with business context
-  let systemMessage = messages.find(msg => msg.role === 'system');
+  let systemMessage = messages.find((msg) => msg.role === "system");
 
   if (!systemMessage) {
     systemMessage = {
-      role: 'system',
-      content: getDefaultSystemMessage(module)
+      role: "system",
+      content: getDefaultSystemMessage(module),
     };
   }
 
@@ -397,30 +436,27 @@ async function enhanceMessagesWithContext(
   systemMessage.content += `\n\nCURRENT BUSINESS CONTEXT:\n${contextString}`;
 
   // Return messages with enhanced system message
-  return [
-    systemMessage,
-    ...messages.filter(msg => msg.role !== 'system')
-  ];
+  return [systemMessage, ...messages.filter((msg) => msg.role !== "system")];
 }
 
 // Format business data for context injection
 function formatBusinessContext(data: any): string {
-  let context = '';
+  let context = "";
 
   if (data.companies && data.companies.length > 0) {
     context += `COMPANIES IN DATABASE:\n`;
     data.companies.slice(0, 5).forEach((company: any) => {
-      context += `- ${company.name} (${company.industry}): $${company.revenue?.toLocaleString() || 'N/A'} revenue, ${company.employees_count || 'N/A'} employees\n`;
+      context += `- ${company.name} (${company.industry}): $${company.revenue?.toLocaleString() || "N/A"} revenue, ${company.employees_count || "N/A"} employees\n`;
     });
-    context += '\n';
+    context += "\n";
   }
 
   if (data.developments && data.developments.length > 0) {
     context += `RECENT DEVELOPMENTS:\n`;
     data.developments.slice(0, 3).forEach((dev: any) => {
-      context += `- ${dev.title} (${dev.companies?.name || 'Unknown company'})\n`;
+      context += `- ${dev.title} (${dev.companies?.name || "Unknown company"})\n`;
     });
-    context += '\n';
+    context += "\n";
   }
 
   if (data.economicIndicators && data.economicIndicators.length > 0) {
@@ -429,7 +465,7 @@ function formatBusinessContext(data: any): string {
     context += `- Unemployment: ${latest.unemployment_rate}%\n`;
     context += `- GDP Growth: ${latest.gdp_growth}%\n`;
     context += `- Job Growth: ${latest.job_growth}\n`;
-    context += '\n';
+    context += "\n";
   }
 
   if (data.marketSummary) {
@@ -438,12 +474,12 @@ function formatBusinessContext(data: any): string {
     context += `- Total Companies: ${summary.overview.totalCompanies}\n`;
     context += `- Recent Developments: ${summary.overview.totalDevelopments}\n`;
     if (summary.insights.topIndustries.length > 0) {
-      context += `- Top Industries: ${summary.insights.topIndustries.map((i: any) => i.industry).join(', ')}\n`;
+      context += `- Top Industries: ${summary.insights.topIndustries.map((i: any) => i.industry).join(", ")}\n`;
     }
-    context += '\n';
+    context += "\n";
   }
 
-  return context || 'No business data available in database.';
+  return context || "No business data available in database.";
 }
 
 // Default system message for business AI
@@ -452,7 +488,7 @@ function getDefaultSystemMessage(module?: string): string {
 You have access to comprehensive business data including company information, revenue analytics, employment statistics, and market trends.
 Provide deep, cutting-edge analysis with actionable insights.`;
 
-  if (module === 'business-intelligence') {
+  if (module === "business-intelligence") {
     return `${baseMessage}
 
 Focus on:

@@ -22,11 +22,13 @@ export default defineConfig({
   /* Use single worker for Vercel testing */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [['html', { open: 'never' }], ['github']],
+  reporter: [["html", { open: "never" }], ["github"]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL from Vercel deployment */
-    baseURL: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://charlotte-econdev-platform.vercel.app',
+    baseURL: process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://charlotte-econdev-platform.vercel.app",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     /* Screenshot on failure for debugging */

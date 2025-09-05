@@ -121,9 +121,11 @@ export function useBusinessAIChat(
       throw new Error("No content in response");
     } catch (error) {
       console.error("Charlotte AI API failed:", error);
-      
+
       // NO FALLBACK - Enforce database-only context per CLAUDE.md
-      throw new Error(`AI chat service unavailable: ${error instanceof Error ? error.message : 'Unknown error'}. All responses must use database context.`);
+      throw new Error(
+        `AI chat service unavailable: ${error instanceof Error ? error.message : "Unknown error"}. All responses must use database context.`,
+      );
     }
   };
 

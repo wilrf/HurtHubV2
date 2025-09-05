@@ -5,29 +5,31 @@
 This project previously had **EXPOSED PRODUCTION CREDENTIALS** committed to git. All sensitive credentials have been replaced with placeholders and proper `.gitignore` rules have been added.
 
 **If you're setting up this project:**
+
 1. ✅ Never commit real credentials
-2. ✅ Use the template files (.env.example)  
+2. ✅ Use the template files (.env.example)
 3. ✅ Set up credentials locally and in production separately
 
 ## 🔧 Environment Variable Structure
 
 ### Vite vs Next.js Configuration
 
-**IMPORTANT:** This is a **Vite** application, not Next.js. 
+**IMPORTANT:** This is a **Vite** application, not Next.js.
 
 - ✅ Use `VITE_` prefixes for client-side variables
 - ❌ Don't use `NEXT_PUBLIC_` prefixes (wrong framework)
 
 ### Variable Types
 
-| Purpose | Prefix | Access | Example |
-|---------|---------|---------|---------|
-| Client-side | `VITE_` | Browser & Server | `VITE_SUPABASE_URL` |
-| Server-side | None | Server only | `SUPABASE_SERVICE_ROLE_KEY` |
+| Purpose     | Prefix  | Access           | Example                     |
+| ----------- | ------- | ---------------- | --------------------------- |
+| Client-side | `VITE_` | Browser & Server | `VITE_SUPABASE_URL`         |
+| Server-side | None    | Server only      | `SUPABASE_SERVICE_ROLE_KEY` |
 
 ## 🛠️ Setup Instructions
 
 ### 1. Development Setup
+
 ```bash
 # Copy the template
 cp .env.example .env
@@ -40,6 +42,7 @@ npm run dev
 ```
 
 ### 2. Production Setup
+
 ```bash
 # Set in Vercel dashboard or CLI
 vercel env add VITE_SUPABASE_URL
@@ -51,6 +54,7 @@ vercel env add OPENAI_API_KEY
 ## 🐛 Common Issues & Solutions
 
 ### Issue 1: "Supabase credentials not found"
+
 **Cause:** Missing `VITE_` prefixed variables
 **Solution:** Ensure client-side variables use `VITE_` prefix
 
@@ -58,11 +62,12 @@ vercel env add OPENAI_API_KEY
 # ❌ Wrong (server-side only)
 SUPABASE_URL="https://..."
 
-# ✅ Correct (client-side accessible)  
+# ✅ Correct (client-side accessible)
 VITE_SUPABASE_URL="https://..."
 ```
 
 ### Issue 2: AI Chat API errors
+
 **Cause:** Missing or incorrect API keys
 **Solution:** Set both server and client keys
 
@@ -75,6 +80,7 @@ VITE_OPENAI_API_KEY="sk-..."
 ```
 
 ### Issue 3: Production localhost URLs
+
 **Cause:** Development URLs in production environment
 **Solution:** Use relative/absolute URLs for production
 
@@ -96,23 +102,26 @@ VITE_API_BASE_URL="/api/v1"
 
 ## 📋 Environment Variable Reference
 
-### Required Client-Side Variables (VITE_ prefix)
+### Required Client-Side Variables (VITE\_ prefix)
+
 ```bash
 VITE_SUPABASE_URL="https://your-project.supabase.co"
 VITE_SUPABASE_ANON_KEY="eyJ..."
 VITE_APP_ENV="development|production"
 ```
 
-### Required Server-Side Variables  
+### Required Server-Side Variables
+
 ```bash
 OPENAI_API_KEY="sk-..."
 SUPABASE_SERVICE_ROLE_KEY="eyJ..."
 ```
 
 ### Optional Variables
+
 ```bash
 VITE_DEBUG_MODE="true|false"
-VITE_MOCK_API="true|false"  
+VITE_MOCK_API="true|false"
 GITHUB_TOKEN="ghp_..."
 ```
 

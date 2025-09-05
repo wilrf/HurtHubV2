@@ -8,17 +8,17 @@ afterEach(() => {
 });
 
 // Mock Vercel environment variables for local tooling
-process.env.VITE_VERCEL_URL = 'test-app.vercel.app';
-process.env.VITE_VERCEL_ENV = 'preview';
-process.env.VITE_VERCEL_GIT_COMMIT_SHA = 'abc1234';
-process.env.VITE_SUPABASE_URL = 'https://test.supabase.co';
-process.env.VITE_SUPABASE_ANON_KEY = 'test-anon-key';
-process.env.VITE_ENABLE_AI_FEATURES = 'true';
-process.env.VITE_ENABLE_REAL_TIME = 'true';
-process.env.VITE_ENABLE_ANALYTICS = 'false';
-process.env.VITE_ENABLE_EXPORT = 'true';
-process.env.VITE_DEBUG_MODE = 'true';
-process.env.VITE_SHOW_DEV_TOOLS = 'true';
+process.env.VITE_VERCEL_URL = "test-app.vercel.app";
+process.env.VITE_VERCEL_ENV = "preview";
+process.env.VITE_VERCEL_GIT_COMMIT_SHA = "abc1234";
+process.env.VITE_SUPABASE_URL = "https://test.supabase.co";
+process.env.VITE_SUPABASE_ANON_KEY = "test-anon-key";
+process.env.VITE_ENABLE_AI_FEATURES = "true";
+process.env.VITE_ENABLE_REAL_TIME = "true";
+process.env.VITE_ENABLE_ANALYTICS = "false";
+process.env.VITE_ENABLE_EXPORT = "true";
+process.env.VITE_DEBUG_MODE = "true";
+process.env.VITE_SHOW_DEV_TOOLS = "true";
 
 // Mock environment variables for testing
 vi.mock("../config/env", () => ({
@@ -34,40 +34,41 @@ vi.mock("../config/env", () => ({
     enableExport: true,
     debugMode: true,
     showDevTools: true,
-    
+
     // Environment checks
     isDevelopment: () => false,
     isStaging: () => true,
     isProduction: () => false,
-    
+
     // Vercel-specific methods
-    vercelEnvironment: 'preview',
+    vercelEnvironment: "preview",
     isVercelPreview: true,
-    apiPath: (endpoint: string) => `https://test-app.vercel.app/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`,
-    
+    apiPath: (endpoint: string) =>
+      `https://test-app.vercel.app/api${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`,
+
     // Service availability
     hasOpenAI: () => true,
     hasMapbox: () => false,
     hasAnalytics: () => false,
     hasSentry: () => false,
-    
+
     // Deployment info
     deploymentInfo: {
-      environment: 'preview',
-      url: 'https://test-app.vercel.app',
-      appName: 'test-app',
-      version: 'abc1234',
+      environment: "preview",
+      url: "https://test-app.vercel.app",
+      appName: "test-app",
+      version: "abc1234",
       isProduction: false,
       isPreview: true,
     },
-    
+
     // Config access
     getConfig: () => ({
-      APP_NAME: 'test-app',
-      APP_VERSION: 'abc1234',
-      APP_ENV: 'staging',
-      API_BASE_URL: 'https://test-app.vercel.app',
-      WEBSOCKET_URL: 'wss://test-app.vercel.app/ws',
+      APP_NAME: "test-app",
+      APP_VERSION: "abc1234",
+      APP_ENV: "staging",
+      API_BASE_URL: "https://test-app.vercel.app",
+      WEBSOCKET_URL: "wss://test-app.vercel.app/ws",
       ENABLE_AI_FEATURES: true,
       ENABLE_REAL_TIME: true,
       ENABLE_ANALYTICS: false,
@@ -164,24 +165,24 @@ Object.defineProperty(global, "crypto", {
 });
 
 // Mock import.meta.env for components that access it directly
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).import = {
     meta: {
       env: {
-        VITE_VERCEL_URL: 'test-app.vercel.app',
-        VITE_VERCEL_ENV: 'preview',
-        VITE_VERCEL_GIT_COMMIT_SHA: 'abc1234',
-        VITE_SUPABASE_URL: 'https://test.supabase.co',
-        VITE_SUPABASE_ANON_KEY: 'test-anon-key',
-        VITE_ENABLE_AI_FEATURES: 'true',
-        VITE_ENABLE_REAL_TIME: 'true',
-        VITE_ENABLE_ANALYTICS: 'false',
-        VITE_ENABLE_EXPORT: 'true',
-        VITE_DEBUG_MODE: 'true',
-        VITE_SHOW_DEV_TOOLS: 'true',
-        MODE: 'test',
-      }
-    }
+        VITE_VERCEL_URL: "test-app.vercel.app",
+        VITE_VERCEL_ENV: "preview",
+        VITE_VERCEL_GIT_COMMIT_SHA: "abc1234",
+        VITE_SUPABASE_URL: "https://test.supabase.co",
+        VITE_SUPABASE_ANON_KEY: "test-anon-key",
+        VITE_ENABLE_AI_FEATURES: "true",
+        VITE_ENABLE_REAL_TIME: "true",
+        VITE_ENABLE_ANALYTICS: "false",
+        VITE_ENABLE_EXPORT: "true",
+        VITE_DEBUG_MODE: "true",
+        VITE_SHOW_DEV_TOOLS: "true",
+        MODE: "test",
+      },
+    },
   };
 }
 

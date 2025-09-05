@@ -3,6 +3,7 @@
 ## ✨ Overview
 
 This application now features cutting-edge GPT-5 integration with advanced capabilities:
+
 - **GPT-5 Model** - Latest AI model with superior reasoning (Released August 2025)
 - **Conversation Memory** - Persistent context across sessions
 - **Deep Analysis** - Advanced business and code analysis
@@ -14,11 +15,13 @@ This application now features cutting-edge GPT-5 integration with advanced capab
 ### 1. Set Up Environment Variables
 
 Add your OpenAI API key to Vercel:
+
 ```bash
 vercel env add OPENAI_API_KEY
 ```
 
 Or add to `.env.local`:
+
 ```env
 OPENAI_API_KEY=sk-your-api-key-here
 OPENAI_MODEL=gpt-5
@@ -34,6 +37,7 @@ npm install
 ### 3. Run Database Migrations
 
 Execute the Supabase schema for conversation memory:
+
 ```bash
 npx supabase db push --file supabase/ai-conversation-schema.sql
 ```
@@ -64,30 +68,33 @@ git push origin main
 ## 🎯 Key Features
 
 ### 1. GPT-5 Chat with Memory
+
 ```typescript
-import { useGPT5Chat } from '@/hooks/useGPT5Chat';
+import { useGPT5Chat } from "@/hooks/useGPT5Chat";
 
 const chat = useGPT5Chat({
-  model: 'gpt-5',
+  model: "gpt-5",
   enableStreaming: true,
   enableMemory: true,
 });
 ```
 
 ### 2. Deep Analysis
+
 ```typescript
-import { performDeepAnalysis } from '@/services/aiService';
+import { performDeepAnalysis } from "@/services/aiService";
 
 const analysis = await performDeepAnalysis({
-  type: 'business',
+  type: "business",
   data: businessData,
-  depth: 'deep',
+  depth: "deep",
 });
 ```
 
 ### 3. Conversation Context
+
 ```typescript
-import { retrieveContext, storeContext } from '@/services/aiService';
+import { retrieveContext, storeContext } from "@/services/aiService";
 
 // Store conversation
 await storeContext(sessionId, messages);
@@ -99,6 +106,7 @@ const context = await retrieveContext(sessionId);
 ## 🔧 API Endpoints
 
 ### `/api/chat` - GPT-5 Chat
+
 - **Method**: POST
 - **Body**:
   ```json
@@ -111,6 +119,7 @@ const context = await retrieveContext(sessionId);
   ```
 
 ### `/api/analyze` - Deep Analysis
+
 - **Method**: POST
 - **Body**:
   ```json
@@ -122,22 +131,23 @@ const context = await retrieveContext(sessionId);
   ```
 
 ### `/api/context` - Memory Management
+
 - **Method**: POST
 - **Actions**: store, retrieve, search, summarize
 
 ## 💡 Usage Examples
 
 ### Basic Chat
+
 ```typescript
 const response = await createChatCompletion({
-  messages: [
-    { role: 'user', content: 'Analyze our Q3 revenue' }
-  ],
-  model: 'gpt-5'
+  messages: [{ role: "user", content: "Analyze our Q3 revenue" }],
+  model: "gpt-5",
 });
 ```
 
 ### Streaming Chat
+
 ```typescript
 const response = await createChatCompletion({
   messages: [...],
@@ -147,12 +157,13 @@ const response = await createChatCompletion({
 ```
 
 ### Business Analysis
+
 ```typescript
 const analysis = await performDeepAnalysis({
-  type: 'market',
+  type: "market",
   data: marketData,
-  depth: 'deep',
-  context: 'Charlotte tech industry'
+  depth: "deep",
+  context: "Charlotte tech industry",
 });
 ```
 
@@ -167,6 +178,7 @@ const analysis = await performDeepAnalysis({
 ## 📊 Database Schema
 
 The system uses these Supabase tables:
+
 - `ai_conversations` - Stores chat messages with embeddings
 - `ai_session_summaries` - Conversation summaries
 - `ai_user_preferences` - User-specific AI settings
@@ -191,14 +203,17 @@ The system uses these Supabase tables:
 ## 🐛 Troubleshooting
 
 ### "Invalid API Key" Error
+
 - Verify `OPENAI_API_KEY` in Vercel environment
 - Ensure key has GPT-5 access
 
 ### "Model not found" Error
+
 - GPT-5 requires specific API access
 - Fallback to `gpt-4-turbo` if needed
 
 ### Memory Not Working
+
 - Check Supabase connection
 - Verify `SUPABASE_SERVICE_ROLE_KEY`
 - Run database migrations
@@ -214,6 +229,7 @@ The system uses these Supabase tables:
 ## 🤝 Support
 
 For issues or questions:
+
 - Check API status: https://status.openai.com
 - Review logs in Vercel dashboard
 - Test with `/gpt5-test` page

@@ -8,6 +8,9 @@ export interface BusinessAddress {
   city: string;
   state: string;
   zipCode?: string;
+  zip_code?: string; // Database field name compatibility
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface NAICSLevels {
@@ -47,59 +50,110 @@ export interface BusinessFeatures {
 export interface BusinessReview {
   id: string;
   rating: number;
-  text: string;
-  author: string;
-  date: string;
-  verified: boolean;
+  comment?: string; // Maps to comment field in database
+  text?: string;    // Legacy field for compatibility  
+  reviewer?: string; // Maps to reviewer field in database
+  author?: string;   // Legacy field for compatibility
+  reviewed_at?: string; // Maps to reviewed_at field in database
+  date?: string;     // Legacy field for compatibility
+  verified?: boolean;
+}
+
+// Database-specific types for the enhanced schema
+export interface Address {
+  id?: number;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  zip_code?: string;
+  zipCode?: string; // Legacy compatibility
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface BusinessMetrics {
+  squareFeet?: number;
+  rentPerSqFt?: number;
+  annualRent?: number;
+  grossMargin?: number;
+  netMargin?: number;
+  revenueGrowth?: number;
+  operatingCosts?: OperatingCosts;
+  industryMetrics?: Record<string, string | number>;
+  businessAge?: number;
+  utilizationRate?: number;
+  naicsCode?: string;
+  cluster?: string;
+}
+
+export interface ExtendedFinancials {
+  monthlyRevenue?: number[];
+  revenuePerEmployee?: number;
+  rating?: number;
+  reviewCount?: number;
+  hours?: BusinessHours;
 }
 
 export interface Business {
+  // Core fields
   id: string;
   name: string;
-  naics: string;
-  industry: string;
-  employeeSizeCategory: string;
-  address: BusinessAddress;
-  naicsLevels: NAICSLevels;
-  businessType: "Local" | "Regional" | "National" | "Franchise";
-  cluster: string;
-  yearEstablished: number;
-  owner: string;
-  phone: string;
-  email?: string;
+  industry?: string;
+  sector?: string;
+  description?: string;
+  founded_year?: number;
+  employees_count?: number;
+  revenue?: number;
   website?: string;
+  headquarters?: string;
+  logo_url?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
 
-  // Financial Metrics
-  employees: number;
-  revenue: number;
-  revenuePerEmployee: number;
-  grossMargin: number;
-  netMargin: number;
-  revenueGrowth: number;
+  // Enhanced schema fields
+  address?: Address;
+  features?: BusinessFeatures;
+  metrics?: BusinessMetrics;
+  ext_financials?: ExtendedFinancials;
+  reviews?: BusinessReview[];
 
-  // Location & Physical
-  neighborhood: string;
-  squareFeet: number;
-  rentPerSqFt: number;
-  annualRent: number;
+  // Legacy fields for backward compatibility
+  naics?: string;
+  employeeSizeCategory?: string;
+  naicsLevels?: NAICSLevels;
+  businessType?: "Local" | "Regional" | "National" | "Franchise";
+  cluster?: string;
+  yearEstablished?: number;
+  owner?: string;
+  phone?: string;
+  email?: string;
 
-  // Customer Metrics
-  rating: number;
-  reviewCount: number;
-  reviews: BusinessReview[];
+  // Computed/derived fields (from API transformation)
+  monthlyRevenue?: number[]; // Extracted from ext_financials
+  rating?: number;           // Extracted from ext_financials
+  reviewCount?: number;      // Computed or from ext_financials
+  hours?: BusinessHours;     // Extracted from ext_financials
 
-  // Operations
-  operatingCosts: OperatingCosts;
-  industryMetrics: Record<string, string | number>;
-  businessAge: number;
-  hours: BusinessHours;
-  monthlyRevenue: number[]; // 12 months
-  features: BusinessFeatures;
+  // Legacy fields for demo data compatibility
+  employees?: number;         // Maps to employees_count
+  revenuePerEmployee?: number; // Computed or from ext_financials
+  grossMargin?: number;       // From metrics
+  netMargin?: number;         // From metrics
+  revenueGrowth?: number;     // From metrics
+  neighborhood?: string;      // From address or legacy data
+  squareFeet?: number;        // From metrics
+  rentPerSqFt?: number;       // From metrics
+  annualRent?: number;        // From metrics
+  operatingCosts?: OperatingCosts; // From metrics
+  industryMetrics?: Record<string, string | number>; // From metrics
+  businessAge?: number;       // From metrics
 
-  // Metadata
-  isDemo: boolean;
-  dataVersion: string;
-  lastUpdated: string;
+  // Demo metadata
+  isDemo?: boolean;
+  dataVersion?: string;
+  lastUpdated?: string;
 }
 
 export interface DemoDataset {

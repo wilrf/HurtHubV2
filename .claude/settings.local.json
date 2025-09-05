@@ -74,7 +74,16 @@
       "WebFetch(domain:vitejs.dev)",
       "WebFetch(domain:vite.dev)",
       "Bash(del scriptstest-deployment.js)",
-      "Bash(npm run ci:*)"
+      "Bash(npm run ci:*)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(npm ls:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\scripts/**)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\supabase\\migrations/**)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\scripts/**)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\scripts/**)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\scripts/**)",
+      "Read(/C:\\Users\\wilso\\Downloads\\Hurt Hub V2\\scripts/**)"
     ],
     "deny": [],
     "ask": []
