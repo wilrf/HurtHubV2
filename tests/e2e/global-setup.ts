@@ -8,9 +8,10 @@ async function globalSetup(config: FullConfig) {
   const page = await browser.newPage();
 
   try {
-    // Wait for the development server to be ready
-    console.log("⏳ Waiting for development server...");
-    await page.goto(config.webServer?.url || "http://localhost:3000");
+    // Wait for the Vercel deployment to be ready
+    const testUrl = process.env.TEST_URL || config.webServer?.url || "https://hurt-hub-v2.vercel.app";
+    console.log(`⏳ Waiting for deployment at ${testUrl}...`);
+    await page.goto(testUrl);
     await page.waitForSelector("body", { timeout: 30000 });
 
     // Perform any global setup tasks here

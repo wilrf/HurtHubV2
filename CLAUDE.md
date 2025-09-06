@@ -15,6 +15,40 @@
 
 ## 🚨 CRITICAL REQUIREMENTS
 
+### 🔍 **CODE REVIEW REQUIREMENT - MANDATORY**
+
+**ALL CODE CHANGES MUST BE REVIEWED BEFORE EXECUTION**
+
+When asked to investigate and change code, you MUST follow this workflow:
+
+1. **INVESTIGATE FIRST**: Analyze the current code, understand the context
+2. **PRESENT THE PLAN**: Show exactly what changes you plan to make
+3. **EXPLAIN REASONING**: Provide clear explanation for each modification
+4. **WAIT FOR APPROVAL**: Get explicit user approval before executing
+5. **NEVER SKIP REVIEW**: Do not jump straight into modifying code
+
+**Required Presentation Format:**
+```
+CURRENT CODE:
+[Show the existing code that will be changed]
+
+PROPOSED CHANGES:
+[Show the new code with clear indication of what's different]
+
+REASONING:
+- Why this change is needed
+- What problem it solves
+- Potential impacts or side effects
+- Alternative approaches considered
+```
+
+**Exceptions:**
+- Read-only operations (viewing files, searching, analyzing)
+- Emergency fixes explicitly marked as "urgent - skip review"
+- User explicitly says "just do it" or "implement without review"
+
+**This rule overrides any request to "fix", "update", or "change" code - always show first!**
+
 ### **NEVER USE FALLBACKS RULE**
 
 **FALLBACKS ARE FORBIDDEN. ALWAYS FAIL FAST AND REPORT ERRORS.**
@@ -87,21 +121,70 @@ If Playwright fails → Fix Playwright
 If fixing takes time → Keep fixing Playwright
 NEVER substitute without explicit permission
 
-### **PORT CONFLICT RESOLUTION**
+### **VERCEL DEPLOYMENT TESTING**
 
-When testing with Playwright + Vercel dev:
+When testing with Playwright:
 
-1. Check what port Vercel dev actually started on
-2. Update the Playwright test BASE_URL to match
-3. Use `webServer: null` in playwright.config if Vercel is already running
-4. Or use different ports for each service
+1. Use Vercel preview deployments (not local development)
+2. Update the Playwright test BASE_URL to the Vercel preview URL
+3. Pass the deployment URL as an environment variable or argument
+4. Test against real deployed services, not mocked environments
 
 **NO EXCUSES. NO SHORTCUTS. NO SUBSTITUTIONS.**
+
+## 🏛️ ARCHITECTURAL PRINCIPLES - NON-NEGOTIABLE
+
+**CRITICAL: These principles are MANDATORY. Violating them will result in code rejection.**
+
+### **Core Principles Summary**
+
+1. **ORM-Only Data Access** - NO direct SQL, NO stored procedures, EVER
+2. **Domain-Driven Design** - Business logic in services, NEVER in UI or database
+3. **Repository Pattern** - Data access ONLY through repository interfaces
+4. **Global Exception Handling** - NO try-catch in business logic, let exceptions bubble up
+5. **Clean Architecture** - Strict separation between UI, business, and data layers
+
+### **Quick Reference: RIGHT vs WRONG**
+
+```typescript
+// ✅ RIGHT - Using ORM
+const companies = await supabase.from('companies').select('*');
+
+// ❌ WRONG - Direct SQL
+const companies = await db.query('SELECT * FROM companies');
+
+// ✅ RIGHT - Business logic in service
+class CompanyService {
+  calculateValuation(company: Company): number { /* logic */ }
+}
+
+// ❌ WRONG - Business logic in component
+function CompanyCard() {
+  const valuation = revenue * 2.5; // NO! Move to service!
+}
+
+// ✅ RIGHT - Let exceptions bubble
+async function getCompany(id: string) {
+  return await repository.findById(id); // Let it throw
+}
+
+// ❌ WRONG - Swallowing exceptions
+try {
+  return await repository.findById(id);
+} catch {
+  return null; // NEVER hide errors!
+}
+```
+
+**📖 MANDATORY READING**: See `.claude/ARCHITECTURE_PRINCIPLES.md` for complete details.
+**⚠️ PATTERNS GUIDE**: See `.claude/PATTERNS_ANTIPATTERNS.md` for specific examples.
 
 ### Codebase Navigation & Documentation
 
 **ALWAYS consult `.claude/` directory for comprehensive codebase documentation:**
 
+- **`.claude/ARCHITECTURE_PRINCIPLES.md`**: 🏛️ Core architectural principles and patterns
+- **`.claude/PATTERNS_ANTIPATTERNS.md`**: ⚠️ Specific patterns to follow and avoid
 - **`.claude/PROJECT_OVERVIEW.md`**: Complete architecture overview and tech stack
 - **`.claude/API_INDEX.md`**: All API endpoints with request/response formats
 - **`.claude/FRONTEND_INDEX.md`**: React components, hooks, and state management
@@ -211,26 +294,39 @@ npm run build
 4. **Database timeouts**: Use Supavisor URLs for IPv4 on Vercel
 5. **vercel.json rewrite issues**: Catch-all rewrites serve HTML for static assets, breaking Vite import analysis
 
-## Vercel Development Issues
+## 🚀 VERCEL-ONLY DEPLOYMENT STRATEGY
 
-**KNOWN ISSUE: vercel.json rewrites cause static asset problems**
+**CRITICAL: This project uses Vercel-only deployment. Local development is intentionally disabled.**
 
-- `vercel dev` serves HTML for all non-API requests (including manifest.json)
-- This breaks Vite's import analysis and browser asset loading
-- **Fix**: Add explicit static asset rewrites before catch-all rule in vercel.json
-- **Testing**: Always test with `vercel dev` (not `npm run dev`) for accurate Vercel environment
-- **Detection**: Only browser-based testing (like Playwright) catches these frontend issues
+### **Why Vercel-Only?**
+- ✅ **No environment variable issues** - Vercel manages all secrets
+- ✅ **Real API testing** - Always test with live services
+- ✅ **Production parity** - Preview environments match production exactly
+- ✅ **Zero configuration** - No local setup required
+- ✅ **Team consistency** - Everyone uses the same environment
+
+### **Development Workflow**
+1. Edit code locally in your IDE
+2. Push to branch for automatic preview deployment
+3. Test on Vercel preview URL (auto-generated)
+4. Merge to main for production deployment
+
+**Note**: `npm run dev` is disabled and shows: "⚠️ Local dev is unsupported. Push to branch for preview deployment."
 
 ## Testing Protocol for Vercel Projects
 
 **STANDARD APPROACH: When testing Vercel projects**
 
 1. **Use Playwright MCP** for browser-based testing (when requested)
-2. **Deploy to Vercel preview** for testing (no local dev)
-3. **Test actual frontend rendering**, not just API endpoints
+2. **Deploy to Vercel preview** for all testing - no local development
+3. **Test actual frontend rendering** on deployed URLs, not just API endpoints
 4. **Capture screenshots** for visual evidence of issues
 5. **Check static assets** (manifest.json, icons) load correctly in browser
 6. **Never substitute testing approaches** without explicit user permission
+
+**Testing URLs:**
+- Production: `https://hurt-hub-v2.vercel.app`
+- Preview: `https://hurt-hub-v2-<branch-hash>.vercel.app`
 
 ## Before Committing
 
@@ -249,7 +345,8 @@ npm run build
 
 ### Deployment Strategy
 
-- **Decision:** Vercel-only deployment strategy (no local dev).
+- **Decision:** Vercel-only deployment strategy - NO LOCAL DEVELOPMENT.
 - Workflow: edit locally → `git push` → test at preview URL → merge to main for production.
-- All environment variables managed in Vercel Dashboard.
+- All environment variables managed in Vercel Dashboard (never in local files).
 - Preview deployments for testing, production for live app.
+- **Important**: `npm run dev` is intentionally disabled to enforce this workflow.

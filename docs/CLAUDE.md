@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-The Charlotte Economic Development Platform is a comprehensive web application designed to provide real-time economic intelligence, community monitoring, and business analytics for the Greater Charlotte/Davidson metropolitan area. This is currently in the planning/architecture phase with detailed specifications in `charlotte-econdev-architecture.md`.
+The Charlotte Economic Development Platform is a comprehensive web application designed to provide real-time economic intelligence, community monitoring, and business analytics for the Greater Charlotte/Davidson metropolitan area.
 
 ## Development Commands
 

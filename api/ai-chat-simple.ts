@@ -155,7 +155,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const completion = await openai.chat.completions.create({
       model,
       messages: contextualMessages,
-      temperature,
+      temperature: 0.3, // Lower temperature to reduce creativity/hallucination
       max_tokens: 2000,
     });
     const openaiDuration = Date.now() - openaiStart;
@@ -172,6 +172,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       responsePreview: responseContent.substring(0, 150),
     });
 
+    // Monitor attribution accuracy (logging only, non-blocking)
+    const knownCompanyNames = businessData.companies?.map((c: any) => c.name.toLowerCase()) || [];
+    const responseWords = responseContent.toLowerCase();
+    const userWords = userMessage.toLowerCase();
+    
+    // Track external company mentions to verify proper attribution
+    const externalCompanies = ['starbucks', 'mcdonalds', 'walmart', 'target', 'amazon', 'red lobster'];
+    const mentionedExternals = externalCompanies.filter(company => responseWords.includes(company));
+    
+    if (mentionedExternals.length > 0) {
+      // Check if these are properly attributed
+      const hasAttribution = responseWords.includes('general knowledge') || 
+                           responseWords.includes('not in our database') ||
+                           responseWords.includes('general market');
+      
+      console.log("📊 Attribution Check:", {
+        sessionId,
+        externalCompanies: mentionedExternals,
+        userMentioned: mentionedExternals.filter(c => userWords.includes(c)),
+        hasProperAttribution: hasAttribution,
+        timestamp: new Date().toISOString(),
+      });
+      
+      if (!hasAttribution && mentionedExternals.some(c => !userWords.includes(c))) {
+        console.warn("⚠️ External company mentioned without clear attribution");
+      }
+    }
+    
+    // Track database company mentions to ensure they're marked
+    const dbCompaniesInResponse = knownCompanyNames.filter(company => 
+      responseWords.includes(company)
+    );
+    
+    if (dbCompaniesInResponse.length > 0) {
+      const hasDbAttribution = responseWords.includes('from our database') || 
+                              responseWords.includes('in our database');
+      
+      if (!hasDbAttribution && dbCompaniesInResponse.length > 2) {
+        console.log("💡 Consider adding clearer database attribution for:", dbCompaniesInResponse.slice(0, 3));
+      }
+    }
+
     // Store conversation in database
     await storeConversation(sessionId, messages, responseContent, supabase);
 
@@ -180,6 +222,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       usage: completion.usage,
       model: completion.model,
       sessionId,
+      metadata: {
+        dataSource: "local_database",
+        companiesProvided: businessData.companies?.length || 0,
+        searchIntent: businessData.summary?.searchIntent || "general",
+        totalRevenue: businessData.summary?.totalRevenue || 0,
+        totalEmployees: businessData.summary?.totalEmployees || 0,
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error: any) {
     console.error("AI Chat Error:", error);
@@ -302,12 +352,34 @@ async function fetchRelevantBusinessData(query: string) {
 
 // Build system message with real business data
 function buildSmartSystemMessage(module: string, businessData: any): string {
-  let systemMessage = `You are an AI assistant specialized in business intelligence for Charlotte, NC. 
-You have access to real business data and should provide specific, data-driven insights.`;
+  let systemMessage = `You are a Charlotte business intelligence assistant with access to a local business database.
+
+RESPONSE GUIDELINES - NATURAL CONVERSATION WITH CLEAR ATTRIBUTION:
+
+1. DATABASE FIRST: Always prioritize and highlight businesses from our database
+2. NATURAL ATTRIBUTION: Use inline attribution naturally in your responses:
+   - "(from our database)" or "(in our database)" for local businesses
+   - "(general market knowledge)" for industry insights not in our data
+   - "(per your mention)" when the user brings up a specific business
+   - "(not in our database)" when acknowledging businesses we don't track
+
+3. CONVERSATIONAL APPROACH:
+   - Be helpful and informative, never refuse reasonable business discussions
+   - When users mention companies like Starbucks, McDonald's, etc., you can discuss them
+   - Just be clear about what's from our database vs. general knowledge
+   
+4. EXAMPLE RESPONSES:
+   ✅ "Looking at our database, Harbor Grill (from our database) has $2.3M revenue with 35 employees. For comparison, a typical Red Lobster (general market knowledge) has 80-100 employees."
+   ✅ "Bob's Seafood (per your mention) isn't in our database, but based on the 3 seafood restaurants we track in Huntersville..."
+   ✅ "While Starbucks (not in our database) dominates nationally, our local coffee shops like Queen City Grounds (from our database) show strong revenue of $1.2M"
+
+5. DATA ACCURACY:
+   - All specific numbers, revenue figures, and employee counts MUST come from the database below
+   - Industry insights and comparisons can use general knowledge but must be labeled as such`;
 
   // Add actual data context
   if (businessData.companies && businessData.companies.length > 0) {
-    systemMessage += `\n\nCOMPANIES IN DATABASE (${businessData.companies.length} shown):`;
+    systemMessage += `\n\nONLY THESE COMPANIES EXIST IN OUR DATABASE (${businessData.companies.length} shown):`;
     businessData.companies.slice(0, 5).forEach((company: any) => {
       systemMessage += `\n- ${company.name} (${company.industry}): $${(company.revenue || 0).toLocaleString()} revenue, ${company.employees_count || "N/A"} employees`;
     });
@@ -347,7 +419,11 @@ Provide specific company names, actual revenue figures, and real data from the d
 Reference specific businesses and real data from the database above.`;
   }
 
-  systemMessage += `\n\nIMPORTANT: Use the real data provided above in your responses. Be specific with company names, numbers, and trends.`;
+  systemMessage += `\n\nKEY REMINDERS: 
+- Lead with database companies when available, clearly marked "(from our database)"
+- You CAN discuss external companies if relevant, marked "(general knowledge)" or "(not in our database)"
+- Specific numbers (revenue, employees) must ONLY come from the database above
+- Help users understand both our local market data AND broader context when useful`;
 
   return systemMessage;
 }

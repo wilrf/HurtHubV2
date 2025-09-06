@@ -133,21 +133,24 @@ Vercel automatically populates these system environment variables:
 
 ### Using .env Files
 
-Create a `.env.local` file in your project root:
+Configure environment variables in Vercel Dashboard:
 
 ```
-API_URL=http://localhost:3000/api
-DATABASE_URL=postgresql://localhost:5432/mydb
+# Go to: Vercel Dashboard → Settings → Environment Variables
+# Add these variables for Production and Preview environments:
+
+API_URL=https://your-app.vercel.app/api
+DATABASE_URL=postgresql://your-database-connection-string
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 ```
 
-### Using vercel dev
+### Deploying with Environment Variables
 
-The `vercel dev` command automatically downloads development environment variables:
+Push to branch for automatic preview deployment with all configured variables:
 
 ```bash
-vercel dev
+git push origin feature/your-branch
 ```
 
 ### Pulling Environment Variables

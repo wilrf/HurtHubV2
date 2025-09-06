@@ -8,7 +8,9 @@
 const https = require("https");
 const http = require("http");
 
-const BASE_URL = process.env.VERCEL_URL || "http://localhost:3000";
+const BASE_URL = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}`
+  : process.argv[2] || "https://hurt-hub-v2.vercel.app";
 
 async function makeRequest(endpoint, options = {}) {
   return new Promise((resolve, reject) => {

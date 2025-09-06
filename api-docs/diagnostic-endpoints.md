@@ -114,8 +114,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Test URL (change for production)
-BASE_URL="${1:-http://localhost:3000}"
+# Test URL (pass as argument or use production default)
+BASE_URL="${1:-https://hurt-hub-v2.vercel.app}"
 
 echo "Testing diagnostics at: $BASE_URL"
 echo "================================"
@@ -166,14 +166,14 @@ print(f\"  Has Supabase: {env.get('hasSupabase', False)}\")
 
 ## Usage
 
-### Local Development
+### Preview Deployments
 
 ```bash
-# Test all diagnostics locally
-curl http://localhost:3000/api/diagnose | jq .
+# Test diagnostics on preview deployment
+curl https://hurt-hub-v2-<branch-hash>.vercel.app/api/diagnose | jq .
 
-# Quick OpenAI test
-curl http://localhost:3000/api/test-openai
+# Quick OpenAI test on preview
+curl https://hurt-hub-v2-<branch-hash>.vercel.app/api/test-openai
 ```
 
 ### Production
@@ -192,7 +192,9 @@ chmod +x test-diagnostics.sh
 ```javascript
 // scripts/validate-deployment.cjs
 async function testEndpoints() {
-  const baseUrl = process.env.VERCEL_URL || "http://localhost:3000";
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : "https://hurt-hub-v2.vercel.app";
 
   // Test diagnostics
   const diagResponse = await fetch(`${baseUrl}/api/diagnose`);

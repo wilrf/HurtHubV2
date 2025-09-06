@@ -18,26 +18,80 @@
    [Browser]              [Edge Network]            [Cloud Services]
 ```
 
-### **Request Flow Architecture**
+### **Domain-Driven Architecture (Clean Architecture)**
 
 ```
-User Input → React Component → Custom Hook → Service Layer → API Endpoint
-                                                ↓
-                                         Vercel Edge Function
-                                                ↓
-                                    ┌──────────────────────────┐
-                                    │   Business Logic Layer   │
-                                    ├──────────────────────────┤
-                                    │ • Data Validation        │
-                                    │ • Context Enhancement    │
-                                    │ • Error Handling         │
-                                    └──────────────────────────┘
-                                                ↓
-                                         External Services
-                                    ┌─────────────┬────────────┐
-                                    │   OpenAI    │  Supabase  │
-                                    │   GPT-4o    │ PostgreSQL │
-                                    └─────────────┴────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                         │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │  React Components  │  Pages  │  Hooks  │  UI Utils  │    │
+│  └──────────────────────────────────────────────────────┘    │
+│           ↓ Uses (never contains business logic)              │
+├───────────────────────────────────────────────────────────────┤
+│                    APPLICATION LAYER                          │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │    Use Cases    │    DTOs    │    Mappers    │       │    │
+│  │  CreateCompany  │  Request/  │   Entity ↔     │       │    │
+│  │  AnalyzeMarket  │  Response  │     DTO        │       │    │
+│  └──────────────────────────────────────────────────────┘    │
+│           ↓ Orchestrates                                      │
+├───────────────────────────────────────────────────────────────┤
+│                    DOMAIN LAYER (Core Business)               │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │   Entities   │  Value Objects  │  Domain Services    │    │
+│  │   Company    │      Money      │  ValuationService   │    │
+│  │   User       │      Email      │  AcquisitionService │    │
+│  │   Investment │    CompanyId     │  AnalyticsService   │    │
+│  └──────────────────────────────────────────────────────┘    │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │         Repository Interfaces (Contracts)             │    │
+│  │  ICompanyRepository  │  IUserRepository  │  etc.      │    │
+│  └──────────────────────────────────────────────────────┘    │
+│           ↑ Depends on abstractions                           │
+├───────────────────────────────────────────────────────────────┤
+│                  INFRASTRUCTURE LAYER                         │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │        Repository Implementations                      │    │
+│  │  SupabaseCompanyRepo  │  SupabaseUserRepo  │  etc.    │    │
+│  └──────────────────────────────────────────────────────┘    │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │         External Service Integrations                  │    │
+│  │    OpenAIService   │   EmailService   │   S3Service   │    │
+│  └──────────────────────────────────────────────────────┘    │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │              API/HTTP Layer (Vercel Functions)         │    │
+│  │    Request Handlers  │  Middleware  │  Auth           │    │
+│  └──────────────────────────────────────────────────────┘    │
+└───────────────────────────────────────────────────────────────┘
+
+                    DEPENDENCY FLOW
+                         ↓
+    UI → Application → Domain ← Infrastructure
+         (inward)              (outward)
+```
+
+### **Request Flow with Clean Architecture**
+
+```
+1. USER ACTION
+   └→ React Component (Presentation)
+      └→ useCompanySearch Hook (Presentation)
+         └→ SearchCompaniesUseCase (Application)
+            ├→ Validates request DTO
+            ├→ Calls CompanyRepository.search() (Domain Interface)
+            ├→ Applies business rules via CompanyService (Domain)
+            ├→ Maps entities to response DTOs
+            └→ Returns to UI
+
+2. EXTERNAL API CALL
+   └→ API Route Handler (Infrastructure)
+      └→ CreateCompanyUseCase (Application)
+         ├→ Validates input
+         ├→ Creates Company entity (Domain)
+         ├→ Saves via ICompanyRepository (Domain Interface)
+         │  └→ SupabaseCompanyRepository (Infrastructure)
+         ├→ Publishes domain events
+         └→ Returns success response
 ```
 
 ---
@@ -80,6 +134,14 @@ Development Environment: Vercel Preview Deployments (no local dev)
 5. Deploy Edge Functions   → API routes compiled
 6. Cache Static Assets     → CDN distribution
 ```
+
+### **Key Architectural Rules**
+
+1. **Dependency Direction**: Dependencies point inward. Domain never depends on infrastructure.
+2. **Business Logic Location**: All business logic in Domain layer services/entities.
+3. **Data Access**: Only through Repository interfaces, implemented in Infrastructure.
+4. **No Framework Coupling**: Domain layer has zero framework dependencies.
+5. **Exception Handling**: Let exceptions bubble to global handlers at system boundaries.
 
 ---
 

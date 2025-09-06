@@ -3,11 +3,14 @@ import { chromium } from 'playwright';
 async function quickTest() {
   console.log('Testing Playwright functionality...');
   
+  const testUrl = process.argv[2] || 'https://hurt-hub-v2.vercel.app';
+  console.log('Testing URL:', testUrl);
+  
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   
   try {
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle', timeout: 10000 });
+    await page.goto(testUrl, { waitUntil: 'networkidle', timeout: 10000 });
     const title = await page.title();
     console.log('✅ Playwright works - Page title:', title);
     

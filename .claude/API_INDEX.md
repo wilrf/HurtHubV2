@@ -7,7 +7,7 @@ The Hurt Hub V2 platform uses **Vercel Edge Functions** to provide fast, globall
 ### Base URL
 
 - **Production**: `https://hurt-hub-v2.vercel.app/api/`
-- **Development**: `http://localhost:3000/api/`
+- **Preview**: `https://hurt-hub-v2-<branch-hash>.vercel.app/api/`
 
 ---
 

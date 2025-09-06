@@ -68,7 +68,7 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🧠 AI-Powered Features Added
 
 ### Semantic Search with Embeddings
-
+[(full guide)](docs/embeddings-vector-search.md)
 - Uses PostgreSQL pgvector extension
 - OpenAI text-embedding-3-small model
 - `semantic_business_search` database function

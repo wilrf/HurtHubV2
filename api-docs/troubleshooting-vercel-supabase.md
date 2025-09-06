@@ -145,15 +145,14 @@ POSTGRES_URL_NON_POOLING=postgresql://postgres.[project-ref]:[password]@aws-0-[r
 /*
 https://your-app.vercel.app/**
 https://*.your-project.vercel.app/** (for preview deployments)
-http://localhost:3000/**
 */
 
-// 2. Use dynamic redirect URLs
+// 2. Use dynamic redirect URLs for Vercel deployments
 const getURL = () => {
   let url =
     process?.env?.VITE_SITE_URL ?? // Set in Vercel
     process?.env?.VITE_VERCEL_URL ?? // Automatically set by Vercel
-    "http://localhost:3000/";
+    "https://your-app.vercel.app/"; // Production fallback
 
   // Include https:// for production
   url = url.includes("http") ? url : `https://${url}`;
@@ -276,31 +275,28 @@ if (!supabaseUrl) {
 }
 ```
 
-### 6. Local Development Issues
+### 6. Vercel Deployment Environment Issues
 
-#### Problem: Environment variables not loading locally
+#### Problem: Environment variables not loading in preview deployments
 
 **Solutions:**
 
 ```bash
-# 1. File naming matters!
-.env              # ❌ Loaded by Vercel CLI but not Next.js
-.env.local        # ✅ Loaded by Next.js (git ignored by default)
-.env.development  # ✅ Loaded in dev mode
+# 1. Ensure variables are set for ALL environments in Vercel Dashboard
+# Go to: Settings → Environment Variables
+# Select: Production ✓ Preview ✓ Development ✓
 
-# 2. Load order (last wins):
-# .env
-# .env.local
-# .env.development
-# .env.development.local
+# 2. Force redeploy after adding variables
+vercel --force
 
-# 3. Sync from Vercel
-vercel env pull .env.local
+# 3. Verify variables are available in deployment
+# Check build logs for: "Loaded env from..."
 
-# 4. Debug loading
+# 4. Debug loading in deployed app
 console.log('ENV:', {
   url: import.meta.env.VITE_SUPABASE_URL,
-  hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+  hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+  vercelUrl: import.meta.env.VERCEL_URL
 })
 ```
 

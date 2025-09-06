@@ -1,6 +1,9 @@
 import { chromium } from 'playwright';
 
 async function checkInputFields() {
+  const baseUrl = process.argv[2] || 'https://hurt-hub-v2.vercel.app';
+  console.log('Testing URL:', baseUrl);
+  
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
   const page = await context.newPage();
@@ -15,7 +18,7 @@ async function checkInputFields() {
   try {
     // Check Dashboard
     console.log('Checking Dashboard page...');
-    await page.goto('http://localhost:3000/', { waitUntil: 'networkidle' });
+    await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
     
     // Find all input elements
@@ -39,7 +42,7 @@ async function checkInputFields() {
 
     // Check Business Intelligence page
     console.log('Checking Business Intelligence page...');
-    await page.goto('http://localhost:3000/business-intelligence', { waitUntil: 'networkidle' });
+    await page.goto(`${baseUrl}/business-intelligence`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
     
     const biInputs = await page.locator('input[type="text"], input[type="search"], textarea').all();
@@ -62,7 +65,7 @@ async function checkInputFields() {
 
     // Check Community Pulse page
     console.log('Checking Community Pulse page...');
-    await page.goto('http://localhost:3000/community', { waitUntil: 'networkidle' });
+    await page.goto(`${baseUrl}/community`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
     
     const cpInputs = await page.locator('input[type="text"], input[type="search"], textarea').all();
@@ -85,7 +88,7 @@ async function checkInputFields() {
 
     // Check GPT-5 Test page
     console.log('Checking GPT-5 Test page...');
-    await page.goto('http://localhost:3000/gpt5-test', { waitUntil: 'networkidle' });
+    await page.goto(`${baseUrl}/gpt5-test`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
     
     const gptInputs = await page.locator('input[type="text"], input[type="search"], textarea').all();

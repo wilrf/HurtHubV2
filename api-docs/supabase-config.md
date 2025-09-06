@@ -262,17 +262,16 @@ Site URL: https://your-domain.vercel.app
 Redirect URLs:
 - https://your-domain.vercel.app/auth/callback
 - https://*.your-project.vercel.app/auth/callback  (for preview deployments)
-- http://localhost:3000/auth/callback  (for development)
 ```
 
-## Local Development
+## Vercel Deployment Configuration
 
-### Setup Local Environment
+### Setup Environment Variables
 
-1. Create `.env` file (not `.env.local` - Vite uses `.env`):
+1. Configure in Vercel Dashboard (Settings → Environment Variables):
 
 ```bash
-# Client-side variables
+# Client-side variables (VITE_ prefix required)
 VITE_SUPABASE_URL=your-project-url
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
@@ -281,10 +280,10 @@ SUPABASE_URL=your-project-url
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-2. Run development server:
+2. Deploy to preview:
 
 ```bash
-npm run dev  # Vite automatically loads .env
+git push origin feature/your-branch  # Automatic preview deployment
 ```
 
 ### Using Supabase CLI

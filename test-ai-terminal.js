@@ -5,10 +5,10 @@
  * With detailed error codes and diagnostics
  *
  * Usage: node test-ai-terminal.js [URL]
- * Example: node test-ai-terminal.js http://localhost:3000
+ * Example: node test-ai-terminal.js https://hurt-hub-v2.vercel.app
  */
 
-const API_URL = process.argv[2] || "http://localhost:3000";
+const API_URL = process.argv[2] || "https://hurt-hub-v2.vercel.app";
 
 // Color codes for terminal output
 const colors = {

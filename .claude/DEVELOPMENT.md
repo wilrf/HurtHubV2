@@ -8,6 +8,7 @@
 - **npm**: 8.0.0+
 - **Git**: Latest version
 - **Code Editor**: VS Code recommended with TypeScript support
+- **Vercel Account**: Required for deployment
 
 ### **Initial Setup**
 
@@ -19,22 +20,26 @@ cd hurt-hub-v2
 # Install dependencies
 npm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your actual credentials
+# Create a feature branch
+git checkout -b feature/my-feature
 
-# Validate configuration
+# Validate configuration locally
 node scripts/validate-deployment.cjs
-node scripts/validate-deployment.cjs --test-connection  # Test API connections
 
-# Start development server
-npm run dev
+# Make your changes
+code .  # Open in VS Code
+
+# Deploy to Vercel preview
+git add .
+git commit -m "feat: your feature"
+git push origin feature/my-feature
 ```
 
 **Access the application**:
 
-- **Frontend**: http://localhost:3000
-- **API**: http://localhost:3000/api/\*
+- **Preview**: Auto-generated Vercel URL (e.g., `https://hurt-hub-v2-<hash>.vercel.app`)
+- **Production**: `https://hurt-hub-v2.vercel.app`
+- **API**: `https://[deployment-url]/api/*`
 
 ---
 
@@ -54,9 +59,13 @@ We simplified from **9 confusing files → 3 clean files**:
 
 **📖 See `ENV_GUIDE.md` for complete documentation**
 
-#### **Required Variables** (`.env`)
+#### **Required Variables** (Vercel Dashboard)
+
+**Note**: All environment variables are managed in Vercel Dashboard. No local `.env` file is needed.
 
 ```bash
+# Configure in Vercel Dashboard → Settings → Environment Variables
+
 # 🤖 OpenAI Configuration (Server-side only)
 OPENAI_API_KEY=sk-proj-your-actual-key-here
 
@@ -136,14 +145,18 @@ export default async function handler(req, res) {
 ### **Core Development**
 
 ```bash
-# Start development server with hot reload
-npm run dev
+# Local development is not supported - use Vercel preview deployments
+npm run dev  # Shows: "⚠️ Local dev is unsupported. Push to branch for preview deployment."
 
-# Build for production
+# Build for production (for CI/validation only)
 npm run build
 
-# Preview production build locally
-npm run preview
+# Deploy to Vercel preview
+git push origin feature/your-branch
+# Vercel automatically creates a preview deployment
+
+# Deploy to production
+vercel --prod  # Or merge to main branch
 ```
 
 ### **Code Quality**
@@ -458,24 +471,24 @@ npm run type-check
 #### **3. API Endpoint Issues**
 
 ```bash
-# Test API endpoints locally
-curl http://localhost:3000/api/health-check
+# Test API endpoints on Vercel preview
+curl https://hurt-hub-v2-<hash>.vercel.app/api/health-check
 
-# Check API logs in development
-npm run dev  # Watch terminal for API logs
+# Check API logs in Vercel Dashboard
+# Go to: Vercel Dashboard → Functions → View logs
 
-# Test AI chat endpoint
-node scripts/test-ai-simple.js
+# Test AI chat endpoint against deployment
+node scripts/test-ai-simple.js https://hurt-hub-v2-<hash>.vercel.app
 ```
 
 #### **4. Database Connection Issues**
 
 ```bash
-# Test database connection
-curl http://localhost:3000/api/test-db
+# Test database connection on deployed URL
+curl https://hurt-hub-v2-<hash>.vercel.app/api/test-db
 
-# Verify Supabase credentials
-# Check Supabase dashboard for correct URLs
+# Verify Supabase credentials in Vercel Dashboard
+# Check: Vercel Dashboard → Settings → Environment Variables
 ```
 
 ### **Development Tools**
@@ -576,9 +589,12 @@ if (!apiKey) {
 // scripts/test-new-endpoint.js
 const fetch = require("node-fetch");
 
+// Use your Vercel preview URL or pass as argument
+const API_URL = process.argv[2] || "https://hurt-hub-v2.vercel.app";
+
 async function testEndpoint() {
   try {
-    const response = await fetch("http://localhost:3000/api/new-endpoint", {
+    const response = await fetch(`${API_URL}/api/new-endpoint`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ test: "data" }),
@@ -789,25 +805,41 @@ _Development Environment: Node.js 18+ with Vite_
 _Total Scripts: 15+ build and utility scripts_  
 _Code Quality: ESLint + Prettier + TypeScript strict mode_
 
-## ⚠️ 2025-09-03 Development Environment Advisory
+## 🚀 Vercel-Only Development Workflow
 
-**vercel dev limitations**
+**Important**: This project uses a **Vercel-only deployment strategy**. Local development is intentionally disabled.
 
-- Env vars set in the Vercel dashboard do NOT load reliably in `vercel dev`.
-- APIs fail with 500 (missing `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`).
-- Debugging consumed significant time; root cause still open.
+### **Why Vercel-Only?**
 
-**Recommended workflow**
+- ✅ **No environment variable issues** - Vercel manages all secrets
+- ✅ **Real API testing** - Always test with live services
+- ✅ **Production parity** - Preview environments match production exactly
+- ✅ **Zero configuration** - No local setup required
+- ✅ **Team consistency** - Everyone uses the same environment
 
-1. Run frontend locally with Vite for UI work:
+### **Development Workflow**
+
+1. **Edit code locally** in your preferred editor
+2. **Push to branch** for automatic preview deployment:
    ```bash
-   npm run dev  # http://localhost:3000 (APIs mocked/disabled)
+   git add .
+   git commit -m "feat: your changes"
+   git push origin feature/your-branch
    ```
-2. For full-stack testing deploy directly to production:
-   ```bash
-   vercel --prod
-   # test at https://hurt-hub-v2.vercel.app
-   ```
-3. Iterate: edit → deploy → test.
+3. **Test on Vercel preview URL** (auto-generated)
+4. **Merge to main** for production deployment
 
-This avoids the `vercel dev` blocker until we complete a root-cause fix.
+### **Quick Commands**
+
+```bash
+# Check code quality locally (no server needed)
+npm run quality  # lint + type-check + format
+
+# Deploy preview
+git push  # Automatic via GitHub integration
+
+# Deploy to production
+vercel --prod  # Or merge PR to main
+```
+
+**Note**: `npm run dev` is intentionally disabled and will show a helpful error message directing you to use Vercel preview deployments.
