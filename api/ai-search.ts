@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logSearchActivity } from "./debug-search";
 
 export const config = {
   maxDuration: 30,
@@ -84,13 +85,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Query is required" });
     }
 
-    console.log("AI Search Request:", { query, limit, useAI });
+    console.log("🎯 AI Search Request:", { 
+      query, 
+      limit, 
+      useAI,
+      timestamp: new Date().toISOString(),
+    });
 
     // Step 1: Use OpenAI to understand the search intent
+    const intentStart = Date.now();
     const searchIntent = await analyzeSearchIntent(query, openai);
-    console.log("Search Intent:", searchIntent);
+    const intentDuration = Date.now() - intentStart;
+    
+    console.log("🧠 Search Intent Analysis:", {
+      duration: `${intentDuration}ms`,
+      industries: searchIntent.industries,
+      locations: searchIntent.locations,
+      keywords: searchIntent.keywords,
+      filters: searchIntent.filters,
+    });
 
     // Step 2: Build smart database query based on intent
+    const dbStart = Date.now();
     const searchResults = await performSmartSearch(
       searchIntent,
       limit,
@@ -98,13 +114,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       query,
       openai,
     );
-    console.log(`Found ${searchResults.length} results`);
+    const dbDuration = Date.now() - dbStart;
+    
+    console.log("📁 Database Search Complete:", {
+      duration: `${dbDuration}ms`,
+      resultsFound: searchResults.length,
+      companies: searchResults.slice(0, 3).map((c: any) => c.name),
+    });
 
     // Step 3: If requested, enhance results with AI context
     let enhancedResults = searchResults;
     if (useAI && searchResults.length > 0) {
       enhancedResults = await enhanceWithAI(query, searchResults, openai);
     }
+
+    // Log search activity for debugging
+    logSearchActivity({
+      query,
+      intent: searchIntent,
+      resultsCount: enhancedResults.length,
+      duration: `${Date.now() - intentStart}ms`,
+      method: useAI ? "ai-enhanced" : "basic",
+      semanticCount: searchResults.filter((r: any) => r.searchType === "semantic").length,
+      keywordCount: searchResults.filter((r: any) => r.searchType === "keyword").length,
+      success: true,
+      topResults: enhancedResults.slice(0, 3).map((r: any) => r.name),
+    });
 
     return res.status(200).json({
       success: true,
@@ -181,6 +216,7 @@ async function performSmartSearch(
 ) {
   // Strategy 1: Try semantic search first if embeddings are available
   let semanticResults: any[] = [];
+  const semanticStart = Date.now();
   try {
     semanticResults = await performSemanticSearch(
       originalQuery,
@@ -188,11 +224,22 @@ async function performSmartSearch(
       supabase,
       Math.ceil(limit * 0.7),
     );
-    console.log(`Semantic search returned ${semanticResults.length} results`);
-  } catch (error) {
+    const semanticDuration = Date.now() - semanticStart;
+    console.log("🧬 Semantic Search Results:", {
+      duration: `${semanticDuration}ms`,
+      count: semanticResults.length,
+      topMatches: semanticResults.slice(0, 3).map((r: any) => ({
+        name: r.name,
+        similarity: r.similarity,
+      })),
+    });
+  } catch (error: any) {
     console.warn(
-      "Semantic search failed, falling back to keyword search:",
-      error,
+      "⚠️ Semantic search failed, falling back to keyword search:",
+      {
+        error: error.message,
+        duration: `${Date.now() - semanticStart}ms`,
+      }
     );
   }
 
@@ -202,8 +249,19 @@ async function performSmartSearch(
   let keywordResults: any[] = [];
 
   if (keywordLimit > 0) {
+    const keywordStart = Date.now();
     keywordResults = await performKeywordSearch(intent, keywordLimit, supabase);
-    console.log(`Keyword search returned ${keywordResults.length} results`);
+    const keywordDuration = Date.now() - keywordStart;
+    
+    console.log("🔤 Keyword Search Results:", {
+      duration: `${keywordDuration}ms`,
+      count: keywordResults.length,
+      searchedFor: {
+        industries: intent.industries?.slice(0, 3),
+        keywords: intent.keywords?.slice(0, 5),
+      },
+      topMatches: keywordResults.slice(0, 3).map((r: any) => r.name),
+    });
   }
 
   // Combine and deduplicate results
@@ -211,12 +269,29 @@ async function performSmartSearch(
   const uniqueResults = deduplicateResults(allResults);
 
   // Sort by relevance score if available, otherwise by revenue
-  return uniqueResults
+  const finalResults = uniqueResults
     .sort(
       (a, b) =>
         (b.similarity || b.revenue || 0) - (a.similarity || a.revenue || 0),
     )
     .slice(0, limit);
+    
+  console.log("✨ Final Search Results:", {
+    totalFound: allResults.length,
+    afterDedup: uniqueResults.length,
+    returned: finalResults.length,
+    searchMethods: {
+      semantic: semanticResults.length,
+      keyword: keywordResults.length,
+    },
+    topResults: finalResults.slice(0, 5).map((r: any) => ({
+      name: r.name,
+      industry: r.industry,
+      searchType: r.searchType || "keyword",
+    })),
+  });
+  
+  return finalResults;
 }
 
 // Semantic search using vector embeddings
@@ -268,6 +343,13 @@ async function generateQueryEmbedding(
 
 // Traditional keyword-based search as fallback
 async function performKeywordSearch(intent: any, limit: number, supabase: any) {
+  console.log("🔍 Building Keyword Query:", {
+    industries: intent.industries?.length || 0,
+    locations: intent.locations?.length || 0,
+    keywords: intent.keywords?.length || 0,
+    limit,
+  });
+  
   let query = supabase.from("companies").select("*").eq("status", "active");
 
   // Apply industry filters
@@ -322,9 +404,15 @@ async function performKeywordSearch(intent: any, limit: number, supabase: any) {
   const { data, error } = await query;
 
   if (error) {
-    console.error("Database search error:", error);
+    console.error("❌ Database search error:", error);
     throw error;
   }
+
+  console.log("📋 Query Results:", {
+    returnedRows: data?.length || 0,
+    industries: [...new Set((data || []).map((d: any) => d.industry))].slice(0, 5),
+    topCompanies: (data || []).slice(0, 3).map((d: any) => d.name),
+  });
 
   return (data || []).map((item: any) => ({
     ...item,

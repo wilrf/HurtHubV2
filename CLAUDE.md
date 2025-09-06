@@ -171,8 +171,9 @@ This prevents configuration errors and ensures correct implementation.
 ## Project Overview
 
 - **Name**: Hurt Hub V2
-- **Stack**: Vite + React, TypeScript, Supabase, Vercel
+- **Stack**: Vite + React (NOT Next.js), TypeScript, Supabase, Vercel
 - **Purpose**: Business directory and networking platform
+- **Development**: Vercel-only (no local dev, use preview deployments)
 
 ## Key Environment Variables
 
@@ -225,7 +226,7 @@ npm run build
 **STANDARD APPROACH: When testing Vercel projects**
 
 1. **Use Playwright MCP** for browser-based testing (when requested)
-2. **Test with `vercel dev`** (not `npm run dev`) for accurate environment
+2. **Deploy to Vercel preview** for testing (no local dev)
 3. **Test actual frontend rendering**, not just API endpoints
 4. **Capture screenshots** for visual evidence of issues
 5. **Check static assets** (manifest.json, icons) load correctly in browser
@@ -235,9 +236,9 @@ npm run build
 
 - Run lint and typecheck
 - Verify environment variables are not exposed
-- Test authentication flows
-- Check API endpoints work locally
-- Test frontend with `vercel dev` if using Vercel deployment
+- Push to branch for Vercel preview deployment
+- Test authentication flows on preview URL
+- Check API endpoints work on preview deployment
 
 ## 2025-09-03 Project Status Update
 
@@ -248,7 +249,7 @@ npm run build
 
 ### Deployment Strategy
 
-- Local `vercel dev` has unresolved env-var loading issues that break API functions.
-- **Decision:** Use production deployments for testing until local issues are resolved.
-- Workflow: edit locally → `vercel --prod` → test at live URL.
-- Local frontend dev remains available via `npm run dev` (APIs disabled).
+- **Decision:** Vercel-only deployment strategy (no local dev).
+- Workflow: edit locally → `git push` → test at preview URL → merge to main for production.
+- All environment variables managed in Vercel Dashboard.
+- Preview deployments for testing, production for live app.

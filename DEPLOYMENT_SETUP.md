@@ -40,40 +40,35 @@ Add the following secrets to your GitHub repository (Settings → Secrets and va
 - `VERCEL_ORG_ID`: Your Vercel organization ID
 - `VERCEL_PROJECT_ID`: Your Vercel project ID
 
-### 3. Environment Variables
+### 3. Vercel Environment Variables
 
-Create the following environment files locally:
+**IMPORTANT**: This project uses Vercel-only deployment. No local development is supported.
 
-#### `.env.local` (for local development)
+### 4. Configure Environment Variables
 
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_API_URL=http://localhost:3000
-```
+Set environment variables in Vercel dashboard (recommended) or via CLI:
 
-#### `.env.production` (for production)
-
-```env
-VITE_SUPABASE_URL=your_production_supabase_url
-VITE_SUPABASE_ANON_KEY=your_production_supabase_anon_key
-VITE_API_URL=https://api.charlotte-econdev.com
-```
-
-### 4. Vercel Environment Variables
-
-Set environment variables in Vercel dashboard or via CLI:
-
+#### Required Variables (Client-side - need VITE_ prefix):
 ```bash
-# Set production variables
-vercel env add VITE_SUPABASE_URL production
-vercel env add VITE_SUPABASE_ANON_KEY production
-vercel env add VITE_API_URL production
+VITE_SUPABASE_URL           # Supabase project URL
+VITE_SUPABASE_ANON_KEY      # Supabase anonymous key
+```
 
-# Set preview variables
-vercel env add VITE_SUPABASE_URL preview
-vercel env add VITE_SUPABASE_ANON_KEY preview
-vercel env add VITE_API_URL preview
+#### Required Variables (Server-side - no prefix):
+```bash
+SUPABASE_URL                # Same as VITE_SUPABASE_URL value
+SUPABASE_SERVICE_ROLE_KEY   # Supabase service role key (secret)
+OPENAI_API_KEY              # OpenAI API key for AI features
+```
+
+#### Set via CLI:
+```bash
+# Add for both production and preview
+vercel env add VITE_SUPABASE_URL
+vercel env add VITE_SUPABASE_ANON_KEY
+vercel env add SUPABASE_URL
+vercel env add SUPABASE_SERVICE_ROLE_KEY
+vercel env add OPENAI_API_KEY
 ```
 
 ## Deployment Workflows
@@ -85,20 +80,14 @@ vercel env add VITE_API_URL preview
 
 ### Manual Deployments
 
-Use the deployment script:
+Deploy directly via Vercel CLI:
 
 ```bash
-npm run deploy
-```
+# Preview deployment (for any branch)
+vercel
 
-Or deploy directly:
-
-```bash
-# Preview deployment
-npm run deploy:preview
-
-# Production deployment
-npm run deploy:prod
+# Production deployment (from main branch)
+vercel --prod
 ```
 
 ## Monitoring
@@ -124,22 +113,21 @@ vercel logs [deployment-url]
 
 ### Common Issues:
 
-1. **Build failures**: Check `npm run build` locally
+1. **Environment variable errors**: Ensure both VITE_ prefixed (client) and non-prefixed (server) variables are set
 2. **Type errors**: Run `npm run type-check`
 3. **Lint errors**: Run `npm run lint:fix`
-4. **Missing environment variables**: Verify all required variables are set in Vercel
+4. **SUPABASE_SERVICE_ROLE_KEY missing**: Make sure it's set for both Preview and Production environments
 
 ### Debug Commands:
 
 ```bash
-# Test build locally
-npm run build
-
-# Check all quality checks
+# Check all quality checks (lint, type-check, format)
 npm run quality
 
-# Pull Vercel environment variables
-npm run vercel:env
+# Fix linting and formatting issues
+npm run quality:fix
+
+# Note: Local dev is disabled. Use Vercel preview deployments for testing.
 ```
 
 ## Security Notes

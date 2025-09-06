@@ -107,11 +107,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get the user's latest message
     const userMessage = messages[messages.length - 1]?.content || "";
 
+    console.log("🎯 AI Chat Request:", {
+      sessionId,
+      module,
+      userMessage: userMessage.substring(0, 100),
+      timestamp: new Date().toISOString(),
+    });
+
     // Analyze what data the user might need using AI-powered search
+    const startTime = Date.now();
     const businessData = await fetchRelevantBusinessData(userMessage);
+    const searchDuration = Date.now() - startTime;
+
+    console.log("📊 Business Data Fetched:", {
+      searchDuration: `${searchDuration}ms`,
+      companiesFound: businessData.companies?.length || 0,
+      developmentsFound: businessData.developments?.length || 0,
+      hasEconomicData: !!businessData.economicIndicators?.length,
+      searchIntent: businessData.summary?.searchIntent,
+    });
 
     // Build smart context with real data
     const systemMessage = buildSmartSystemMessage(module, businessData);
+    
+    console.log("🔨 System Message Built:", {
+      messageLength: systemMessage.length,
+      includesCompanyData: systemMessage.includes("COMPANIES IN DATABASE"),
+      includesDevelopments: systemMessage.includes("RECENT DEVELOPMENTS"),
+      includesEconomicData: systemMessage.includes("ECONOMIC INDICATORS"),
+    });
 
     // Create messages with context
     const contextualMessages: ChatMessage[] = [
@@ -120,14 +144,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ];
 
     // Call OpenAI with real data context
+    console.log("🤖 Calling OpenAI:", {
+      model,
+      temperature,
+      contextMessages: contextualMessages.length,
+      systemMessagePreview: systemMessage.substring(0, 200),
+    });
+
+    const openaiStart = Date.now();
     const completion = await openai.chat.completions.create({
       model,
       messages: contextualMessages,
       temperature,
       max_tokens: 2000,
     });
+    const openaiDuration = Date.now() - openaiStart;
 
     const responseContent = completion.choices[0]?.message?.content || "";
+
+    console.log("✅ OpenAI Response:", {
+      duration: `${openaiDuration}ms`,
+      model: completion.model,
+      promptTokens: completion.usage?.prompt_tokens,
+      completionTokens: completion.usage?.completion_tokens,
+      totalTokens: completion.usage?.total_tokens,
+      responseLength: responseContent.length,
+      responsePreview: responseContent.substring(0, 150),
+    });
 
     // Store conversation in database
     await storeConversation(sessionId, messages, responseContent, supabase);
@@ -188,15 +231,18 @@ async function fetchRelevantBusinessData(query: string) {
     }
     const baseUrl = `https://${vercelUrl}`;
 
-    console.log(`Making AI search request to: ${baseUrl}/api/ai-search`);
+    console.log(`🔍 Making AI search request to: ${baseUrl}/api/ai-search`);
+    const searchPayload = {
+      query,
+      limit: 20,
+      useAI: true,
+    };
+    console.log("📤 Search Payload:", searchPayload);
+    
     const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query,
-        limit: 20,
-        useAI: true,
-      }),
+      body: JSON.stringify(searchPayload),
     });
 
     if (!searchResponse.ok) {
@@ -222,10 +268,30 @@ async function fetchRelevantBusinessData(query: string) {
         (sum: number, c: any) => sum + (c.employees_count || 0),
         0,
       );
+      
+      // Log the actual companies found
+      console.log("🏢 Companies Found:", {
+        count: searchData.results.length,
+        topCompanies: searchData.results.slice(0, 5).map((c: any) => ({
+          name: c.name,
+          industry: c.industry,
+          revenue: c.revenue,
+          employees: c.employees_count,
+        })),
+        industries: [...new Set(searchData.results.map((c: any) => c.industry))].slice(0, 10),
+      });
     }
 
     console.log(
-      `AI Search returned ${searchData.results.length} relevant companies`,
+      `✨ AI Search Summary:`,
+      {
+        companiesFound: searchData.results.length,
+        intent: searchData.intent,
+        source: searchData.source || "database",
+        enhanced: searchData.enhanced,
+        totalRevenue: data.summary.totalRevenue,
+        totalEmployees: data.summary.totalEmployees,
+      }
     );
     return data;
   } catch (error: any) {

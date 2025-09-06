@@ -47,7 +47,7 @@ User Input → React Component → Custom Hook → Service Layer → API Endpoin
 ### **Current Deployment Flow**
 
 ```yaml
-Development Environment: Local Development (localhost:3000)
+Development Environment: Vercel Preview Deployments (no local dev)
   ↓ git commit
   Feature Branch
   ↓ git push
@@ -90,7 +90,7 @@ Development Environment: Local Development (localhost:3000)
 ```typescript
 // ❌ WRONG - Silent failures with fallbacks
 const apiKey = process.env.OPENAI_API_KEY || "";
-const dbUrl = process.env.SUPABASE_URL || "http://localhost";
+const dbUrl = process.env.SUPABASE_URL || "";
 
 // ✅ CORRECT - Fail fast with explicit errors
 const apiKey = process.env.OPENAI_API_KEY;
@@ -130,20 +130,13 @@ export function getOpenAIClient(): OpenAI {
 
 ### **Environment Variable Hierarchy**
 
-#### **Development Environment** (`.env`)
+#### **Development Environment** (Vercel Preview)
 
 ```bash
-# Local Development Variables
-VITE_APP_ENV=development
-VITE_DEBUG_MODE=true
-VITE_MOCK_API=false
-VITE_SHOW_DEV_TOOLS=true
-
-# API Keys (local testing) - REAL KEYS HERE
-OPENAI_API_KEY=sk-proj-your-actual-key-here
-VITE_SUPABASE_URL=https://osnbklmavnsxpgktdeun.supabase.co  # Correct project
-VITE_SUPABASE_ANON_KEY=your-actual-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-actual-service-key-here
+# All environment variables managed in Vercel Dashboard
+# No local .env files needed
+# Preview deployments use same variables as production
+# Variables set for both Preview and Production environments
 ```
 
 #### **Production Environment** (Vercel Dashboard + `.env.production` template)
@@ -237,13 +230,15 @@ VITE_OPENAI_API_KEY; // Would expose secret to browser!
 
 ## 🗄️ Database Architecture
 
-### **⚠️ CRITICAL ISSUE: Shared Database**
+### **Current Database Strategy**
 
-**Current State**: Development and Production use the SAME database
+**Current State**: Preview and Production use the SAME database
 
 ```
 Both environments → https://osnbklmavnsxpgktdeun.supabase.co
 ```
+
+**Note**: This is acceptable for internal business tools where preview deployments need real data for testing.
 
 ### **🎯 RECOMMENDED: Separate Databases**
 
@@ -289,17 +284,16 @@ SUPABASE_SERVICE_ROLE_KEY=dev-service-key
 # 1. Create feature branch
 git checkout -b feature/new-ai-enhancement
 
-# 2. Develop locally with hot reload
-npm run dev
+# 2. Make changes locally (no dev server)
+# Edit files in your preferred editor
 
 # 3. Validate before deployment
-node scripts/validate-deployment.cjs           # Check env vars
-node scripts/validate-deployment.cjs --test-connection  # Test APIs
 npm run quality          # Lint + Type-check + Format
-npm run test            # Unit tests
-npm run test:e2e        # E2E tests
+npm run test            # Unit tests (if applicable)
 
 # 4. Push for preview deployment
+git add .
+git commit -m "feat: add new AI enhancement"
 git push origin feature/new-ai-enhancement
 # → Automatic preview deploy to unique URL
 
@@ -323,15 +317,18 @@ curl https://hurt-hub-v2.vercel.app/api/diagnose
 # 1. Create hotfix from main
 git checkout -b hotfix/critical-bug main
 
-# 2. Fix and test locally
+# 2. Fix issue
 # Make changes...
-npm run dev  # Test locally
+npm run quality  # Validate code
 
-# 3. Direct deploy to production (emergency)
+# 3. Push for preview test (even for hotfix)
+git push origin hotfix/critical-bug
+# Test on preview URL quickly
+
+# 4. Direct deploy to production (emergency)
 vercel --prod --confirm
 
-# 4. Backport to main
-git push origin hotfix/critical-bug
+# 5. Backport to main
 # Create PR and merge
 ```
 
@@ -504,16 +501,16 @@ export const businessDataService = new BusinessDataService();
 
 ### **Configuration Differences**
 
-| Aspect            | Development                 | Production                           |
-| ----------------- | --------------------------- | ------------------------------------ |
-| **API URL**       | `http://localhost:3000/api` | `https://hurt-hub-v2.vercel.app/api` |
-| **Debug Mode**    | Enabled (detailed errors)   | Disabled (secure errors)             |
-| **Source Maps**   | Included                    | Excluded                             |
-| **Hot Reload**    | Active                      | Disabled                             |
-| **Bundle Size**   | Unoptimized                 | Minified & compressed                |
-| **Caching**       | Disabled                    | Aggressive CDN caching               |
-| **Error Details** | Full stack traces           | Generic messages                     |
-| **Database**      | Should be separate (dev)    | Production data                      |
+| Aspect            | Preview (Development)                    | Production                           |
+| ----------------- | ---------------------------------------- | ------------------------------------ |
+| **API URL**       | `https://[preview-url].vercel.app/api`  | `https://hurt-hub-v2.vercel.app/api` |
+| **Debug Mode**    | Enabled (detailed errors)                | Disabled (secure errors)             |
+| **Source Maps**   | Included                                 | Excluded                             |
+| **Hot Reload**    | N/A (Vercel deployment)                  | N/A                                  |
+| **Bundle Size**   | Minified                                 | Minified & compressed                |
+| **Caching**       | Moderate CDN caching                     | Aggressive CDN caching               |
+| **Error Details** | Detailed messages                        | Generic messages                     |
+| **Database**      | Same as production (shared)              | Production data                      |
 
 ### **Code Behavior Differences**
 
@@ -579,14 +576,14 @@ console.log(`Operation completed in ${duration}ms`);
 
 ## 🚨 Critical Recommendations
 
-### **1. Separate Development Database** 🔴 HIGH PRIORITY
+### **1. Database Strategy** ✅ ACCEPTABLE
 
 ```bash
-# Current (RISKY)
-Dev & Prod → Same Database
+# Current (Working fine for internal tool)
+Preview & Prod → Same Database
 
-# Recommended (SAFE)
-Dev → dev-supabase-project.supabase.co
+# Optional (if data isolation needed)
+Preview → dev-supabase-project.supabase.co
 Prod → osnbklmavnsxpgktdeun.supabase.co
 ```
 
@@ -645,11 +642,11 @@ vercel rollback [url]      # Rollback deployment
 ### **Development Commands**
 
 ```bash
-npm run dev                # Start local server
-npm run build              # Build for production
-npm run preview            # Preview production build
-npm run quality            # Run all checks
-npm run deploy:prod        # Full production deploy
+npm run quality            # Run all checks (lint, type-check, format)
+npm run build              # Build for production (rarely needed locally)
+npm run test               # Run tests
+vercel                     # Deploy preview
+vercel --prod              # Deploy to production
 ```
 
 ### **Database Commands**
