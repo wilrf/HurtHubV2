@@ -134,8 +134,18 @@ async function getBusinesses(request: BusinessesRequest, supabase: any) {
     sortOrder = "desc",
   } = request;
 
-  // Start building query
-  let query = supabase.from("companies").select("*").eq("status", "active");
+  // Start building query with JOINs for rich data
+  let query = supabase
+    .from("companies")
+    .select(`
+      id, name, industry, sector, description, founded_year, 
+      employees_count, revenue, website, headquarters, logo_url, 
+      status, created_at, updated_at,
+      features, metrics, ext_financials,
+      addresses:address_id (id, line1, line2, city, state, zip_code, latitude, longitude),
+      reviews:reviews (id, reviewer, rating, comment, reviewed_at)
+    `)
+    .eq("status", "active");
 
   // Apply filters
   if (filters.industry && filters.industry.length > 0) {
@@ -146,10 +156,10 @@ async function getBusinesses(request: BusinessesRequest, supabase: any) {
   }
 
   if (filters.location && filters.location.length > 0) {
+    // Filter by city or state from addresses table
     const locationConditions = filters.location
-      .map(
-        (loc: string) =>
-          `headquarters.ilike.%${loc}%,description.ilike.%${loc}%`,
+      .map((loc: string) => 
+        `addresses.city.ilike.%${loc}%,addresses.state.ilike.%${loc}%,headquarters.ilike.%${loc}%`
       )
       .join(",");
     query = query.or(locationConditions);
@@ -221,12 +231,41 @@ async function getBusinesses(request: BusinessesRequest, supabase: any) {
 }
 
 function transformBusinessData(business: any) {
-  // Convert headquarters string to structured address object
-  const address = parseAddress(business.headquarters || "");
+  // Use structured address data from JOIN, with fallback to parsed headquarters
+  let address = business.addresses || parseAddress(business.headquarters || "");
+  
+  // Ensure address has both zipCode and zip_code for compatibility
+  if (address && address.zip_code && !address.zipCode) {
+    address.zipCode = address.zip_code;
+  }
   
   return {
     ...business,
     address,
+    // Map employees_count to employees for compatibility
+    employees: business.employees_count,
+    // Extract monthly revenue from ext_financials
+    monthlyRevenue: business.ext_financials?.monthlyRevenue ?? [],
+    // Extract rating and review count from ext_financials
+    rating: business.ext_financials?.rating,
+    reviewCount: business.ext_financials?.reviewCount ?? (business.reviews?.length || 0),
+    // Extract hours from ext_financials
+    hours: business.ext_financials?.hours,
+    // Extract fields from metrics for compatibility
+    squareFeet: business.metrics?.squareFeet,
+    rentPerSqFt: business.metrics?.rentPerSqFt,
+    annualRent: business.metrics?.annualRent,
+    grossMargin: business.metrics?.grossMargin,
+    netMargin: business.metrics?.netMargin,
+    revenueGrowth: business.metrics?.revenueGrowth,
+    revenuePerEmployee: business.ext_financials?.revenuePerEmployee,
+    businessAge: business.metrics?.businessAge,
+    operatingCosts: business.metrics?.operatingCosts,
+    industryMetrics: business.metrics?.industryMetrics,
+    // Map founded_year to yearEstablished for compatibility
+    yearEstablished: business.founded_year,
+    // Include reviews array
+    reviews: business.reviews || [],
   };
 }
 
@@ -298,19 +337,20 @@ async function getFilterOptions(supabase: any) {
       .not("industry", "is", null)
       .eq("status", "active");
 
-    // Get unique locations/headquarters
-    const { data: locations } = await supabase
-      .from("companies")
-      .select("headquarters")
-      .not("headquarters", "is", null)
-      .eq("status", "active");
+    // Get unique cities and states from addresses table
+    const { data: addresses } = await supabase
+      .from("addresses")
+      .select("city, state")
+      .not("city", "is", null);
 
     const uniqueIndustries = [
       ...new Set((industries || []).map((item: any) => item.industry)),
     ].sort();
-    const uniqueLocations = [
-      ...new Set((locations || []).map((item: any) => item.headquarters)),
-    ].sort();
+    
+    // Extract unique cities and combine with states for location options
+    const cities = [...new Set((addresses || []).map((item: any) => item.city))].filter(Boolean);
+    const states = [...new Set((addresses || []).map((item: any) => item.state))].filter(Boolean);
+    const uniqueLocations = [...new Set([...cities, ...states])].sort();
 
     return {
       industries: uniqueIndustries,
@@ -333,10 +373,14 @@ async function getFilterOptions(supabase: any) {
 
 async function getBusinessAnalytics(supabase: any, filters: any = {}) {
   try {
-    // Build base query for analytics
+    // Build base query for analytics with rich data
     let analyticsQuery = supabase
       .from("companies")
-      .select("industry, revenue, employees_count, founded_year")
+      .select(`
+        industry, revenue, employees_count, founded_year, 
+        ext_financials, metrics,
+        addresses:address_id (city, state)
+      `)
       .eq("status", "active");
 
     // Apply same filters as main query for consistent analytics
@@ -398,24 +442,25 @@ async function getBusinessAnalytics(supabase: any, filters: any = {}) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // Neighborhood analytics
-    const neighborhoodStats = analyticsData.reduce((acc: any, company: any) => {
-      const neighborhood = company.neighborhood || "Unknown";
-      if (!acc[neighborhood]) {
-        acc[neighborhood] = { count: 0, totalRevenue: 0, totalRating: 0, ratingCount: 0 };
+    // City/location analytics using new address structure
+    const locationStats = analyticsData.reduce((acc: any, company: any) => {
+      const city = company.addresses?.city || "Unknown";
+      if (!acc[city]) {
+        acc[city] = { count: 0, totalRevenue: 0, totalRating: 0, ratingCount: 0 };
       }
-      acc[neighborhood].count++;
-      acc[neighborhood].totalRevenue += company.revenue || 0;
-      if (company.rating) {
-        acc[neighborhood].totalRating += company.rating;
-        acc[neighborhood].ratingCount++;
+      acc[city].count++;
+      acc[city].totalRevenue += company.revenue || 0;
+      const rating = company.ext_financials?.rating;
+      if (rating) {
+        acc[city].totalRating += rating;
+        acc[city].ratingCount++;
       }
       return acc;
     }, {});
 
-    const topNeighborhoods = Object.entries(neighborhoodStats)
-      .map(([neighborhood, stats]: [string, any]) => ({
-        neighborhood,
+    const topNeighborhoods = Object.entries(locationStats)
+      .map(([location, stats]: [string, any]) => ({
+        neighborhood: location, // Keep the same property name for compatibility
         count: stats.count,
         totalRevenue: stats.totalRevenue,
         avgRating: stats.ratingCount > 0 ? stats.totalRating / stats.ratingCount : 0,

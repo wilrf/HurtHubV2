@@ -596,7 +596,7 @@ export function Dashboard() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {Object.entries(selectedBusiness.features)
+                {Object.entries(selectedBusiness.features || {})
                   .filter(([_, value]) => value)
                   .map(([feature, _]) => (
                     <Badge

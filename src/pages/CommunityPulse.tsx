@@ -61,7 +61,7 @@ export function CommunityPulse() {
 
     // Community engagement metrics based on business data
     const highEngagementBusinesses = businesses.filter(
-      (b) => b?.rating >= 4.0,
+      (b) => b?.rating && b.rating >= 4.0,
     ).length;
     const communityParticipation =
       businesses.length > 0
