@@ -113,7 +113,7 @@ export function BusinessIntelligence() {
       const data = industryMap.get(industry);
       data.count++;
       data.totalRevenue += business.revenue;
-      data.totalEmployees += business.employees;
+      data.totalEmployees += business.employeeCount;
       if (business.rating) {
         data.totalRatings += business.rating;
       }
@@ -358,7 +358,7 @@ export function BusinessIntelligence() {
                         {selectedMetric === "revenue"
                           ? formatCurrency(business.revenue)
                           : selectedMetric === "employees"
-                            ? formatNumber(business.employees)
+                            ? formatNumber(business.employeeCount)
                             : selectedMetric === "growth"
                               ? `${((business.revenueGrowth || 0) * 100).toFixed(1)}%`
                               : `${((business.grossMargin || 0) * 100).toFixed(1)}%`}

@@ -501,7 +501,7 @@ export function Dashboard() {
                           className="text-xs px-2.5 py-0.5 border-sapphire-700/50 bg-sapphire-900/30 text-sapphire-200
                             group-hover:border-sapphire-600/70 group-hover:bg-sapphire-800/40 transition-all"
                         >
-                          {business.employees} emp
+                          {business.employeeCount} emp
                         </Badge>
                         {business.rating && (
                           <div
@@ -578,7 +578,7 @@ export function Dashboard() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Employees
                   </p>
-                  <p className="text-sm">{selectedBusiness.employees}</p>
+                  <p className="text-sm">{selectedBusiness.employeeCount}</p>
                 </div>
               </div>
 

@@ -251,14 +251,14 @@ export function BusinessProfile() {
                     <div className="text-center p-4 border rounded-lg">
                       <Users className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">
-                        {formatNumber(business.employees)}
+                        {formatNumber(business.employeeCount)}
                       </p>
                       <p className="text-xs text-muted-foreground">Employees</p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
                       <Calendar className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">
-                        {business.yearEstablished ? new Date().getFullYear() - business.yearEstablished : "N/A"}
+                        {business.yearFounded ? new Date().getFullYear() - business.yearFounded : "N/A"}
                       </p>
                       <p className="text-xs text-muted-foreground">Years Old</p>
                     </div>
@@ -694,7 +694,7 @@ export function BusinessProfile() {
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Founded</span>
                 <span className="text-sm font-medium">
-                  {business.yearEstablished}
+                  {business.yearFounded}
                 </span>
               </div>
               <div className="flex justify-between">

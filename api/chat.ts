@@ -1,14 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import OpenAI from "openai";
-
-// Initialize OpenAI with GPT-5
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY environment variable is required");
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIClient } from "../lib/openai-singleton";
 
 export const config = {
   maxDuration: 60,
@@ -43,6 +34,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Initialize OpenAI client using singleton
+    const openai = getOpenAIClient();
+    
     const {
       messages,
       model = "gpt-4o-mini", // Default to gpt-4o-mini

@@ -96,18 +96,18 @@ export interface ExtendedFinancials {
 }
 
 export interface Business {
-  // Core fields
+  // Core fields (clean domain entity names)
   id: string;
   name: string;
   industry?: string;
   sector?: string;
   description?: string;
-  founded_year?: number;
-  employees_count?: number;
+  yearFounded?: number;    // CLEAN NAME - matches domain entity
+  employeeCount?: number;  // CLEAN NAME - matches domain entity
   revenue?: number;
   website?: string;
   headquarters?: string;
-  logo_url?: string;
+  logoUrl?: string;        // CLEAN NAME - matches domain entity
   status?: string;
   created_at?: string;
   updated_at?: string;

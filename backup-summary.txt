@@ -1,0 +1,21 @@
+Database Backup Summary
+========================
+Timestamp: 2025-09-07
+
+Current State:
+- Companies table: 509 rows
+- Businesses table: 0 rows
+
+Sample companies table structure (first 5 records):
+- Contains UUID ids
+- Rich data with metrics, features, ext_financials as JSONB
+- Complex nested structure with hours, monthly revenue arrays
+- Missing embedding column data (all null)
+
+Key observation: Companies table structure is VERY different from improvedDemoData.json format.
+The companies table has already been processed/enriched while improvedDemoData.json is the raw source.
+
+This confirms our plan to:
+1. Clear companies table completely 
+2. Import fresh from improvedDemoData.json into businesses table
+3. Use businesses as the canonical table going forward

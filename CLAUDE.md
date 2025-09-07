@@ -15,6 +15,18 @@
 
 ## 🚨 CRITICAL REQUIREMENTS
 
+### 📝 **REVIEW AGENT ROLE BOUNDARIES**
+
+**When acting as a reviewing agent (Claude B, Cursor Agent, etc.):**
+- **ALLOWED**: Write analysis to collaboration documents
+- **ALLOWED**: Read files to understand problems  
+- **ALLOWED**: Provide structured recommendations
+- **NOT ALLOWED**: Execute implementations
+- **NOT ALLOWED**: Run modifying MCP commands
+- **NOT ALLOWED**: Change the code/system being reviewed
+
+**Review role = One brain at the table, not the implementer**
+
 ### 🔍 **CODE REVIEW REQUIREMENT - MANDATORY**
 
 **ALL CODE CHANGES MUST BE REVIEWED BEFORE EXECUTION**

@@ -1,346 +1,201 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import OpenAI from "openai";
-
-interface CompanyData {
-  id: string;
-  name: string;
-  industry?: string;
-  revenue?: number;
-  employees_count?: number;
-  employees?: number; // From semantic search
-  headquarters?: string;
-  neighborhood?: string;
-  year_established?: number;
-  similarity?: number;
-  searchType?: string;
-}
-
-interface MarketInsights {
-  density: string;
-  competition: string;
-  opportunities: string[];
-  topCompetitors: CompanyData[];
-  marketGaps: string[];
-}
-
-interface BusinessIntelligenceResult {
-  companies: CompanyData[];
-  insights: MarketInsights;
-  searchMetadata: {
-    query: string;
-    method: string;
-    resultsCount: number;
-    searchArea?: string;
-    timestamp: string;
-  };
-  summary: {
-    totalRevenue: number;
-    totalEmployees: number;
-    averageRevenue: number;
-    topIndustries: { industry: string; count: number }[];
-  };
-}
+import type { Business } from '../domain/entities/Business';
+import type { IBusinessRepository } from '../repositories/IBusinessRepository';
 
 export class BusinessIntelligenceService {
-  constructor(
-    private supabase: SupabaseClient,
-    private openai: OpenAI
-  ) {}
+  constructor(private repository: IBusinessRepository) {}
 
-  /**
-   * Get contextual business data using semantic search with embeddings
-   */
-  async getContextualBusinessData(
-    query: string,
-    limit: number = 10
-  ): Promise<BusinessIntelligenceResult> {
-    console.log("🧠 BusinessIntelligenceService: Processing query:", query);
+  async generateMarketAnalysis(): Promise<MarketAnalysis> {
+    // Use repository instead of direct Supabase queries
+    const businesses = await this.repository.findAll(1000);
+    const industryStats = await this.repository.getIndustryStats();
+    const locationStats = await this.repository.getLocationStats();
     
-    // 1. Perform semantic search using embeddings
-    const companies = await this.performSemanticSearch(query, limit);
+    // Business logic for market analysis
+    const totalMarketSize = businesses.reduce((sum, b) => sum + (b.revenue || 0), 0);
+    const totalEmployment = businesses.reduce((sum, b) => sum + (b.employeeCount || 0), 0);
     
-    // 2. Compute market insights from the results
-    const insights = this.computeMarketInsights(companies, query);
+    // Industry concentration
+    const industryConcentration = this.calculateHerfindahlIndex(industryStats);
     
-    // 3. Calculate summary statistics
-    const summary = this.computeSummaryStats(companies);
+    // Geographic distribution
+    const geographicDiversity = this.calculateGeographicDiversity(locationStats);
     
-    // 4. Build metadata
-    const searchMetadata = {
-      query,
-      method: companies.length > 0 && companies[0].similarity ? "semantic" : "keyword",
-      resultsCount: companies.length,
-      searchArea: this.extractLocation(query),
-      timestamp: new Date().toISOString(),
-    };
-    
-    console.log("✅ BusinessIntelligenceService: Processed", {
-      companiesFound: companies.length,
-      method: searchMetadata.method,
-      hasInsights: !!insights,
+    // Growth indicators
+    const youngBusinesses = businesses.filter(b => {
+      const age = b.getAgeInYears();
+      return age !== null && age <= 5;
     });
+    const growthRate = youngBusinesses.length / businesses.length;
     
     return {
-      companies,
-      insights,
-      searchMetadata,
-      summary,
+      totalMarketSize,
+      totalEmployment,
+      businessCount: businesses.length,
+      industryConcentration,
+      geographicDiversity,
+      growthRate,
+      topIndustries: industryStats.slice(0, 5),
+      topLocations: locationStats.slice(0, 5),
+      marketMaturity: this.assessMarketMaturity(businesses),
     };
   }
 
-  /**
-   * Perform semantic search using vector embeddings
-   */
-  private async performSemanticSearch(
-    query: string,
-    limit: number
-  ): Promise<CompanyData[]> {
-    try {
-      // Generate embedding for the query
-      const embedding = await this.generateEmbedding(query);
-      
-      // Call the semantic search RPC function
-      const { data, error } = await this.supabase.rpc("semantic_business_search", {
-        query_embedding: embedding,
-        similarity_threshold: 0.3,
-        match_count: limit,
-      });
-      
-      if (error) {
-        console.warn("⚠️ Semantic search failed, falling back to keyword search:", error);
-        return this.performKeywordFallback(query, limit);
-      }
-      
-      // Map results and add search type, normalize employee field
-      return (data || []).map((company: any) => ({
-        ...company,
-        employees_count: company.employees || company.employees_count,
-        searchType: "semantic",
-      }));
-    } catch (error) {
-      console.error("❌ Semantic search error:", error);
-      return this.performKeywordFallback(query, limit);
+  async generateCompetitiveLandscape(businessId: string): Promise<CompetitiveLandscape> {
+    const business = await this.repository.findById(businessId);
+    if (!business) {
+      throw new Error(`Business not found: ${businessId}`);
     }
-  }
-
-  /**
-   * Generate embedding vector for a query
-   */
-  private async generateEmbedding(text: string): Promise<number[]> {
-    const response = await this.openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: text,
-      encoding_format: "float",
+    
+    // Find competitors
+    const competitors = await this.repository.findByIndustry(business.industry || '');
+    
+    // Filter to actual competitors (similar size/location)
+    const relevantCompetitors = competitors.filter(c => {
+      if (c.id === businessId) return false;
+      
+      // Similar size (within 2x range)
+      const sizeRatio = (c.employeeCount || 1) / (business.employeeCount || 1);
+      if (sizeRatio < 0.5 || sizeRatio > 2) return false;
+      
+      // Same city
+      if (c.city !== business.city) return false;
+      
+      return true;
     });
     
-    return response.data[0].embedding;
-  }
-
-  /**
-   * Fallback to keyword search if semantic search fails
-   */
-  private async performKeywordFallback(
-    query: string,
-    limit: number
-  ): Promise<CompanyData[]> {
-    const keywords = query.toLowerCase().split(" ");
+    // Calculate market position
+    const marketPosition = this.calculateMarketPosition(business, relevantCompetitors);
     
-    let queryBuilder = this.supabase
-      .from("companies")
-      .select("id, name, industry, revenue, employees_count, headquarters")
-      .eq("status", "active")
-      .limit(limit);
-    
-    // Add keyword filters
-    if (keywords.length > 0) {
-      const searchPattern = keywords.join(" | ");
-      queryBuilder = queryBuilder.or(
-        `name.ilike.%${searchPattern}%,industry.ilike.%${searchPattern}%`
-      );
-    }
-    
-    const { data, error } = await queryBuilder;
-    
-    if (error) {
-      console.error("❌ Keyword search error:", error);
-      return [];
-    }
-    
-    return (data || []).map((company: any) => ({
-      ...company,
-      searchType: "keyword",
-    }));
-  }
-
-  /**
-   * Compute market insights from search results
-   */
-  private computeMarketInsights(
-    companies: CompanyData[],
-    query: string
-  ): MarketInsights {
-    // Group by industry
-    const industryGroups = this.groupByIndustry(companies);
-    const topIndustry = Object.keys(industryGroups)[0];
-    
-    // Calculate market density
-    const density = this.calculateMarketDensity(companies.length, query);
-    
-    // Identify top competitors
-    const topCompetitors = companies
-      .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
-      .slice(0, 3);
-    
-    // Identify market gaps
-    const marketGaps = this.identifyMarketGaps(companies, query);
-    
-    // Generate competition assessment
-    const competition = this.assessCompetition(companies.length, topCompetitors);
-    
-    // Generate opportunities
-    const opportunities = this.identifyOpportunities(density, marketGaps, companies);
+    // Identify threats and opportunities
+    const threats = this.identifyThreats(business, relevantCompetitors);
+    const opportunities = this.identifyOpportunities(business, relevantCompetitors);
     
     return {
-      density,
-      competition,
+      business: business.toJSON(),
+      competitors: relevantCompetitors.map(c => c.toJSON()),
+      marketPosition,
+      threats,
       opportunities,
-      topCompetitors,
-      marketGaps,
+      competitionIntensity: this.assessCompetitionIntensity(relevantCompetitors),
     };
   }
 
-  /**
-   * Calculate summary statistics
-   */
-  private computeSummaryStats(companies: CompanyData[]) {
-    const totalRevenue = companies.reduce((sum, c) => sum + (c.revenue || 0), 0);
-    const totalEmployees = companies.reduce((sum, c) => sum + (c.employees_count || 0), 0);
-    const averageRevenue = companies.length > 0 ? totalRevenue / companies.length : 0;
+  private calculateHerfindahlIndex(industryStats: any[]): number {
+    const total = industryStats.reduce((sum, stat) => sum + stat.totalRevenue, 0);
+    if (total === 0) return 0;
     
-    // Count by industry
-    const industryCount = companies.reduce((acc, company) => {
-      const industry = company.industry || "Unknown";
-      acc[industry] = (acc[industry] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const topIndustries = Object.entries(industryCount)
-      .map(([industry, count]) => ({ industry, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-    
-    return {
-      totalRevenue,
-      totalEmployees,
-      averageRevenue,
-      topIndustries,
-    };
+    const shares = industryStats.map(stat => stat.totalRevenue / total);
+    return shares.reduce((sum, share) => sum + Math.pow(share, 2), 0);
   }
 
-  /**
-   * Helper: Group companies by industry
-   */
-  private groupByIndustry(companies: CompanyData[]): Record<string, CompanyData[]> {
-    return companies.reduce((groups, company) => {
-      const industry = company.industry || "Other";
-      if (!groups[industry]) groups[industry] = [];
-      groups[industry].push(company);
-      return groups;
-    }, {} as Record<string, CompanyData[]>);
-  }
-
-  /**
-   * Helper: Calculate market density
-   */
-  private calculateMarketDensity(companyCount: number, query: string): string {
-    if (companyCount === 0) return "No competition - untapped market";
-    if (companyCount <= 3) return "Low density - significant opportunity";
-    if (companyCount <= 10) return "Moderate density - room for differentiation";
-    if (companyCount <= 20) return "High density - competitive market";
-    return "Saturated market - strong differentiation required";
-  }
-
-  /**
-   * Helper: Assess competition level
-   */
-  private assessCompetition(count: number, topCompetitors: CompanyData[]): string {
-    if (count === 0) return "No direct competition found";
+  private calculateGeographicDiversity(locationStats: any[]): number {
+    // Shannon diversity index
+    const total = locationStats.reduce((sum, stat) => sum + stat.count, 0);
+    if (total === 0) return 0;
     
-    const avgRevenue = topCompetitors.reduce((sum, c) => sum + (c.revenue || 0), 0) / topCompetitors.length;
-    
-    if (avgRevenue > 10000000) {
-      return `Strong competition with ${count} established players, top competitors averaging $${(avgRevenue / 1000000).toFixed(1)}M revenue`;
-    } else if (avgRevenue > 1000000) {
-      return `Moderate competition with ${count} mid-size players, averaging $${(avgRevenue / 1000000).toFixed(1)}M revenue`;
-    } else {
-      return `Light competition with ${count} smaller players, mostly under $1M revenue`;
-    }
-  }
-
-  /**
-   * Helper: Identify market gaps
-   */
-  private identifyMarketGaps(companies: CompanyData[], query: string): string[] {
-    const gaps: string[] = [];
-    
-    // Check for missing price segments
-    const avgRevenue = companies.reduce((sum, c) => sum + (c.revenue || 0), 0) / companies.length;
-    if (avgRevenue > 5000000) {
-      gaps.push("Budget/entry-level segment underserved");
-    } else if (avgRevenue < 1000000) {
-      gaps.push("Premium/enterprise segment available");
+    let diversity = 0;
+    for (const stat of locationStats) {
+      const proportion = stat.count / total;
+      if (proportion > 0) {
+        diversity -= proportion * Math.log(proportion);
+      }
     }
     
-    // Check for geographic gaps
-    const locations = companies.map(c => c.headquarters).filter(Boolean);
-    if (locations.length < companies.length / 2) {
-      gaps.push("Geographic expansion opportunities");
-    }
-    
-    return gaps;
+    return diversity;
   }
 
-  /**
-   * Helper: Identify business opportunities
-   */
-  private identifyOpportunities(
-    density: string,
-    gaps: string[],
-    companies: CompanyData[]
-  ): string[] {
+  private assessMarketMaturity(businesses: Business[]): 'emerging' | 'growing' | 'mature' | 'declining' {
+    const avgAge = businesses.reduce((sum, b) => {
+      const age = b.getAgeInYears();
+      return sum + (age || 0);
+    }, 0) / businesses.length;
+    
+    if (avgAge < 5) return 'emerging';
+    if (avgAge < 10) return 'growing';
+    if (avgAge < 20) return 'mature';
+    return 'declining';
+  }
+
+  private calculateMarketPosition(business: Business, competitors: Business[]): string {
+    const allBusinesses = [business, ...competitors];
+    const revenueRank = allBusinesses
+      .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+      .findIndex(b => b.id === business.id) + 1;
+    
+    const percentile = ((allBusinesses.length - revenueRank) / allBusinesses.length) * 100;
+    
+    if (percentile >= 75) return 'Market Leader';
+    if (percentile >= 50) return 'Strong Competitor';
+    if (percentile >= 25) return 'Emerging Player';
+    return 'Niche Player';
+  }
+
+  private identifyThreats(business: Business, competitors: Business[]): string[] {
+    const threats: string[] = [];
+    
+    // Larger competitors
+    const largerCompetitors = competitors.filter(c => (c.revenue || 0) > (business.revenue || 0) * 1.5);
+    if (largerCompetitors.length > 0) {
+      threats.push(`${largerCompetitors.length} larger competitors in the same market`);
+    }
+    
+    // Newer, fast-growing competitors
+    const newCompetitors = competitors.filter(c => {
+      const age = c.getAgeInYears();
+      return age !== null && age < 3;
+    });
+    if (newCompetitors.length > 0) {
+      threats.push(`${newCompetitors.length} new entrants in the last 3 years`);
+    }
+    
+    return threats;
+  }
+
+  private identifyOpportunities(business: Business, competitors: Business[]): string[] {
     const opportunities: string[] = [];
     
-    if (density.includes("Low") || density.includes("No competition")) {
-      opportunities.push("First-mover advantage available");
+    // Underserved segments
+    const avgCustomerRating = competitors.reduce((sum, c) => 
+      sum + (c.customerMetrics?.rating || 0), 0) / competitors.length;
+    
+    if (business.customerMetrics?.rating && business.customerMetrics.rating > avgCustomerRating) {
+      opportunities.push('Above-average customer satisfaction provides competitive advantage');
     }
     
-    if (gaps.length > 0) {
-      opportunities.push(`Market gaps identified: ${gaps[0]}`);
-    }
-    
-    if (companies.length > 0 && companies.length < 5) {
-      opportunities.push("Partnership opportunities with existing players");
-    }
-    
-    if (companies.some(c => (c.revenue || 0) > 10000000)) {
-      opportunities.push("Proven market demand with successful incumbents");
+    // Geographic expansion
+    const uniqueNeighborhoods = new Set(competitors.map(c => c.neighborhood));
+    if (uniqueNeighborhoods.size > 1) {
+      opportunities.push(`Potential expansion into ${uniqueNeighborhoods.size - 1} additional neighborhoods`);
     }
     
     return opportunities;
   }
 
-  /**
-   * Helper: Extract location from query
-   */
-  private extractLocation(query: string): string | undefined {
-    const locations = [
-      "huntersville", "davidson", "charlotte", "matthews", "mint hill",
-      "cornelius", "mooresville", "concord", "gastonia", "rock hill"
-    ];
-    
-    const queryLower = query.toLowerCase();
-    const found = locations.find(loc => queryLower.includes(loc));
-    
-    return found ? found.charAt(0).toUpperCase() + found.slice(1) : undefined;
+  private assessCompetitionIntensity(competitors: Business[]): 'low' | 'medium' | 'high' | 'very high' {
+    if (competitors.length < 3) return 'low';
+    if (competitors.length < 10) return 'medium';
+    if (competitors.length < 20) return 'high';
+    return 'very high';
   }
+}
+
+interface MarketAnalysis {
+  totalMarketSize: number;
+  totalEmployment: number;
+  businessCount: number;
+  industryConcentration: number;
+  geographicDiversity: number;
+  growthRate: number;
+  topIndustries: any[];
+  topLocations: any[];
+  marketMaturity: string;
+}
+
+interface CompetitiveLandscape {
+  business: any;
+  competitors: any[];
+  marketPosition: string;
+  threats: string[];
+  opportunities: string[];
+  competitionIntensity: string;
 }

@@ -2,6 +2,15 @@ import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { expect, afterEach, vi } from "vitest";
 
+// Ensure `window` exists when tests run in Node environment
+// Vitest default setup may execute this file even for node environment.
+if (typeof globalThis.window === "undefined") {
+  // Minimal stub that can accept properties later
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  globalThis.window = {};
+}
+
 // Cleanup after each test case
 afterEach(() => {
   cleanup();

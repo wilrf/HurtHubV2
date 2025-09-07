@@ -1,16 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import OpenAI from "openai";
+import { getOpenAIClient } from "../lib/openai-singleton";
 
-const apiKey = process.env.OPENAI_API_KEY;
-if (!apiKey) {
-  throw new Error(
-    "OPENAI_API_KEY is required but not found in environment variables",
-  );
-}
-
-const openai = new OpenAI({
-  apiKey: apiKey,
-});
+const openai = getOpenAIClient();
 
 export const config = {
   maxDuration: 120, // Extended for deep analysis
