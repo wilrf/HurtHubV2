@@ -10,6 +10,8 @@ interface EmbeddingRequest {
   batchSize?: number;
   forceRegenerate?: boolean;
   companyIds?: string[];
+  businessIds?: string[];
+  tableName?: 'companies' | 'businesses'; // Support both tables during migration
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -67,34 +69,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const {
-      batchSize = 20,
+      batchSize = 10, // Reduced to avoid rate limits
       forceRegenerate = false,
       companyIds,
+      businessIds,
+      tableName = 'businesses', // Default to businesses table
     } = req.body as EmbeddingRequest;
 
     console.log("Starting embedding generation:", {
+      tableName,
       batchSize,
       forceRegenerate,
       companyIds,
+      businessIds,
     });
 
-    // Get companies that need embeddings
-    const companies = await getCompaniesNeedingEmbeddings(
-      supabase,
-      forceRegenerate,
-      companyIds,
-    );
+    // Get records that need embeddings
+    const records = tableName === 'businesses'
+      ? await getBusinessesNeedingEmbeddings(supabase, forceRegenerate, businessIds)
+      : await getCompaniesNeedingEmbeddings(supabase, forceRegenerate, companyIds);
 
-    if (companies.length === 0) {
+    if (records.length === 0) {
       return res.status(200).json({
-        message: "All companies already have embeddings",
+        message: `All ${tableName} already have embeddings`,
         processed: 0,
         skipped: 0,
         errors: [],
       });
     }
 
-    console.log(`Found ${companies.length} companies needing embeddings`);
+    console.log(`Found ${records.length} ${tableName} needing embeddings`);
 
     // Process in batches to avoid timeout
     const results = {
@@ -103,27 +107,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       errors: [] as string[],
     };
 
-    // Process companies in batches
-    for (let i = 0; i < companies.length; i += batchSize) {
-      const batch = companies.slice(i, i + batchSize);
+    // Process records in batches
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize);
+      const batchNum = Math.floor(i / batchSize) + 1;
+      const totalBatches = Math.ceil(records.length / batchSize);
       console.log(
-        `Processing batch ${Math.floor(i / batchSize) + 1}: ${batch.length} companies`,
+        `Processing batch ${batchNum}/${totalBatches}: ${batch.length} ${tableName}`,
       );
 
-      const batchResults = await processBatch(batch, openai, supabase);
+      const batchResults = await processBatch(batch, openai, supabase, tableName);
       results.processed += batchResults.processed;
       results.skipped += batchResults.skipped;
       results.errors.push(...batchResults.errors);
 
-      // Add small delay between batches to avoid rate limits
-      if (i + batchSize < companies.length) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Add delay between batches to avoid OpenAI rate limits (60/min)
+      if (i + batchSize < records.length) {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 sec delay
       }
     }
 
     return res.status(200).json({
       message: `Embedding generation completed`,
-      totalCompanies: companies.length,
+      tableName,
+      totalRecords: records.length,
       ...results,
     });
   } catch (error: any) {
@@ -163,49 +170,81 @@ async function getCompaniesNeedingEmbeddings(
   return data || [];
 }
 
-async function processBatch(companies: any[], openai: OpenAI, supabase: any) {
+async function getBusinessesNeedingEmbeddings(
+  supabase: any,
+  forceRegenerate: boolean,
+  businessIds?: string[]
+) {
+  let query = supabase
+    .from("businesses")
+    .select("id, name, industry, naics, parent_company_id, neighborhood, city, state, business_type, year_established, revenue, employees");
+
+  if (!forceRegenerate) {
+    // Only get businesses without embeddings
+    query = query.is("embedding", null);
+  }
+
+  if (businessIds && businessIds.length > 0) {
+    query = query.in("id", businessIds);
+  }
+
+  const { data, error } = await query.limit(500); // Reasonable limit
+
+  if (error) {
+    throw new Error(`Failed to fetch businesses: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+async function processBatch(records: any[], openai: OpenAI, supabase: any, tableName: string = 'companies') {
   const results = {
     processed: 0,
     skipped: 0,
     errors: [] as string[],
   };
 
-  // Generate embeddings for all companies in batch
-  const embeddingPromises = companies.map(async (company) => {
+  // Generate embeddings for all records in batch
+  const embeddingPromises = records.map(async (record) => {
     try {
       // Create descriptive text for embedding
-      const embeddingText = createEmbeddingText(company);
+      const embeddingText = createEmbeddingText(record);
 
       // Generate embedding
       const embedding = await generateEmbedding(embeddingText, openai);
 
-      // Update company with embedding
+      // Update record with embedding
       const { error } = await supabase
-        .from("companies")
+        .from(tableName)
         .update({
           embedding: embedding,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", company.id);
+        .eq("id", record.id);
 
       if (error) {
         throw new Error(
-          `Failed to update company ${company.name}: ${error.message}`,
+          `Failed to update ${tableName} record ${record.name}: ${error.message}`,
         );
       }
 
-      // Track the embedding update
-      await supabase.from("embedding_updates").insert({
-        table_name: "companies",
-        record_id: company.id,
-        model_used: "text-embedding-3-small",
-      });
+      // Track the embedding update  
+      try {
+        await supabase.from("embedding_updates").insert({
+          table_name: tableName,
+          record_id: record.id,
+          model_used: "text-embedding-3-small",
+        });
+      } catch (trackError: any) {
+        // Log but don't fail if tracking table doesn't exist
+        console.warn(`Could not track embedding update: ${trackError.message}`);
+      }
 
-      console.log(`✅ Generated embedding for: ${company.name}`);
+      console.log(`✅ Generated embedding for: ${record.name}`);
       results.processed++;
     } catch (error: any) {
-      console.error(`❌ Failed to process ${company.name}:`, error.message);
-      results.errors.push(`${company.name}: ${error.message}`);
+      console.error(`❌ Failed to process ${record.name}:`, error.message);
+      results.errors.push(`${record.name}: ${error.message}`);
     }
   });
 
@@ -215,34 +254,66 @@ async function processBatch(companies: any[], openai: OpenAI, supabase: any) {
   return results;
 }
 
-function createEmbeddingText(company: any): string {
+function createEmbeddingText(record: any): string {
   const parts = [];
 
-  // Company name (most important)
-  if (company.name) {
-    parts.push(company.name);
+  // Name (most important for both companies and businesses)
+  if (record.name) {
+    parts.push(record.name);
   }
 
   // Industry information
-  if (company.industry) {
-    parts.push(`Industry: ${company.industry}`);
+  if (record.industry) {
+    parts.push(`Industry: ${record.industry}`);
   }
-  if (company.sector) {
-    parts.push(`Sector: ${company.sector}`);
+  if (record.sector) {
+    parts.push(`Sector: ${record.sector}`);
+  }
+  
+  // NAICS code (for businesses)
+  if (record.naics) {
+    parts.push(`NAICS: ${record.naics}`);
+  }
+
+  // Business type (for businesses)
+  if (record.business_type) {
+    parts.push(`Type: ${record.business_type}`);
   }
 
   // Location
-  if (company.headquarters) {
-    parts.push(`Location: ${company.headquarters}`);
+  if (record.headquarters) {
+    parts.push(`Location: ${record.headquarters}`);
+  } else if (record.neighborhood || record.city) {
+    // For businesses table
+    const location = [record.neighborhood, record.city, record.state].filter(Boolean).join(", ");
+    if (location) parts.push(`Location: ${location}`);
+  }
+
+  // Parent company (for businesses)
+  if (record.parent_company_id) {
+    parts.push(`Parent Company ID: ${record.parent_company_id}`);
+  }
+
+  // Year established (for businesses)
+  if (record.year_established) {
+    parts.push(`Established: ${record.year_established}`);
+  }
+
+  // Size information
+  if (record.employees) {
+    parts.push(`Employees: ${record.employees}`);
+  }
+  if (record.revenue) {
+    parts.push(`Revenue: ${record.revenue}`);
   }
 
   // Description
-  if (company.description) {
+  if (record.description) {
     // Limit description to avoid token limits
     const description =
-      company.description.length > 500
-        ? company.description.substring(0, 500) + "..."
-        : company.description;
+      record.description.length > 500
+        ? record.description.substring(0, 500) + "..."
+        : record.description;
     parts.push(`Description: ${description}`);
   }
 
