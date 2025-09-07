@@ -114,9 +114,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       timestamp: new Date().toISOString(),
     });
 
-    // Analyze what data the user might need using AI-powered search
+    // Analyze what data the user might need using semantic search
     const startTime = Date.now();
-    const businessData = await fetchRelevantBusinessData(userMessage);
+    const businessData = await fetchRelevantBusinessData(userMessage, openai, supabase);
     const searchDuration = Date.now() - startTime;
 
     console.log("📊 Business Data Fetched:", {
@@ -262,7 +262,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 // Fetch relevant business data based on user query using AI-powered search
-async function fetchRelevantBusinessData(query: string) {
+async function fetchRelevantBusinessData(query: string, openai: OpenAI, supabase: SupabaseClient) {
   const data: any = {
     companies: [],
     developments: [],
@@ -271,51 +271,56 @@ async function fetchRelevantBusinessData(query: string) {
   };
 
   try {
-    // Use AI-powered search for better results - NO FALLBACKS
-    // Get base URL for API calls - Vercel-only deployment
-    const vercelUrl = process.env.VERCEL_URL;
-    if (!vercelUrl) {
-      throw new Error(
-        "VERCEL_URL environment variable is required - this app only runs on Vercel",
-      );
-    }
-    const baseUrl = `https://${vercelUrl}`;
-
-    console.log(`🔍 Making AI search request to: ${baseUrl}/api/ai-search`);
-    const searchPayload = {
-      query,
-      limit: 20,
-      useAI: true,
-    };
-    console.log("📤 Search Payload:", searchPayload);
+    // Use semantic search with embeddings for better results
+    console.log(`🔍 Performing semantic search for: ${query}`);
     
-    const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(searchPayload),
+    // 1. Generate query embedding using OpenAI
+    const queryEmbedding = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: query
     });
+    
+    // 2. Call database function via Supabase RPC for semantic search
+    const { data: searchResults, error: searchError } = await supabase.rpc(
+      'semantic_business_search',
+      {
+        query_embedding: queryEmbedding.data[0].embedding,
+        limit_count: 20
+      }
+    );
 
-    if (!searchResponse.ok) {
-      throw new Error(`AI search failed with status ${searchResponse.status}`);
+    if (searchError) {
+      console.error("Semantic search error:", searchError);
+      // Fall back to basic text search if semantic search fails
+      const { data: fallbackResults } = await supabase
+        .from('businesses')
+        .select('*')
+        .or(`name.ilike.%${query}%,industry.ilike.%${query}%`)
+        .limit(20);
+      
+      data.companies = fallbackResults || [];
+    } else {
+      // Get full business details for the semantic search results
+      const businessIds = searchResults.map((r: any) => r.id);
+      const { data: businessDetails } = await supabase
+        .from('businesses')
+        .select('*')
+        .in('id', businessIds);
+      
+      data.companies = businessDetails || [];
     }
-
-    const searchData = await searchResponse.json();
-    if (!searchData.results) {
-      throw new Error("AI search returned invalid response format");
-    }
-
-    data.companies = searchData.results;
-    data.summary.searchIntent = searchData.intent;
-    data.summary.totalCompanies = searchData.results.length;
+    
+    data.summary.searchIntent = detectSearchIntent(query);
+    data.summary.totalCompanies = data.companies.length;
 
     // Calculate summary statistics
-    if (searchData.results.length > 0) {
-      data.summary.totalRevenue = searchData.results.reduce(
+    if (data.companies.length > 0) {
+      data.summary.totalRevenue = data.companies.reduce(
         (sum: number, c: any) => sum + (c.revenue || 0),
         0,
       );
-      data.summary.totalEmployees = searchData.results.reduce(
-        (sum: number, c: any) => sum + (c.employees_count || 0),
+      data.summary.totalEmployees = data.companies.reduce(
+        (sum: number, c: any) => sum + (c.employees || 0),
         0,
       );
       
@@ -474,4 +479,25 @@ async function storeConversation(
 // Generate unique session ID
 function generateSessionId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Helper function to detect search intent from query
+function detectSearchIntent(query: string): string {
+  const lowerQuery = query.toLowerCase();
+  
+  if (lowerQuery.includes('restaurant') || lowerQuery.includes('food') || lowerQuery.includes('dining')) {
+    return 'restaurants';
+  } else if (lowerQuery.includes('tech') || lowerQuery.includes('software') || lowerQuery.includes('it')) {
+    return 'technology';
+  } else if (lowerQuery.includes('retail') || lowerQuery.includes('shop') || lowerQuery.includes('store')) {
+    return 'retail';
+  } else if (lowerQuery.includes('revenue') || lowerQuery.includes('profit') || lowerQuery.includes('financial')) {
+    return 'financial';
+  } else if (lowerQuery.includes('employee') || lowerQuery.includes('staff') || lowerQuery.includes('hiring')) {
+    return 'employment';
+  } else if (lowerQuery.includes('downtown') || lowerQuery.includes('location') || lowerQuery.includes('where')) {
+    return 'location';
+  } else {
+    return 'general';
+  }
 }
