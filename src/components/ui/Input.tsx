@@ -18,7 +18,7 @@ const inputVariants = cva(
         midnight:
           "border-midnight-700 bg-midnight-800 text-white placeholder:text-midnight-400 hover:border-midnight-600 focus:border-sapphire-600",
         search:
-          "border-slate-600 bg-slate-900/50 shadow-[0_0_15px_rgba(99,102,241,0.1)] hover:scale-[1.01] hover:border-slate-500 hover:shadow-[0_0_25px_rgba(99,102,241,0.2)] hover:bg-slate-800/60 focus:scale-[1.02] focus:border-slate-400 focus:shadow-[0_0_30px_rgba(99,102,241,0.3)] focus:bg-slate-800/70",
+          "border-slate-500 bg-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.15)] placeholder:text-slate-400 hover:scale-[1.01] hover:border-slate-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.25)] hover:bg-slate-800/60 focus:scale-[1.02] focus:border-slate-300 focus:shadow-[0_0_30px_rgba(99,102,241,0.35)] focus:bg-slate-800/70",
       },
       inputSize: {
         default: "h-12",
