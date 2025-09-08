@@ -37,19 +37,25 @@ export function BusinessIntelligence() {
   >("revenue");
   const [isWelcomeState, setIsWelcomeState] = useState(true);
   
-  // Get messages from the chat hook to determine if we should show welcome state
-  const { messages, setInput, handleSendMessage } = useBusinessAIChat("business-intelligence");
+  // Get messages from the chat hook - starts with no messages
+  const { messages, setInput, handleSendMessage: originalHandleSendMessage } = useBusinessAIChat("business-intelligence");
 
   useEffect(() => {
     loadAnalyticsData();
   }, []);
 
+  // Watch for when messages appear to exit welcome state
   useEffect(() => {
-    // Switch from welcome state when we have messages
     if (messages.length > 0) {
       setIsWelcomeState(false);
     }
   }, [messages]);
+
+  // Wrapper to handle send message and exit welcome state
+  const handleSendMessage = () => {
+    setIsWelcomeState(false);
+    originalHandleSendMessage();
+  };
 
   const loadAnalyticsData = async () => {
     setIsLoading(true);
@@ -83,10 +89,13 @@ export function BusinessIntelligence() {
     return num.toLocaleString();
   };
 
-  const handlePromptSelect = (prompt: string) => {
+  const handlePromptSelect = async (prompt: string) => {
     setInput(prompt);
-    handleSendMessage();
     setIsWelcomeState(false);
+    // Small delay to ensure state updates before sending
+    setTimeout(() => {
+      handleSendMessage();
+    }, 100);
   };
 
   const handleNewChat = () => {

@@ -73,20 +73,13 @@ export function useBusinessAIChat(
 
         setAnalytics(analyticsData);
         setBusinesses(businessData);
-
-        const welcomeMessage: Message = {
-          id: "1",
-          role: "assistant",
-          content: getWelcomeMessage(),
-          timestamp: new Date(),
-          suggestions: getSuggestedQuestions(),
-        };
-        setMessages([welcomeMessage]);
+        
+        // Don't add any initial messages - let the user start the conversation
       });
     } catch (err) {
       console.error("Failed to load data for AI chat:", err);
     }
-  }, [getWelcomeMessage, getSuggestedQuestions]);
+  }, []);
 
   useEffect(() => {
     loadDataAndInitialize();
