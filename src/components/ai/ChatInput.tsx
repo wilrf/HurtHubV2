@@ -34,7 +34,7 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={`Ask me about ${module === "business-intelligence" ? "business analytics and market insights" : "community trends and business sentiment"}...`}
+          placeholder={module === "business-intelligence" ? "Ask about Charlotte businesses..." : "Ask about community trends..."}
           disabled={isLoading}
           variant={isDarkMode ? "midnight" : "default"}
           className="w-full pr-12 py-3 text-base"

@@ -222,29 +222,36 @@ export function BusinessIntelligence() {
           /* Welcome State - Show welcome text */
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="text-center max-w-2xl">
-              <h2 className="text-3xl font-semibold text-foreground mb-3">
-                Welcome to Business Intelligence
+              <h2 className="text-xl font-medium text-foreground">
+                Ready to turn data into decisions?
               </h2>
-              <p className="text-lg text-muted-foreground">
-                I can help you analyze market trends, compare businesses, identify opportunities,
-                and answer strategic questions about Charlotte's business landscape.
-              </p>
             </div>
           </div>
         )}
         
         {/* Chat Component - Always rendered, changes display based on state */}
         <div className={isWelcomeState ? "max-w-2xl mx-auto" : ""}>
-          <Card variant={isDarkMode ? "glass" : "elevated"}>
-            <CardContent className="p-0">
-              <BusinessAIChat
-                module="business-intelligence"
-                className={isWelcomeState ? "min-h-0" : "min-h-[600px]"}
-                isWelcomeState={isWelcomeState}
-                onFirstMessage={() => setIsWelcomeState(false)}
-              />
-            </CardContent>
-          </Card>
+          {isWelcomeState ? (
+            /* Clean input without Card wrapper in welcome state */
+            <BusinessAIChat
+              module="business-intelligence"
+              className="min-h-0"
+              isWelcomeState={true}
+              onFirstMessage={() => setIsWelcomeState(false)}
+            />
+          ) : (
+            /* Full chat with Card wrapper in active state */
+            <Card variant={isDarkMode ? "glass" : "elevated"}>
+              <CardContent className="p-0">
+                <BusinessAIChat
+                  module="business-intelligence"
+                  className="min-h-[600px]"
+                  isWelcomeState={false}
+                  onFirstMessage={() => setIsWelcomeState(false)}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
         
         {/* Suggested Prompts - Only in welcome state */}
@@ -349,7 +356,7 @@ export function BusinessIntelligence() {
                   <Button
                     key={metric.key}
                     variant={
-                      selectedMetric === metric.key ? "default" : "ghost"
+                      selectedMetric === metric.key ? "default" : "outline"
                     }
                     size="sm"
                     onClick={() => setSelectedMetric(metric.key as any)}
