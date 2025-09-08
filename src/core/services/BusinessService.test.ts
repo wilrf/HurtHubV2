@@ -51,7 +51,7 @@ class MockBusinessRepository implements IBusinessRepository {
     );
   }
 
-  async searchSemantic(query: string, limit?: number): Promise<Business[]> {
+  async searchSemantic(embedding: number[], limit?: number): Promise<Business[]> {
     // Mock semantic search - just return first N businesses for testing
     return this.businesses.slice(0, limit || 10);
   }
@@ -60,12 +60,12 @@ class MockBusinessRepository implements IBusinessRepository {
     // Mock implementation - does nothing in tests
   }
 
-  async getIndustryStats(): Promise<Array<{ industry: string; count: number; avgRevenue: number }>> {
+  async getIndustryStats(): Promise<Array<{ industry: string; count: number; totalRevenue: number; totalEmployees: number; averageRevenue: number }>> {
     // Mock implementation
     return [];
   }
 
-  async getLocationStats(): Promise<Array<{ neighborhood: string; count: number; avgRevenue: number }>> {
+  async getLocationStats(): Promise<Array<{ location: string; count: number; totalRevenue: number; averageRating: number }>> {
     // Mock implementation
     return [];
   }
