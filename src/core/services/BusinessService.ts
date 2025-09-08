@@ -189,8 +189,14 @@ export class BusinessService {
 
     const revenueDistribution = revenueRanges.map(range => {
       const count = businesses.filter(b => {
-        const revenue = b.revenue || 0;
-        if (revenue === 0 && range.label === 'Unknown') return true;
+        // Handle null/undefined revenue separately
+        if (b.revenue === null || b.revenue === undefined) {
+          return range.label === 'Unknown';
+        }
+        // Zero revenue goes to <$100K, not Unknown
+        if (range.label === 'Unknown') return false;
+        
+        const revenue = b.revenue;
         return revenue >= range.min && revenue < range.max;
       }).length;
       

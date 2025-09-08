@@ -38,6 +38,7 @@ function SearchInput({
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         leftIcon={<Search className="h-4 w-4" />}
+        variant="search"
         className="pr-24"
       />
 

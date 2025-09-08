@@ -189,7 +189,7 @@ export function MainLayout() {
               <Input
                 type="search"
                 placeholder="Search companies, news, developments..."
-                variant="midnight"
+                variant="search"
                 leftIcon={<Search className="h-4 w-4" />}
                 className="w-full"
               />

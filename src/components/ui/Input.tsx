@@ -17,6 +17,8 @@ const inputVariants = cva(
           "border-glass-border bg-glass backdrop-blur-md hover:border-sapphire-600/30 focus:shadow-lg focus:shadow-sapphire-500/10",
         midnight:
           "border-midnight-700 bg-midnight-800 text-white placeholder:text-midnight-400 hover:border-midnight-600 focus:border-sapphire-600",
+        search:
+          "border-sapphire-800/40 bg-midnight-900/60 shadow-md hover:shadow-lg hover:border-sapphire-600/60 focus:shadow-xl focus:shadow-sapphire-500/20 focus:border-sapphire-500/70 focus:-translate-y-0.5",
       },
       inputSize: {
         default: "h-12",
@@ -50,7 +52,7 @@ const InputAdornment = ({
   children: React.ReactNode;
 }) => (
   <div
-    className={`absolute ${position}-3 top-1/2 -translate-y-1/2 text-muted-foreground`}
+    className={`absolute ${position}-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none`}
   >
     {children}
   </div>
@@ -139,7 +141,7 @@ const InputControl = forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             inputVariants({ variant, inputSize }),
             hasError && "border-destructive focus-visible:ring-destructive",
-            leftIcon && "pl-10",
+            leftIcon && "pl-11",
             (rightIcon || showPasswordToggle) && "pr-10",
             isFocused && "ring-2 ring-ring ring-offset-0",
             className,
