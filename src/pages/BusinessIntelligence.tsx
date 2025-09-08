@@ -12,15 +12,16 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  Sparkles,
+  Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import { BusinessAIChat } from "@/components/ai/BusinessAIChat";
-import { Badge } from "@/components/ui/Badge";
+import { SuggestedPrompts } from "@/components/ai/SuggestedPrompts";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { businessDataService } from "@/services/businessDataService";
+import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
 import type { BusinessAnalytics, Business } from "@/types/business";
 // Dark mode only - no theme switching
@@ -34,10 +35,21 @@ export function BusinessIntelligence() {
   const [selectedMetric, setSelectedMetric] = useState<
     "revenue" | "employees" | "growth" | "age"
   >("revenue");
+  const [isWelcomeState, setIsWelcomeState] = useState(true);
+  
+  // Get messages from the chat hook to determine if we should show welcome state
+  const { messages, setInput, handleSendMessage } = useBusinessAIChat("business-intelligence");
 
   useEffect(() => {
     loadAnalyticsData();
   }, []);
+
+  useEffect(() => {
+    // Switch from welcome state when we have messages
+    if (messages.length > 0) {
+      setIsWelcomeState(false);
+    }
+  }, [messages]);
 
   const loadAnalyticsData = async () => {
     setIsLoading(true);
@@ -69,6 +81,17 @@ export function BusinessIntelligence() {
   const formatNumber = (num: number | undefined | null) => {
     if (num == null || isNaN(num)) return "0";
     return num.toLocaleString();
+  };
+
+  const handlePromptSelect = (prompt: string) => {
+    setInput(prompt);
+    handleSendMessage();
+    setIsWelcomeState(false);
+  };
+
+  const handleNewChat = () => {
+    // Clear messages by reloading the page or resetting state
+    window.location.reload();
   };
 
   const getPerformanceIndicator = (current: number, benchmark: number) => {
@@ -159,17 +182,28 @@ export function BusinessIntelligence() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Business Intelligence
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Advanced analytics and market insights for Charlotte's business
-            ecosystem
-          </p>
+        <div className="flex items-center gap-4">
+          <Activity className="h-7 w-7 text-sapphire-400" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              AI Business Intelligence Assistant
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Ask questions about market trends, company performance, or get strategic insights
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleNewChat}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            New Chat
+          </Button>
           <Button variant="outline" size="sm">
             Export Report
           </Button>
@@ -179,33 +213,49 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
-      {/* AI Assistant - Expanded and Prominent */}
-      <Card variant={isDarkMode ? "glass" : "elevated"} className="mb-8">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-2xl font-bold flex items-center mb-2">
-                <Activity className="h-7 w-7 mr-3 text-sapphire-400" />
-                AI Business Intelligence Assistant
-              </CardTitle>
-              <p className="text-base text-muted-foreground">
-                Ask questions about market trends, company performance, or get
-                strategic insights
+      {/* Main Chat Section */}
+      <div className="space-y-6">
+        {/* Welcome State */}
+        {isWelcomeState ? (
+          <div className="flex flex-col items-center justify-center min-h-[500px] space-y-8">
+            <div className="text-center max-w-2xl">
+              <h2 className="text-3xl font-semibold text-foreground mb-3">
+                Welcome to Business Intelligence
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                I can help you analyze market trends, compare businesses, identify opportunities,
+                and answer strategic questions about Charlotte's business landscape.
               </p>
             </div>
-            <Badge variant="secondary" className="flex items-center px-4 py-2">
-              <Sparkles className="h-4 w-4 mr-1" />
-              AI Assistant
-            </Badge>
+            
+            {/* Chat Input - Centered */}
+            <div className="w-full max-w-2xl">
+              <BusinessAIChat
+                module="business-intelligence"
+                className="min-h-0"
+                isWelcomeState={true}
+                onFirstMessage={() => setIsWelcomeState(false)}
+              />
+            </div>
+            
+            {/* Suggested Prompts */}
+            <div className="w-full max-w-2xl">
+              <SuggestedPrompts onPromptSelect={handlePromptSelect} />
+            </div>
           </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <BusinessAIChat
-            module="business-intelligence"
-            className="min-h-[700px]"
-          />
-        </CardContent>
-      </Card>
+        ) : (
+          /* Active Chat State */
+          <Card variant={isDarkMode ? "glass" : "elevated"}>
+            <CardContent className="p-0">
+              <BusinessAIChat
+                module="business-intelligence"
+                className="min-h-[600px]"
+                isWelcomeState={false}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Key Performance Indicators */}
       {analytics && (

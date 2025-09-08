@@ -43,6 +43,33 @@ class MockBusinessRepository implements IBusinessRepository {
     );
   }
 
+  async findByRevenueRange(min: number, max: number): Promise<Business[]> {
+    return this.businesses.filter(b => 
+      b.revenue !== null && 
+      b.revenue >= min && 
+      b.revenue <= max
+    );
+  }
+
+  async searchSemantic(query: string, limit?: number): Promise<Business[]> {
+    // Mock semantic search - just return first N businesses for testing
+    return this.businesses.slice(0, limit || 10);
+  }
+
+  async updateEmbedding(id: string, embedding: number[]): Promise<void> {
+    // Mock implementation - does nothing in tests
+  }
+
+  async getIndustryStats(): Promise<Array<{ industry: string; count: number; avgRevenue: number }>> {
+    // Mock implementation
+    return [];
+  }
+
+  async getLocationStats(): Promise<Array<{ neighborhood: string; count: number; avgRevenue: number }>> {
+    // Mock implementation
+    return [];
+  }
+
   async getTotalCount(): Promise<number> {
     return this.businesses.length;
   }
