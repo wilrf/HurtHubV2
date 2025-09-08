@@ -51,12 +51,6 @@ export function BusinessIntelligence() {
     }
   }, [messages]);
 
-  // Wrapper to handle send message and exit welcome state
-  const handleSendMessage = () => {
-    setIsWelcomeState(false);
-    originalHandleSendMessage();
-  };
-
   const loadAnalyticsData = async () => {
     setIsLoading(true);
     try {
@@ -94,7 +88,7 @@ export function BusinessIntelligence() {
     setIsWelcomeState(false);
     // Small delay to ensure state updates before sending
     setTimeout(() => {
-      handleSendMessage();
+      originalHandleSendMessage();
     }, 100);
   };
 
@@ -224,9 +218,9 @@ export function BusinessIntelligence() {
 
       {/* Main Chat Section */}
       <div className="space-y-6">
-        {/* Welcome State */}
-        {isWelcomeState ? (
-          <div className="flex flex-col items-center justify-center min-h-[500px] space-y-8">
+        {isWelcomeState && (
+          /* Welcome State - Show welcome text */
+          <div className="flex flex-col items-center justify-center mb-8">
             <div className="text-center max-w-2xl">
               <h2 className="text-3xl font-semibold text-foreground mb-3">
                 Welcome to Business Intelligence
@@ -236,33 +230,28 @@ export function BusinessIntelligence() {
                 and answer strategic questions about Charlotte's business landscape.
               </p>
             </div>
-            
-            {/* Chat Input - Centered */}
-            <div className="w-full max-w-2xl">
-              <BusinessAIChat
-                module="business-intelligence"
-                className="min-h-0"
-                isWelcomeState={true}
-                onFirstMessage={() => setIsWelcomeState(false)}
-              />
-            </div>
-            
-            {/* Suggested Prompts */}
-            <div className="w-full max-w-2xl">
-              <SuggestedPrompts onPromptSelect={handlePromptSelect} />
-            </div>
           </div>
-        ) : (
-          /* Active Chat State */
+        )}
+        
+        {/* Chat Component - Always rendered, changes display based on state */}
+        <div className={isWelcomeState ? "max-w-2xl mx-auto" : ""}>
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-0">
               <BusinessAIChat
                 module="business-intelligence"
-                className="min-h-[600px]"
-                isWelcomeState={false}
+                className={isWelcomeState ? "min-h-0" : "min-h-[600px]"}
+                isWelcomeState={isWelcomeState}
+                onFirstMessage={() => setIsWelcomeState(false)}
               />
             </CardContent>
           </Card>
+        </div>
+        
+        {/* Suggested Prompts - Only in welcome state */}
+        {isWelcomeState && (
+          <div className="max-w-2xl mx-auto">
+            <SuggestedPrompts onPromptSelect={handlePromptSelect} />
+          </div>
         )}
       </div>
 
