@@ -14,14 +14,16 @@ export class AIConversationService {
     metadata?: ConversationMetadata,
     userId?: string,
   ): Promise<AIConversation> {
-    // Generate embeddings for semantic search
-    const embeddings = await this.generateEmbeddings(messages);
+    // Generate single embedding from all messages for semantic search
+    const embedding = messages.length > 0 
+      ? await this.generateConversationEmbedding(messages)
+      : undefined;
     
     const conversation = AIConversation.createNew(
       sessionId,
       messages,
       userId,
-      embeddings,
+      embedding,
       metadata,
     );
 
@@ -140,11 +142,10 @@ export class AIConversationService {
   }
 
   // Private helper methods
-  private async generateEmbeddings(messages: ChatMessage[]): Promise<number[][]> {
-    const embeddings = await Promise.all(
-      messages.map(msg => this.generateEmbedding(msg.content)),
-    );
-    return embeddings;
+  private async generateConversationEmbedding(messages: ChatMessage[]): Promise<number[]> {
+    // Concatenate all messages into single text for embedding
+    const fullText = messages.map(msg => msg.content).join(' ');
+    return this.generateEmbedding(fullText);
   }
 
   private async generateEmbedding(text: string): Promise<number[]> {
@@ -168,12 +169,12 @@ export class AIConversationService {
     const conversations = await this.repository.searchByEmbedding(queryEmbedding, userId, 100);
     
     return conversations
-      .filter(conv => conv.embeddings && conv.embeddings.length > 0)
+      .filter(conv => conv.embedding && conv.embedding.length > 0)
       .map(conv => {
-        // Calculate similarity with the first message embedding
+        // Calculate similarity with the conversation embedding
         const similarity = this.cosineSimilarity(
           queryEmbedding,
-          conv.embeddings?.[0] || [],
+          conv.embedding || [],
         );
         const relevance = similarity * 0.8; // Weight semantic similarity
 

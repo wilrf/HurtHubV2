@@ -6,16 +6,21 @@ export class SupabaseAIConversationRepository implements AIConversationRepositor
   constructor(private supabase: SupabaseClient) {}
 
   async create(conversation: AIConversation): Promise<AIConversation> {
+    const insertData: any = {
+      session_id: conversation.sessionId,
+      user_id: conversation.userId,
+      messages: conversation.messages,
+      created_at: conversation.createdAt.toISOString(),
+      metadata: conversation.metadata,
+    };
+
+    // Generate single embedding from all messages if present
+    // Note: For now we're not generating embeddings here to avoid circular dependency
+    // The service layer can handle embedding generation if needed
+    
     const { data, error } = await this.supabase
       .from('ai_conversations')
-      .insert({
-        session_id: conversation.sessionId,
-        user_id: conversation.userId,
-        messages: conversation.messages,
-        embeddings: conversation.embeddings,
-        created_at: conversation.createdAt.toISOString(),
-        metadata: conversation.metadata,
-      })
+      .insert(insertData)
       .select()
       .single();
 

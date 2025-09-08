@@ -5,7 +5,7 @@ export class AIConversation {
     public readonly sessionId: string,
     public readonly userId: string | null,
     public readonly messages: ChatMessage[],
-    public readonly embeddings: number[][] | null,
+    public readonly embedding: number[] | null,  // Changed from embeddings array
     public readonly metadata: ConversationMetadata | null,
     public readonly createdAt: Date,
   ) {}
@@ -17,7 +17,7 @@ export class AIConversation {
       record.session_id,
       record.user_id,
       record.messages,
-      record.embeddings,
+      record.embedding,  // Changed from embeddings
       record.metadata,
       new Date(record.created_at),
     );
@@ -28,7 +28,7 @@ export class AIConversation {
     sessionId: string,
     messages: ChatMessage[],
     userId?: string,
-    embeddings?: number[][],
+    embedding?: number[],  // Changed from embeddings array
     metadata?: ConversationMetadata,
   ): AIConversation {
     return new AIConversation(
@@ -36,7 +36,7 @@ export class AIConversation {
       sessionId,
       userId || null,
       messages,
-      embeddings || null,
+      embedding || null,  // Changed from embeddings
       metadata || null,
       new Date(),
     );
@@ -61,7 +61,7 @@ export class AIConversation {
       sessionId: this.sessionId,
       userId: this.userId,
       messages: this.messages,
-      embeddings: this.embeddings,
+      embedding: this.embedding,  // Changed from embeddings
       metadata: this.metadata,
       createdAt: this.createdAt.toISOString(),
       messageCount: this.getMessageCount(),
