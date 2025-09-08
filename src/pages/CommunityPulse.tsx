@@ -71,7 +71,7 @@ export function CommunityPulse() {
     const localBusinesses = businesses.filter(
       (b) => b?.businessType === "Local",
     ).length;
-    const neighborhoodDiversity = analytics.topNeighborhoods.length;
+    const neighborhoodDiversity = analytics.topNeighborhoods?.length || 0;
 
     const averageBusinessAge =
       businesses.length > 0
@@ -96,8 +96,8 @@ export function CommunityPulse() {
   };
 
   const getNeighborhoodPulse = () => {
-    if (!analytics) {
-      throw new Error("Analytics data is required for neighborhood pulse");
+    if (!analytics || !analytics.topNeighborhoods) {
+      return [];
     }
     return analytics.topNeighborhoods.map((neighborhood) => ({
         ...neighborhood,
