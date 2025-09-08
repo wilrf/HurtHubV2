@@ -29,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Check environment variables
     diagnostics.checks.environment = {
-      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+      hasSupabaseUrl: !!process.env.SUPABASE_URL,
       hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       hasOpenAIKey: !!process.env.OPENAI_API_KEY,
     };
