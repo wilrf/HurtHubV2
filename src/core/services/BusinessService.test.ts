@@ -220,7 +220,7 @@ describe('BusinessService Analytics', () => {
           createTestBusiness({ id: '4', revenue: 2500000 }),     // $1M-$5M
           createTestBusiness({ id: '5', revenue: 10000000 }),    // $5M+
           createTestBusiness({ id: '6', revenue: null }),        // Unknown
-          createTestBusiness({ id: '7', revenue: 0 }),           // Unknown
+          createTestBusiness({ id: '7', revenue: 0 }),           // <$100K (zero revenue is valid, not unknown)
         ];
         repository.setBusinesses(businesses);
         
@@ -230,12 +230,12 @@ describe('BusinessService Analytics', () => {
         expect(revDistribution).toHaveLength(6);
         
         const dist = Object.fromEntries(revDistribution.map(d => [d.range, d.count]));
-        expect(dist['<$100K']).toBe(1);
+        expect(dist['<$100K']).toBe(2);  // includes 50000 and 0
         expect(dist['$100K-$500K']).toBe(1);
         expect(dist['$500K-$1M']).toBe(1);
         expect(dist['$1M-$5M']).toBe(1);
         expect(dist['$5M+']).toBe(1);
-        expect(dist['Unknown']).toBe(2); // null and 0
+        expect(dist['Unknown']).toBe(1); // only null
       });
 
       it('should handle boundary values correctly (lower-inclusive, upper-exclusive)', async () => {
@@ -263,11 +263,11 @@ describe('BusinessService Analytics', () => {
     describe('totals calculation', () => {
       it('should sum all businesses in distribution buckets', async () => {
         const businesses = [
-          createTestBusiness({ id: '1', revenue: 50000 }),
-          createTestBusiness({ id: '2', revenue: 250000 }),
-          createTestBusiness({ id: '3', revenue: null }),
-          createTestBusiness({ id: '4', yearFounded: 2020 }),
-          createTestBusiness({ id: '5', yearFounded: null }),
+          createTestBusiness({ id: '1', revenue: 50000, yearFounded: 2020 }),
+          createTestBusiness({ id: '2', revenue: 250000, yearFounded: 2018 }),
+          createTestBusiness({ id: '3', revenue: null, yearFounded: 2015 }),
+          createTestBusiness({ id: '4', revenue: 1000000, yearFounded: 2020 }),
+          createTestBusiness({ id: '5', revenue: 0, yearFounded: null }),
         ];
         repository.setBusinesses(businesses);
         
