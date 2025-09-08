@@ -1,9 +1,9 @@
-index-DjuEk928.js:17 ✅ AI features are enabled - API key handled server-side
-index-DjuEk928.js:17 ⚠️ Analytics are enabled but GOOGLE_ANALYTICS_ID is not set
-(anonymous) @ index-DjuEk928.js:17
-index-DjuEk928.js:205 🚀 Running on Vercel preview environment
-index-DjuEk928.js:205 📡 API Base: https://hurt-hub-v2-288nit1xl-wilrfs-projects.vercel.app
-index-DjuEk928.js:205 🔧 Version: c1a5077
+index-CWwUAq4a.js:17 ✅ AI features are enabled - API key handled server-side
+index-CWwUAq4a.js:17 ⚠️ Analytics are enabled but GOOGLE_ANALYTICS_ID is not set
+(anonymous) @ index-CWwUAq4a.js:17
+index-CWwUAq4a.js:205 🚀 Running on Vercel preview environment
+index-CWwUAq4a.js:205 📡 API Base: https://hurt-hub-v2-fhwlaf91t-wilrfs-projects.vercel.app
+index-CWwUAq4a.js:205 🔧 Version: a9f93ad
 env-test-BDDUZ3Nz.js:1 🧪 Client-side Environment Variables Test
 
 env-test-BDDUZ3Nz.js:7 📋 Environment Variable Status:
@@ -24,63 +24,17 @@ env-test-BDDUZ3Nz.js:7
 env-test-BDDUZ3Nz.js:8 ✅ Supabase URL format looks correct
 env-test-BDDUZ3Nz.js:9 
 ✅ Environment configuration looks good!
-/api/businesses?limit=1:1  Failed to load resource: the server responded with a status of 500 ()
-api-CzaAU0O-.js:1 [API Error] /businesses?limit=1: Object
-request @ api-CzaAU0O-.js:1
-api-CzaAU0O-.js:1 [API Network Error] /businesses?limit=1: Object
-request @ api-CzaAU0O-.js:1
-businessDataService-CcMi049M.js:1 ❌ Failed to fetch analytics: Error: A server error has occurred
-
-FUNCTION_INVOCATION_FAILED
-
-iad1::62vdx-1757290946505-808d0d6f2ed0
-
-    at c.request (api-CzaAU0O-.js:1:446)
-    at async u.getAnalytics (businessDataService-CcMi049M.js:1:2409)
-    at async Promise.all (/index 0)
-    at async y (Dashboard-Bo3P5orc.js:1:8517)
-getAnalytics @ businessDataService-CcMi049M.js:1
-/api/businesses?limit=1000:1  Failed to load resource: the server responded with a status of 500 ()
-api-CzaAU0O-.js:1 [API Error] /businesses?limit=1000: Object
-request @ api-CzaAU0O-.js:1
-api-CzaAU0O-.js:1 [API Network Error] /businesses?limit=1000: Object
-request @ api-CzaAU0O-.js:1
-businessDataService-CcMi049M.js:1 ❌ Failed to fetch all businesses: Error: A server error has occurred
-
-FUNCTION_INVOCATION_FAILED
-
-iad1::kxg68-1757290946505-b4ff1a1f5418
-
-    at c.request (api-CzaAU0O-.js:1:446)
-    at async u.getAllBusinesses (businessDataService-CcMi049M.js:1:536)
-    at async Promise.all (/index 1)
-    at async y (Dashboard-Bo3P5orc.js:1:8517)
-getAllBusinesses @ businessDataService-CcMi049M.js:1
-Dashboard-Bo3P5orc.js:1 Failed to load dashboard data: Error: Database connection failed: A server error has occurred
-
-FUNCTION_INVOCATION_FAILED
-
-iad1::kxg68-1757290946505-b4ff1a1f5418
-
-    at u.getAllBusinesses (businessDataService-CcMi049M.js:1:910)
-    at async Promise.all (/index 1)
-    at async y (Dashboard-Bo3P5orc.js:1:8517)
-y @ Dashboard-Bo3P5orc.js:1
-/api/businesses?limit=1:1  Failed to load resource: the server responded with a status of 500 ()
-api-CzaAU0O-.js:1 [API Error] /businesses?limit=1: Object
-request @ api-CzaAU0O-.js:1
-api-CzaAU0O-.js:1 [API Network Error] /businesses?limit=1: Object
-request @ api-CzaAU0O-.js:1
-businessDataService-CcMi049M.js:1 ❌ Failed to fetch filter options: Error: A server error has occurred
-
-FUNCTION_INVOCATION_FAILED
-
-iad1::524d6-1757290946760-17fe36aa7927
-
-    at c.request (api-CzaAU0O-.js:1:446)
-    at async u.getFilterOptions (businessDataService-CcMi049M.js:1:2918)
-getFilterOptions @ businessDataService-CcMi049M.js:1
-(index):1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
-(index):1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
-(index):1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
-(index):1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+businessDataService-COcpPV31.js:1 ✅ Loaded 294 businesses from database
+vendor-D3F3s8fL.js:32 TypeError: Cannot read properties of undefined (reading 'length')
+    at D (CommunityPulse-CjeZHjoD.js:1:1991)
+    at le (CommunityPulse-CjeZHjoD.js:1:3759)
+    at Iu (vendor-D3F3s8fL.js:30:16995)
+    at Qu (vendor-D3F3s8fL.js:32:3154)
+    at ca (vendor-D3F3s8fL.js:32:44936)
+    at oa (vendor-D3F3s8fL.js:32:39850)
+    at ic (vendor-D3F3s8fL.js:32:39778)
+    at yl (vendor-D3F3s8fL.js:32:39632)
+    at oi (vendor-D3F3s8fL.js:32:35986)
+    at ra (vendor-D3F3s8fL.js:32:34934)
+$u @ vendor-D3F3s8fL.js:32
+community:1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.

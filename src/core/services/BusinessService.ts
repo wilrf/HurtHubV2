@@ -1,5 +1,6 @@
 import type { Business } from '../domain/entities/Business.js';
 import type { IBusinessRepository, BusinessFilters } from '../repositories/IBusinessRepository.js';
+import type { BusinessAnalytics } from '../../types/business.js';
 
 export class BusinessService {
   constructor(private repository: IBusinessRepository) {}
@@ -128,27 +129,88 @@ export class BusinessService {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
     
+    // Group by neighborhood with null-safe handling
+    const neighborhoodGroups = new Map<string, Business[]>();
+    businesses.forEach(b => {
+      const neighborhood = b.neighborhood || 'Unknown';
+      if (!neighborhoodGroups.has(neighborhood)) {
+        neighborhoodGroups.set(neighborhood, []);
+      }
+      neighborhoodGroups.get(neighborhood)!.push(b);
+    });
+
+    // Calculate metrics for each neighborhood
+    const topNeighborhoods = Array.from(neighborhoodGroups.entries())
+      .map(([neighborhood, businesses]) => ({
+        neighborhood,
+        count: businesses.length,
+        totalRevenue: businesses.reduce((sum, b) => sum + (b.revenue || 0), 0),
+        avgRating: businesses.length > 0 
+          ? businesses.reduce((sum, b) => sum + (b.customerMetrics?.rating || 0), 0) / businesses.length 
+          : 0
+      }))
+      // Sort by count first (for stability), then revenue
+      .sort((a, b) => b.count - a.count || b.totalRevenue - a.totalRevenue)
+      .slice(0, 5);
+    
+    // Calculate business age distribution
+    const currentYear = new Date().getFullYear();
+    // Define ranges with clear boundaries (lower-inclusive, upper-exclusive)
+    const ageRanges = [
+      { label: '0-2 years', min: 0, max: 3 },
+      { label: '3-5 years', min: 3, max: 6 },
+      { label: '6-10 years', min: 6, max: 11 },
+      { label: '11-20 years', min: 11, max: 21 },
+      { label: '20+ years', min: 21, max: Infinity },
+      { label: 'Unknown', min: -1, max: 0 } // For missing data
+    ];
+
+    const businessAgeDistribution = ageRanges.map(range => {
+      const count = businesses.filter(b => {
+        if (!b.yearFounded && range.label === 'Unknown') return true;
+        if (!b.yearFounded) return false;
+        const age = currentYear - b.yearFounded;
+        return age >= range.min && age < range.max;
+      }).length;
+      
+      return { ageRange: range.label, count };
+    });
+    
+    // Calculate revenue distribution
+    // Revenue ranges (lower-inclusive, upper-exclusive in dollars)
+    const revenueRanges = [
+      { label: '<$100K', min: 0, max: 100000 },
+      { label: '$100K-$500K', min: 100000, max: 500000 },
+      { label: '$500K-$1M', min: 500000, max: 1000000 },
+      { label: '$1M-$5M', min: 1000000, max: 5000000 },
+      { label: '$5M+', min: 5000000, max: Infinity },
+      { label: 'Unknown', min: -1, max: 0 } // For null/undefined revenue
+    ];
+
+    const revenueDistribution = revenueRanges.map(range => {
+      const count = businesses.filter(b => {
+        const revenue = b.revenue || 0;
+        if (revenue === 0 && range.label === 'Unknown') return true;
+        return revenue >= range.min && revenue < range.max;
+      }).length;
+      
+      return { range: range.label, count };
+    });
+    
+    // Return complete analytics object with all required fields
     return {
       totalBusinesses: businesses.length,
-      totalRevenue,
-      totalEmployees,
+      totalCompanies: businesses.length, // Same as totalBusinesses for compatibility
+      totalRevenue: totalRevenue || 0,
+      totalEmployees: totalEmployees || 0,
       averageRevenue: businesses.length > 0 ? totalRevenue / businesses.length : 0,
       averageEmployees: businesses.length > 0 ? totalEmployees / businesses.length : 0,
-      topIndustries,
+      topIndustries: topIndustries || [],
+      revenueByIndustry: [], // Can be implemented later if needed
+      topNeighborhoods: topNeighborhoods || [],
+      businessAgeDistribution: businessAgeDistribution || [],
+      revenueDistribution: revenueDistribution || [],
+      monthlyTrends: [] // Can be implemented later if needed
     };
   }
-}
-
-interface BusinessAnalytics {
-  totalBusinesses: number;
-  totalRevenue: number;
-  totalEmployees: number;
-  averageRevenue: number;
-  averageEmployees: number;
-  topIndustries: Array<{
-    industry: string;
-    count: number;
-    totalRevenue: number;
-    totalEmployees: number;
-  }>;
 }
