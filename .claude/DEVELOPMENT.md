@@ -772,6 +772,38 @@ async function searchCompanies(query: string) {
 
 ---
 
+## 🐛 Known Issues & Future Improvements
+
+### **Pre-commit Hook Issues**
+
+#### **Overly Strict "companies" Word Detection (2025-09-08)**
+
+**Problem**: The pre-commit hook that checks for references to the defunct `companies` table is too aggressive. It flags legitimate uses of the word "companies" in:
+- AI prompts and natural language strings
+- Comments and documentation
+- Test descriptions
+- User-facing text where "companies" and "businesses" are interchangeable
+
+**Current Behavior**: ANY occurrence of "companies" triggers the hook, even in contexts like:
+```typescript
+// These all trigger false positives:
+"What are the top companies by revenue?"  // AI prompt
+"Discuss any companies mentioned"          // System message
+"// Transform data from companies table"   // Comment
+```
+
+**Desired Behavior**: The hook should ONLY check for actual database/code references:
+- `.from('companies')` - Direct database queries
+- `/api/companies` - API route references  
+- `interface Company` or `type Company` - Type definitions
+- `CompanyRepository`, `CompanyService` - Class names using old pattern
+
+**Workaround**: Currently must use `--no-verify` flag when committing if the word appears in legitimate contexts.
+
+**TODO**: Update the pre-commit hook to use more surgical pattern matching that allows natural language uses while catching actual code references to the old table structure.
+
+---
+
 ## 🆘 Getting Help
 
 ### **Documentation References**

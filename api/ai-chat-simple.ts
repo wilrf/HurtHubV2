@@ -66,51 +66,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ALWAYS search - it's only 294 records, performance is fine!
     const searchStart = Date.now();
     
-    try {
-      // Use the nuclear approach - direct embedding from raw query
-      const semanticResults = await aiBusinessService.performSemanticSearch(lastUserMessage, 15);
+    // NO TRY-CATCH - Let exceptions bubble up per architectural principles
+    // If semantic search fails, the entire request should fail - the business database IS the soul of this app
+    const semanticResults = await aiBusinessService.performSemanticSearch(lastUserMessage, 15);
+    
+    searchLatency = Date.now() - searchStart;
+    
+    console.log('🔍 NUCLEAR-NUCLEAR SEARCH EXECUTED:', {
+      query: lastUserMessage.substring(0, 50),
+      resultsFound: semanticResults.length,
+      latency: `${searchLatency}ms`,
+      method: 'semantic-vector-similarity',
+      approach: 'ALWAYS-ON'
+    });
+    
+    // Build context for AI to use IF relevant
+    if (semanticResults.length > 0) {
+      businessCount = semanticResults.length;
       
-      searchLatency = Date.now() - searchStart;
+      // Take top 10 for context - AI will decide what's relevant
+      const contextBusinesses = semanticResults.slice(0, 10);
       
-      console.log('🔍 NUCLEAR-NUCLEAR SEARCH EXECUTED:', {
-        query: lastUserMessage.substring(0, 50),
-        resultsFound: semanticResults.length,
-        latency: `${searchLatency}ms`,
-        method: 'semantic-vector-similarity',
-        approach: 'ALWAYS-ON'
-      });
-      
-      // Build context for AI to use IF relevant
-      if (semanticResults.length > 0) {
-        businessCount = semanticResults.length;
-        
-        // Take top 10 for context - AI will decide what's relevant
-        const contextBusinesses = semanticResults.slice(0, 10);
-        
-        businessContext = `SEMANTIC SEARCH RESULTS from Charlotte business database:
+      businessContext = `SEMANTIC SEARCH RESULTS from Charlotte business database:
 (AI: Use these businesses in your response ONLY if they're relevant to the user's query)
 
 `;
-        businessContext += contextBusinesses.map((b, i) => 
-          `${i + 1}. ${b.name}: ${b.industry || 'Industry not specified'}, ${b.neighborhood || b.city || 'Charlotte'}, ${b.employeeCount || 0} employees, $${(b.revenue || 0).toLocaleString()} revenue`
-        ).join('\n');
-        
-        // Calculate totals from all results
-        totalRevenue = semanticResults.reduce((sum, b) => sum + (b.revenue || 0), 0);
-        totalEmployees = semanticResults.reduce((sum, b) => sum + (b.employeeCount || 0), 0);
-        
-        businessContext += `\n\nAGGREGATE DATA:
+      businessContext += contextBusinesses.map((b, i) => 
+        `${i + 1}. ${b.name}: ${b.industry || 'Industry not specified'}, ${b.neighborhood || b.city || 'Charlotte'}, ${b.employeeCount || 0} employees, $${(b.revenue || 0).toLocaleString()} revenue`
+      ).join('\n');
+      
+      // Calculate totals from all results
+      totalRevenue = semanticResults.reduce((sum, b) => sum + (b.revenue || 0), 0);
+      totalEmployees = semanticResults.reduce((sum, b) => sum + (b.employeeCount || 0), 0);
+      
+      businessContext += `\n\nAGGREGATE DATA:
 - Total matching businesses: ${businessCount}
 - Combined revenue: $${totalRevenue.toLocaleString()}
 - Total employees: ${totalEmployees.toLocaleString()}`;
-        
-      } else {
-        businessContext = 'SEMANTIC SEARCH: No businesses found matching this query in our Charlotte database.';
-      }
-    } catch (searchError) {
-      // If semantic search fails, continue without it
-      console.error('Semantic search failed, continuing without business context:', searchError);
-      businessContext = '';
+      
+    } else {
+      businessContext = 'SEMANTIC SEARCH: No businesses found matching this query in our Charlotte database.';
     }
     
     // Build system message
