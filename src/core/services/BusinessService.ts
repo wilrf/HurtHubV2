@@ -1,5 +1,5 @@
-import type { Business } from '../domain/entities/Business';
-import type { IBusinessRepository, BusinessFilters } from '../repositories/IBusinessRepository';
+import type { Business } from '../domain/entities/Business.js';
+import type { IBusinessRepository, BusinessFilters } from '../repositories/IBusinessRepository.js';
 
 export class BusinessService {
   constructor(private repository: IBusinessRepository) {}

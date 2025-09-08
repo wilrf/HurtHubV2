@@ -1,6 +1,6 @@
 import type OpenAI from 'openai';
-import type { IBusinessRepository } from '../repositories/IBusinessRepository';
-import type { Business } from '../domain/entities/Business';
+import type { IBusinessRepository } from '../repositories/IBusinessRepository.js';
+import type { Business } from '../domain/entities/Business.js';
 
 export class EmbeddingService {
   constructor(

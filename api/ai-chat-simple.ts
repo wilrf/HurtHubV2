@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createFullServices } from '../lib/api-bootstrap';
+import { createFullServices } from '../lib/api-bootstrap.js';
 
 export const config = {
   maxDuration: 60,

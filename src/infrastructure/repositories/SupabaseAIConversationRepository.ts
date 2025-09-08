@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AIConversationRepository } from '../../core/repositories/AIConversationRepository';
-import { AIConversation } from '../../core/domain/entities/AIConversation';
+import type { AIConversationRepository } from '../../core/repositories/AIConversationRepository.js';
+import { AIConversation } from '../../core/domain/entities/AIConversation.js';
 
 export class SupabaseAIConversationRepository implements AIConversationRepository {
   constructor(private supabase: SupabaseClient) {}

@@ -1,6 +1,6 @@
 import type OpenAI from 'openai';
-import type { AIConversationRepository } from '../repositories/AIConversationRepository';
-import { AIConversation, type ChatMessage, type ConversationMetadata } from '../domain/entities/AIConversation';
+import type { AIConversationRepository } from '../repositories/AIConversationRepository.js';
+import { AIConversation, type ChatMessage, type ConversationMetadata } from '../domain/entities/AIConversation.js';
 
 export class AIConversationService {
   constructor(

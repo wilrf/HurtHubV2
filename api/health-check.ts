@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createBusinessServices } from '../lib/api-bootstrap';
+import { createBusinessServices } from '../lib/api-bootstrap.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers

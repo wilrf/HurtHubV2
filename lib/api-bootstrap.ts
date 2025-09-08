@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import { getOpenAIClient } from './openai-singleton';
-import { BusinessService } from '../src/core/services/BusinessService';
-import { AIBusinessService } from '../src/core/services/AIBusinessService';
-import { AIConversationService } from '../src/core/services/AIConversationService';
-import { EmbeddingService } from '../src/core/services/EmbeddingService';
-import { SupabaseBusinessRepository } from '../src/infrastructure/repositories/SupabaseBusinessRepository';
-import { SupabaseAIConversationRepository } from '../src/infrastructure/repositories/SupabaseAIConversationRepository';
+import { getOpenAIClient } from './openai-singleton.js';
+import { BusinessService } from '../src/core/services/BusinessService.js';
+import { AIBusinessService } from '../src/core/services/AIBusinessService.js';
+import { AIConversationService } from '../src/core/services/AIConversationService.js';
+import { EmbeddingService } from '../src/core/services/EmbeddingService.js';
+import { SupabaseBusinessRepository } from '../src/infrastructure/repositories/SupabaseBusinessRepository.js';
+import { SupabaseAIConversationRepository } from '../src/infrastructure/repositories/SupabaseAIConversationRepository.js';
 
 /**
  * Centralized service initialization for API endpoints

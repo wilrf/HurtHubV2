@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { createConversationServices } from '../lib/api-bootstrap';
-import { AIConversationService } from '../src/core/services/AIConversationService';
+import { createConversationServices } from '../lib/api-bootstrap.js';
+import { AIConversationService } from '../src/core/services/AIConversationService.js';
 
 export const config = {
   maxDuration: 30,

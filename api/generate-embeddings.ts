@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createEmbeddingServices } from '../lib/api-bootstrap';
+import { createEmbeddingServices } from '../lib/api-bootstrap.js';
 
 export const config = {
   maxDuration: 300, // 5 minutes for embedding generation

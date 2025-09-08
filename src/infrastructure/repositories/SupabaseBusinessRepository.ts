@@ -1,11 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { Business } from '../../core/domain/entities/Business';
+import { Business } from '../../core/domain/entities/Business.js';
 import type { 
   IBusinessRepository, 
   BusinessFilters, 
   IndustryStats, 
   LocationStats 
-} from '../../core/repositories/IBusinessRepository';
+} from '../../core/repositories/IBusinessRepository.js';
 
 export class SupabaseBusinessRepository implements IBusinessRepository {
   constructor(private supabase: SupabaseClient) {}
