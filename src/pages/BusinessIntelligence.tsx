@@ -243,6 +243,7 @@ export function BusinessIntelligence() {
               
               {/* Chat input - prominent and accessible */}
               <BusinessAIChat
+                key="business-ai-chat"
                 module="business-intelligence"
                 className="min-h-0"
                 isWelcomeState={true}
@@ -264,6 +265,7 @@ export function BusinessIntelligence() {
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-0">
               <BusinessAIChat
+                key="business-ai-chat"
                 module="business-intelligence"
                 className="min-h-[500px] max-h-[60vh]"
                 isWelcomeState={false}

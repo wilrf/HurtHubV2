@@ -240,6 +240,7 @@ export function CommunityPulse() {
               
               {/* Chat input - prominent and accessible */}
               <BusinessAIChat
+                key="community-ai-chat"
                 module="community-pulse"
                 className="min-h-0"
                 isWelcomeState={true}
@@ -282,6 +283,7 @@ export function CommunityPulse() {
             </CardHeader>
             <CardContent className="p-0">
               <BusinessAIChat 
+                key="community-ai-chat"
                 module="community-pulse" 
                 className="min-h-[500px] max-h-[60vh]"
                 isWelcomeState={false}
