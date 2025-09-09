@@ -7,6 +7,8 @@ import type {
   BusinessSearchResult,
 } from "@/types/business";
 
+export type SearchMode = 'smart' | 'ai' | 'exact';
+
 export function useBusinessSearch() {
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<BusinessSearchFilters>({});
@@ -19,6 +21,7 @@ export function useBusinessSearch() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchMode, setSearchMode] = useState<SearchMode>('smart');
 
   useEffect(() => {
     businessDataService.getFilterOptions().then(setFilterOptions);
@@ -28,11 +31,32 @@ export function useBusinessSearch() {
     async (searchFilters: BusinessSearchFilters, page: number = 1) => {
       setIsLoading(true);
       try {
-        const searchResults = await businessDataService.searchBusinesses(
-          searchFilters,
-          page,
-          20,
-        );
+        let searchResults: BusinessSearchResult;
+        
+        // Choose search method based on mode
+        if (searchMode === 'smart') {
+          // Smart search automatically chooses between AI and structured
+          searchResults = await businessDataService.smartSearch(
+            searchFilters.query || '',
+            searchFilters,
+            page,
+            20,
+          );
+        } else if (searchMode === 'ai' && searchFilters.query) {
+          // Force AI search
+          searchResults = await businessDataService.searchBusinessesWithAI(
+            searchFilters.query,
+            20,
+          );
+        } else {
+          // Exact/structured search
+          searchResults = await businessDataService.searchBusinesses(
+            searchFilters,
+            page,
+            20,
+          );
+        }
+        
         setResults(searchResults);
       } catch (error) {
         console.error("Search error:", error);
@@ -40,7 +64,7 @@ export function useBusinessSearch() {
         setIsLoading(false);
       }
     },
-    [],
+    [searchMode],
   );
 
   useEffect(() => {
@@ -101,5 +125,7 @@ export function useBusinessSearch() {
     currentPage,
     setCurrentPage,
     performSearch,
+    searchMode,
+    setSearchMode,
   };
 }

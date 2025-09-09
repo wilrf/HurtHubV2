@@ -211,6 +211,7 @@ export interface BusinessSearchResult {
   hasPreviousPage: boolean;
   filters: BusinessSearchFilters;
   analytics: BusinessAnalytics;
+  searchType?: 'structured' | 'semantic' | 'hybrid';
 }
 
 // Analytics types
