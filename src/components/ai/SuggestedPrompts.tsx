@@ -35,7 +35,7 @@ export function SuggestedPrompts({
   const isDarkMode = true; // Dark mode only
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 ${className}`}>
+    <div className={`grid grid-cols-2 lg:grid-cols-4 gap-2 ${className}`}>
       {prompts.map((prompt, index) => {
         const Icon = prompt.icon;
         return (
@@ -43,24 +43,24 @@ export function SuggestedPrompts({
             key={index}
             onClick={() => onPromptSelect(prompt.prompt)}
             className={`
-              flex items-center gap-3 p-4 
+              flex items-center gap-2 p-2.5 
               ${isDarkMode 
-                ? "bg-midnight-900/30 hover:bg-midnight-800/40 border-midnight-700" 
+                ? "bg-midnight-800/40 hover:bg-midnight-700/50 border-midnight-700" 
                 : "bg-white hover:bg-gray-50 border-gray-200"
               }
-              border rounded-xl
+              border rounded-lg
               transition-all duration-200 
-              hover:-translate-y-0.5 hover:shadow-md
+              hover:scale-[1.02] hover:shadow-sm
               text-left group cursor-pointer
             `}
           >
             <Icon
-              className={`h-5 w-5 flex-shrink-0 ${
+              className={`h-4 w-4 flex-shrink-0 ${
                 isDarkMode ? "text-sapphire-400" : "text-blue-500"
               } group-hover:scale-110 transition-transform`}
             />
             <span
-              className={`text-sm ${
+              className={`text-xs ${
                 isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >

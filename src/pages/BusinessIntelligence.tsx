@@ -218,47 +218,41 @@ export function BusinessIntelligence() {
 
       {/* Main Chat Section */}
       <div className="space-y-6">
-        {isWelcomeState && (
-          /* Welcome State - Show welcome text */
-          <div className="flex flex-col items-center justify-center mb-8">
-            <div className="text-center max-w-2xl">
-              <h2 className="text-xl font-medium text-foreground">
-                Ready to turn data into decisions?
-              </h2>
+        {isWelcomeState ? (
+          /* Welcome State - Centered content group */
+          <div className="min-h-[50vh] flex flex-col items-center justify-center">
+            <div className="max-w-2xl w-full space-y-6">
+              {/* Welcome message */}
+              <div className="text-center">
+                <h2 className="text-xl font-medium text-foreground">
+                  Ready to turn data into decisions?
+                </h2>
+              </div>
+              
+              {/* Chat input - close to welcome message */}
+              <BusinessAIChat
+                module="business-intelligence"
+                className="min-h-0"
+                isWelcomeState={true}
+                onFirstMessage={() => setIsWelcomeState(false)}
+              />
+              
+              {/* Suggested prompts - close to input */}
+              <SuggestedPrompts onPromptSelect={handlePromptSelect} />
             </div>
           </div>
-        )}
-        
-        {/* Chat Component - Always rendered, changes display based on state */}
-        <div className={isWelcomeState ? "max-w-2xl mx-auto" : ""}>
-          {isWelcomeState ? (
-            /* Clean input without Card wrapper in welcome state */
-            <BusinessAIChat
-              module="business-intelligence"
-              className="min-h-0"
-              isWelcomeState={true}
-              onFirstMessage={() => setIsWelcomeState(false)}
-            />
-          ) : (
-            /* Full chat with Card wrapper in active state */
-            <Card variant={isDarkMode ? "glass" : "elevated"}>
-              <CardContent className="p-0">
-                <BusinessAIChat
-                  module="business-intelligence"
-                  className="min-h-[600px]"
-                  isWelcomeState={false}
-                  onFirstMessage={() => setIsWelcomeState(false)}
-                />
-              </CardContent>
-            </Card>
-          )}
-        </div>
-        
-        {/* Suggested Prompts - Only in welcome state */}
-        {isWelcomeState && (
-          <div className="max-w-2xl mx-auto">
-            <SuggestedPrompts onPromptSelect={handlePromptSelect} />
-          </div>
+        ) : (
+          /* Chat State - Full chat interface */
+          <Card variant={isDarkMode ? "glass" : "elevated"}>
+            <CardContent className="p-0">
+              <BusinessAIChat
+                module="business-intelligence"
+                className="min-h-[600px]"
+                isWelcomeState={false}
+                onFirstMessage={() => setIsWelcomeState(false)}
+              />
+            </CardContent>
+          </Card>
         )}
       </div>
 
