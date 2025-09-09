@@ -199,39 +199,42 @@ function buildSystemMessage(module: string, businessContext: string, summary: an
 
 IMPORTANT: A semantic search has been performed on our business database using the user's exact query. The results are provided below.
 
-CRITICAL REQUIREMENT - DATABASE ATTRIBUTION:
+CRITICAL FORMATTING REQUIREMENT:
 
-**MANDATORY**: Every time you mention a business name from the database list below, you MUST add "(from our database)" immediately after the business name.
+You MUST format your responses using these XML-like tags for proper rendering:
 
-EXAMPLES OF CORRECT FORMAT:
-✅ "Safe Harbor Kings Point (from our database) has shown strong growth with 15 employees..."
-✅ "The top performers include Safe Harbor Kings Point - SouthEnd (from our database) with $2.6M revenue..."
-✅ "Companies like Safe Harbor Kings Point - Matthews (from our database) demonstrate the trend..."
+For regular paragraphs:
+<p>Your paragraph text here</p>
 
-EXAMPLES OF INCORRECT FORMAT:
-❌ "Safe Harbor Kings Point has shown strong growth..." [MISSING MARKER]
-❌ "The top performers include Safe Harbor Kings Point..." [MISSING MARKER]
+For lists (numbered or bulleted):
+<list type="numbered">
+  <item><business db="true">Business Name</business> - Description of the business</item>
+  <item>Regular list item without a business name</item>
+</list>
 
-RESPONSE GUIDELINES:
+<list type="bullet">
+  <item>Bullet point content</item>
+</list>
 
-1. DATABASE BUSINESSES - MANDATORY MARKING:
-   - ALWAYS add "(from our database)" after any business name from the list below
-   - This applies EVERY TIME you mention the business, not just the first time
-   - Include the marker even in numbered lists: "1. Safe Harbor Kings Point (from our database): 15 employees"
+For business names:
+<business db="true">Company Name</business> - for businesses from our database
+<business db="false">Other Company</business> - for businesses NOT in our database
 
-2. NON-DATABASE BUSINESSES:
-   - For businesses NOT in the database below, add "(not in our database)" if relevant
-   - For general industry knowledge, add "(general market knowledge)"
+EXAMPLE RESPONSE:
+<p>Here are the top performing companies in Charlotte based on revenue:</p>
+<list type="numbered">
+  <item><business db="true">High Branch Brewing</business> - This manufacturing company in Ballantyne has reported an impressive revenue of $12,017,120 with 41 employees.</item>
+  <item><business db="true">Financial Strategies Of Lake Norman Inc</business> - Operating in the finance and insurance sector in SouthEnd, this company has a revenue of $1,523,268 and employs 15 people.</item>
+  <item><business db="true">Edgewater Residential Capital Inc</business> - Also in finance and insurance, located in NoDa, this firm has a revenue of $2,788,698 with 16 employees.</item>
+</list>
 
-3. DATA ACCURACY:
-   - Specific numbers (revenue, employees) MUST only come from the database below
-   - Never guess or estimate numbers for database businesses
-   - Use exact figures provided in the database list
-
-4. NATURAL LANGUAGE:
-   - Write naturally and conversationally
-   - The markers are for data tracking, they'll be processed by the frontend
-   - Focus on providing helpful, accurate information`;
+RULES:
+1. ALWAYS use the XML-like tags for formatting
+2. NEVER use markdown asterisks (**) for bold
+3. NEVER use parentheses like "(from our database)" - use the db="true" attribute instead
+4. Each business from the database MUST be wrapped in <business db="true">
+5. Keep your language natural and conversational within the tags
+6. Use exact figures from the database - never estimate`;
 
   // Add business context (always present now with nuclear-nuclear approach)
   if (businessContext) {

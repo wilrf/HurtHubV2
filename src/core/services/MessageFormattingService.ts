@@ -6,334 +6,202 @@
 import { ParsedMessage, MessageSegment, SegmentType } from "@/core/valueObjects/ParsedMessage";
 
 export class MessageFormattingService {
-  private readonly DB_PLACEHOLDER = "{{DB_INDICATOR}}";
-
   /**
-   * Parse AI response content into structured segments
-   * This is business logic - how we identify and structure message components
+   * Parse AI response content with XML-like tags into structured segments
+   * Much simpler and more reliable than regex-based parsing
    */
   parseAIResponse(content: string): ParsedMessage {
-    // First, identify and mark database references with business names
-    const { processedContent, businessNameMap } = this.markDatabaseReferences(content);
-    
-    // Then parse the content into segments
-    const segments = this.parseIntoSegments(processedContent, businessNameMap);
-    
+    const segments = this.parseXMLTags(content);
     return new ParsedMessage(segments);
   }
 
   /**
-   * Identify database references and replace with placeholders
-   * Also extracts business names for chain of custody
+   * Parse XML-like tags from AI response
+   * Handles: <p>, <list>, <item>, <business> tags
    */
-  private markDatabaseReferences(content: string): { processedContent: string, businessNameMap: Map<number, string> } {
-    const businessNameMap = new Map<number, string>();
-    let placeholderIndex = 0;
-    
-    // Pattern to match business name followed by "(from our database)"
-    // Captures: [full match, business name]
-    const pattern = /([A-Z][^(]*?)\s*\(from our database\)/g;
-    
-    const processedContent = content.replace(pattern, (match, businessName) => {
-      // Clean up the business name
-      const cleanName = businessName.trim();
-      const currentIndex = placeholderIndex++;
-      businessNameMap.set(currentIndex, cleanName);
-      
-      // Replace with business name + placeholder (placeholder will be parsed out)
-      return `${cleanName}${this.DB_PLACEHOLDER}_${currentIndex}`;
-    });
-    
-    return { processedContent, businessNameMap };
-  }
-
-  /**
-   * Parse content into structured segments with formatting information
-   */
-  private parseIntoSegments(content: string, businessNameMap: Map<number, string>): MessageSegment[] {
+  private parseXMLTags(content: string): MessageSegment[] {
     const segments: MessageSegment[] = [];
+    let position = 0;
     
-    // Split by our placeholder pattern (includes index)
-    const placeholderPattern = new RegExp(`${this.DB_PLACEHOLDER}_(\\d+)`, 'g');
-    let lastIndex = 0;
-    let match;
+    // Handle empty content
+    if (!content || content.trim().length === 0) {
+      return [new MessageSegment(SegmentType.TEXT, 'No response available')];
+    }
     
-    while ((match = placeholderPattern.exec(content)) !== null) {
-      const matchStart = match.index;
-      const matchEnd = matchStart + match[0].length;
-      const placeholderIndex = parseInt(match[1]);
-      
-      // Add content before the placeholder
-      if (matchStart > lastIndex) {
-        const beforeContent = content.substring(lastIndex, matchStart);
-        if (beforeContent) {
-          const formattedSegments = this.parseMarkdown(beforeContent);
-          segments.push(...formattedSegments);
+    // Parse content character by character to handle nested tags
+    while (position < content.length) {
+      // Look for opening tags
+      if (content[position] === '<') {
+        const tagEnd = content.indexOf('>', position);
+        if (tagEnd === -1) {
+          // No closing bracket, treat as text
+          segments.push(new MessageSegment(SegmentType.TEXT, content.substring(position)));
+          break;
         }
+        
+        const fullTag = content.substring(position, tagEnd + 1);
+        const tagContent = fullTag.substring(1, fullTag.length - 1);
+        
+        // Handle different tag types
+        if (tagContent.startsWith('p')) {
+          // Paragraph tag
+          const closeTag = '</p>';
+          const contentEnd = content.indexOf(closeTag, tagEnd);
+          if (contentEnd !== -1) {
+            const paragraphContent = content.substring(tagEnd + 1, contentEnd);
+            const parsedContent = this.parseInlineContent(paragraphContent);
+            segments.push(...parsedContent);
+            segments.push(new MessageSegment(SegmentType.TEXT, '\n\n')); // Add paragraph spacing
+            position = contentEnd + closeTag.length;
+          } else {
+            position++;
+          }
+        } else if (tagContent.startsWith('list')) {
+          // List tag - extract type attribute
+          const typeMatch = tagContent.match(/type="(numbered|bullet)"/);
+          const listType = typeMatch ? typeMatch[1] : 'bullet';
+          
+          const closeTag = '</list>';
+          const contentEnd = content.indexOf(closeTag, tagEnd);
+          if (contentEnd !== -1) {
+            const listContent = content.substring(tagEnd + 1, contentEnd);
+            const listSegments = this.parseListContent(listContent, listType);
+            segments.push(...listSegments);
+            position = contentEnd + closeTag.length;
+          } else {
+            position++;
+          }
+        } else if (tagContent === '/p' || tagContent === '/list' || tagContent === '/item' || tagContent === '/business') {
+          // Skip closing tags as they're handled with their opening tags
+          position = tagEnd + 1;
+        } else {
+          // Unknown tag, treat as text
+          segments.push(new MessageSegment(SegmentType.TEXT, fullTag));
+          position = tagEnd + 1;
+        }
+      } else {
+        // Regular text - find next tag or end of content
+        const nextTag = content.indexOf('<', position);
+        const textEnd = nextTag === -1 ? content.length : nextTag;
+        const text = content.substring(position, textEnd);
+        
+        if (text.trim()) {
+          segments.push(new MessageSegment(SegmentType.TEXT, text));
+        }
+        position = textEnd;
       }
-      
-      // Add database indicator with the business name
-      const businessName = businessNameMap.get(placeholderIndex) || "";
-      segments.push(new MessageSegment(
-        SegmentType.DATABASE_INDICATOR,
-        "",
-        { businessName }
-      ));
-      
-      lastIndex = matchEnd;
-    }
-    
-    // Add any remaining content after the last placeholder
-    if (lastIndex < content.length) {
-      const remainingContent = content.substring(lastIndex);
-      if (remainingContent) {
-        const formattedSegments = this.parseMarkdown(remainingContent);
-        segments.push(...formattedSegments);
-      }
-    }
-    
-    // If no placeholders were found, just parse the entire content
-    if (segments.length === 0 && content) {
-      const formattedSegments = this.parseMarkdown(content);
-      segments.push(...formattedSegments);
     }
     
     return segments;
   }
 
   /**
-   * Single-pass markdown parser - CORRECT APPROACH
-   * Parses all formatting in one pass to maintain proper text order
+   * Parse list content with proper item handling
    */
-  private parseMarkdown(text: string): MessageSegment[] {
+  private parseListContent(content: string, listType: string): MessageSegment[] {
     const segments: MessageSegment[] = [];
+    let itemNumber = 1;
     
-    // Process line by line to handle lists first
-    const lines = text.split('\n');
-    let lineIndex = 0;
-    
-    while (lineIndex < lines.length) {
-      const line = lines[lineIndex];
+    // Find all <item> tags
+    let position = 0;
+    while (position < content.length) {
+      const itemStart = content.indexOf('<item>', position);
+      if (itemStart === -1) break;
       
-      // Check if this is a numbered list item
-      const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
-      if (numberedMatch) {
-        const content = numberedMatch[2];
-        
-        // Create numbered list marker segment
+      const itemEnd = content.indexOf('</item>', itemStart);
+      if (itemEnd === -1) break;
+      
+      const itemContent = content.substring(itemStart + 6, itemEnd);
+      
+      // Add list marker
+      if (listType === 'numbered') {
         segments.push(new MessageSegment(
           SegmentType.NUMBERED_LIST,
-          "",  // Empty content - this is just the list marker
-          { number: parseInt(numberedMatch[1]) }
+          '',
+          { number: itemNumber++ }
         ));
-        
-        // Parse and add the content with preserved formatting
-        const inlineSegments = this.parseInlineFormatting(content);
-        segments.push(...inlineSegments);
-        lineIndex++;
-        continue;
+      } else {
+        segments.push(new MessageSegment(SegmentType.BULLET, ''));
       }
       
-      // Check if this is a bullet point
-      const bulletMatch = line.match(/^[*-]\s+(.+)$/);
-      if (bulletMatch) {
-        const content = bulletMatch[1];
-        
-        // Create bullet marker segment
-        segments.push(new MessageSegment(SegmentType.BULLET, ""));
-        
-        // Parse and add the content with preserved formatting
-        const inlineSegments = this.parseInlineFormatting(content);
-        segments.push(...inlineSegments);
-        lineIndex++;
-        continue;
-      }
+      // Parse item content for business tags
+      const itemSegments = this.parseInlineContent(itemContent);
+      segments.push(...itemSegments);
       
-      // Regular line - parse inline formatting
-      if (line.trim()) {
-        const inlineSegments = this.parseInlineFormatting(line);
-        segments.push(...inlineSegments);
-      }
+      // Add line break after item
+      segments.push(new MessageSegment(SegmentType.TEXT, '\n'));
       
-      // Add newline if not the last line
-      if (lineIndex < lines.length - 1) {
-        segments.push(new MessageSegment(SegmentType.TEXT, '\n'));
-      }
-      
-      lineIndex++;
-    }
-    
-    // If no segments were created, return the original text as plain
-    if (segments.length === 0 && text) {
-      segments.push(new MessageSegment(SegmentType.TEXT, text));
+      position = itemEnd + 7; // Move past </item>
     }
     
     return segments;
   }
   
   /**
-   * Parse inline formatting (bold, italic) in correct order
+   * Parse inline content for business tags
    */
-  private parseInlineFormatting(text: string): MessageSegment[] {
+  private parseInlineContent(content: string): MessageSegment[] {
     const segments: MessageSegment[] = [];
-    
-    // First, clean up any standalone asterisks that aren't part of formatting
-    // This helps prevent orphaned asterisks from showing in the output
-    let cleanedText = text;
-    
-    // Process bold first (**text** or __text__)
-    cleanedText = cleanedText.replace(/\*\*([^*]+)\*\*/g, '{{BOLD_START}}$1{{BOLD_END}}');
-    cleanedText = cleanedText.replace(/__([^_]+)__/g, '{{BOLD_START}}$1{{BOLD_END}}');
-    
-    // Process italic (*text* or _text_) - but not if it's part of bold
-    cleanedText = cleanedText.replace(/(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g, '{{ITALIC_START}}$1{{ITALIC_END}}');
-    cleanedText = cleanedText.replace(/(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)/g, '{{ITALIC_START}}$1{{ITALIC_END}}');
-    
-    // Remove any remaining standalone asterisks that weren't part of valid formatting
-    cleanedText = cleanedText.replace(/(?<!\{)\*+(?!\})/g, '');
-    
-    // Now parse the cleaned text with our markers
     let position = 0;
-    const markers = [
-      { pattern: /\{\{BOLD_START\}\}([^{]+)\{\{BOLD_END\}\}/g, type: SegmentType.BOLD },
-      { pattern: /\{\{ITALIC_START\}\}([^{]+)\{\{ITALIC_END\}\}/g, type: SegmentType.ITALIC }
-    ];
     
-    // Find all formatting matches and sort by position
-    const matches: Array<{
-      start: number;
-      end: number;
-      type: SegmentType;
-      content: string;
-    }> = [];
-    
-    for (const marker of markers) {
-      let match;
-      marker.pattern.lastIndex = 0; // Reset regex
-      while ((match = marker.pattern.exec(cleanedText)) !== null) {
-        matches.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          type: marker.type,
-          content: match[1]
-        });
+    while (position < content.length) {
+      // Look for business tags
+      const businessStart = content.indexOf('<business', position);
+      
+      if (businessStart === -1) {
+        // No more business tags, add remaining text
+        const remainingText = content.substring(position);
+        if (remainingText.trim()) {
+          segments.push(new MessageSegment(SegmentType.TEXT, remainingText));
+        }
+        break;
       }
-    }
-    
-    // Sort matches by position
-    matches.sort((a, b) => a.start - b.start);
-    
-    // Process matches in order
-    for (const formatMatch of matches) {
-      // Add text before the match
-      if (formatMatch.start > position) {
-        const beforeText = text.substring(position, formatMatch.start);
-        if (beforeText) {
+      
+      // Add text before the business tag
+      if (businessStart > position) {
+        const beforeText = content.substring(position, businessStart);
+        if (beforeText.trim()) {
           segments.push(new MessageSegment(SegmentType.TEXT, beforeText));
         }
       }
       
-      // Add the formatted segment
-      segments.push(new MessageSegment(formatMatch.type, formatMatch.content));
+      // Parse the business tag
+      const tagEnd = content.indexOf('>', businessStart);
+      const businessEnd = content.indexOf('</business>', businessStart);
       
-      // Update position
-      position = formatMatch.end;
-    }
-    
-    // Add any remaining text
-    if (position < text.length) {
-      const remainingText = text.substring(position);
-      if (remainingText) {
-        segments.push(new MessageSegment(SegmentType.TEXT, remainingText));
+      if (tagEnd !== -1 && businessEnd !== -1) {
+        const tagContent = content.substring(businessStart, tagEnd + 1);
+        const businessName = content.substring(tagEnd + 1, businessEnd);
+        
+        // Check if it's from database
+        const isFromDatabase = tagContent.includes('db="true"');
+        
+        if (isFromDatabase) {
+          // Add as database indicator
+          segments.push(new MessageSegment(
+            SegmentType.DATABASE_INDICATOR,
+            '',
+            { businessName: businessName.trim() }
+          ));
+        } else {
+          // Add as regular text with special styling
+          segments.push(new MessageSegment(
+            SegmentType.TEXT,
+            businessName.trim()
+          ));
+        }
+        
+        position = businessEnd + 11; // Move past </business>
+      } else {
+        // Malformed tag, treat as text
+        segments.push(new MessageSegment(SegmentType.TEXT, '<business'));
+        position = businessStart + 9;
       }
-    }
-    
-    // If no formatting found, return the original text
-    if (segments.length === 0 && text) {
-      segments.push(new MessageSegment(SegmentType.TEXT, text));
     }
     
     return segments;
   }
-  
-  /**
-   * Convert segments back to plain text for list content
-   */
-  private _segmentsToText(segments: MessageSegment[]): string {
-    return segments
-      .map(segment => segment.content)
-      .join('');
-  }
-
-  /**
-   * Generic formatting parser
-   */
-  private _parseFormatting(
-    text: string,
-    pattern: RegExp,
-    type: SegmentType,
-    segments: MessageSegment[]
-  ): string {
-    let remainingText = text;
-    let match;
-
-    while ((match = pattern.exec(text)) !== null) {
-      const beforeMatch = text.substring(0, match.index);
-      if (beforeMatch) {
-        segments.push(new MessageSegment(SegmentType.TEXT, beforeMatch));
-      }
-
-      segments.push(new MessageSegment(type, match[1]));
-
-      remainingText = text.substring(match.index + match[0].length);
-      text = remainingText;
-      pattern.lastIndex = 0; // Reset regex
-    }
-
-    return remainingText;
-  }
-
-  /**
-   * Extract business name from text (last complete phrase before indicator)
-   */
-  private extractBusinessName(text: string): string {
-    // Look for business names that typically come before the database marker
-    // Business names often contain "Safe Harbor Kings Point" or similar patterns
-    // Try to match the last capitalized phrase before the end
-    const lines = text.split('\n');
-    const lastLine = lines[lines.length - 1] || text;
-    
-    // Match patterns like "Safe Harbor Kings Point - Location" or just "Business Name"
-    const patterns = [
-      // Pattern 1: "Name - Location" format
-      /([A-Z][^\n]*?(?:Point|Park|Plaza|Center|Place|Company|Corp|Inc|LLC|Ltd))(?:\s*-[^\n]*)?$/,
-      // Pattern 2: Simple business name at end
-      /([A-Z][A-Za-z0-9\s&'.-]+?)(?:\s*[-:].*)?$/,
-      // Pattern 3: Fallback to any capitalized phrase
-      /([A-Z][^,.:;!?\n]*?)(?:\s*$)/
-    ];
-    
-    for (const pattern of patterns) {
-      const match = lastLine.match(pattern);
-      if (match && match[1]) {
-        // Clean up the match - remove trailing spaces and dashes
-        let name = match[1].trim();
-        // Remove trailing " -" if present
-        name = name.replace(/\s*-\s*$/, '');
-        return name;
-      }
-    }
-    
-    return "";
-  }
-
-  /**
-   * Check if a segment represents a business from our database
-   */
-  isBusinessReference(segment: MessageSegment): boolean {
-    return segment.type === SegmentType.DATABASE_INDICATOR;
-  }
 }
 
-// Singleton instance for consistent parsing across the application
+// Export singleton instance
 export const messageFormattingService = new MessageFormattingService();

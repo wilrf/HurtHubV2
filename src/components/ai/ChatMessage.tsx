@@ -64,135 +64,160 @@ function AssistantMessage({
     [message.content]
   );
 
-  // Render parsed segments with proper line breaks
+  // Render parsed segments with proper formatting
   const renderSegments = () => {
     // NO FALLBACKS - Let it fail if parsing fails (architectural principle)
     if (!parsedMessage.segments || parsedMessage.segments.length === 0) {
       throw new Error(`Message parsing failed: No segments found for content "${message.content.substring(0, 100)}"`);
     }
     
-    // Group segments by lines for proper rendering
-    const lines: JSX.Element[][] = [];
-    let currentLine: JSX.Element[] = [];
+    const elements: JSX.Element[] = [];
+    let currentListItems: JSX.Element[] = [];
+    let listType: 'numbered' | 'bullet' | null = null;
+    let listItemNumber = 1;
+    
+    // Helper to flush any pending list
+    const flushList = () => {
+      if (currentListItems.length > 0) {
+        elements.push(
+          <div key={`list-${elements.length}`} className="space-y-3 my-4">
+            {currentListItems}
+          </div>
+        );
+        currentListItems = [];
+        listType = null;
+        listItemNumber = 1;
+      }
+    };
     
     parsedMessage.segments.forEach((segment, index) => {
-      // Check if this segment contains a newline
-      if (segment.type === SegmentType.TEXT && segment.content.includes('\n')) {
-        const parts = segment.content.split('\n');
-        parts.forEach((part, partIndex) => {
-          if (partIndex > 0) {
-            // Start a new line
-            if (currentLine.length > 0) {
-              lines.push(currentLine);
-              currentLine = [];
-            }
-          }
-          if (part) {
-            currentLine.push(<span key={`${index}-${partIndex}`}>{part}</span>);
-          }
-        });
-        return;
-      }
-      
       switch (segment.type) {
-        case SegmentType.DATABASE_INDICATOR: {
-          const businessName = segment.getBusinessName();
-          // Render the business name as hoverable with dotted underline
-          // The database indicator now represents the business name itself
-          if (businessName) {
-            currentLine.push(
-              <span
-                key={index}
-                className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-1 rounded transition-all duration-200"
-                onMouseEnter={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredBusiness({
-                    name: businessName,
-                    x: rect.left,
-                    y: rect.top,
-                  });
-                }}
-                onMouseLeave={() => setHoveredBusiness(null)}
-                data-testid="db-business-name"
-              >
-                {businessName}
+        case SegmentType.NUMBERED_LIST:
+        case SegmentType.BULLET: {
+          // Starting a new list item
+          if (listType && listType !== (segment.type === SegmentType.NUMBERED_LIST ? 'numbered' : 'bullet')) {
+            flushList(); // Different list type, flush previous
+          }
+          
+          listType = segment.type === SegmentType.NUMBERED_LIST ? 'numbered' : 'bullet';
+          
+          // Collect all segments until the next list marker or end
+          const itemContent: JSX.Element[] = [];
+          let nextIndex = index + 1;
+          
+          while (
+            nextIndex < parsedMessage.segments.length &&
+            parsedMessage.segments[nextIndex].type !== SegmentType.NUMBERED_LIST &&
+            parsedMessage.segments[nextIndex].type !== SegmentType.BULLET
+          ) {
+            const nextSegment = parsedMessage.segments[nextIndex];
+            
+            if (nextSegment.type === SegmentType.DATABASE_INDICATOR) {
+              const businessName = nextSegment.getBusinessName();
+              if (businessName) {
+                itemContent.push(
+                  <span
+                    key={`business-${nextIndex}`}
+                    className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredBusiness({
+                        name: businessName,
+                        x: rect.left,
+                        y: rect.top,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredBusiness(null)}
+                  >
+                    {businessName}
+                  </span>
+                );
+              }
+            } else if (nextSegment.type === SegmentType.TEXT) {
+              // Skip pure newline segments in list context
+              if (nextSegment.content.trim() || !nextSegment.content.includes('\n')) {
+                itemContent.push(
+                  <span key={`text-${nextIndex}`}>{nextSegment.content}</span>
+                );
+              }
+            }
+            
+            nextIndex++;
+          }
+          
+          // Create list item with grid layout
+          currentListItems.push(
+            <div key={`item-${index}`} className="grid grid-cols-[auto,1fr] gap-3">
+              <span className="text-muted-foreground mt-0.5 select-none">
+                {listType === 'numbered' ? `${listItemNumber++}.` : '•'}
               </span>
-            );
+              <div className="space-y-1">
+                {itemContent}
+              </div>
+            </div>
+          );
+          break;
+        }
+        
+        case SegmentType.DATABASE_INDICATOR: {
+          // If we're not in a list, flush any pending list
+          if (!listType) {
+            flushList();
+            const businessName = segment.getBusinessName();
+            if (businessName) {
+              elements.push(
+                <span
+                  key={index}
+                  className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredBusiness({
+                      name: businessName,
+                      x: rect.left,
+                      y: rect.top,
+                    });
+                  }}
+                  onMouseLeave={() => setHoveredBusiness(null)}
+                >
+                  {businessName}
+                </span>
+              );
+            }
           }
           break;
         }
-        case SegmentType.BOLD:
-          currentLine.push(
-            <strong key={index} className="font-semibold text-foreground">
-              {segment.content}
-            </strong>
-          );
-          break;
-        case SegmentType.ITALIC:
-          currentLine.push(
-            <em key={index} className="italic">
-              {segment.content}
-            </em>
-          );
-          break;
-        case SegmentType.BULLET:
-          // Start new line for bullet points
-          if (currentLine.length > 0) {
-            lines.push(currentLine);
-            currentLine = [];
+        
+        case SegmentType.TEXT: {
+          // Only process if not handled by list logic
+          if (!listType || index === 0) {
+            flushList();
+            
+            // Handle paragraph breaks
+            if (segment.content === '\n\n') {
+              elements.push(<div key={index} className="h-4" />);
+            } else if (segment.content.trim()) {
+              elements.push(
+                <span key={index}>{segment.content}</span>
+              );
+            }
           }
-          currentLine.push(
-            <span key={index} className="text-muted-foreground mr-2">•</span>
-          );
           break;
-        case SegmentType.NUMBERED_LIST:
-          // Start new line for numbered lists
-          if (currentLine.length > 0) {
-            lines.push(currentLine);
-            currentLine = [];
-          }
-          currentLine.push(
-            <span key={index} className="text-muted-foreground mr-2">
-              {segment.getListNumber()}.
-            </span>
-          );
-          break;
-        case SegmentType.TEXT:
+        }
+        
         default:
-          currentLine.push(<span key={index}>{segment.content}</span>);
+          if (!listType) {
+            elements.push(
+              <span key={index}>{segment.content}</span>
+            );
+          }
           break;
       }
     });
     
-    // Add the last line if it has content
-    if (currentLine.length > 0) {
-      lines.push(currentLine);
-    }
+    // Flush any remaining list
+    flushList();
     
-    // Render lines as separate divs with proper spacing
-    return lines.map((line, lineIndex) => {
-      // Check if this line starts with a list marker (bullet or number)
-      const isListItem = line.some(element => {
-        const spanProps = element.props;
-        return spanProps?.children === '•' || 
-               (typeof spanProps?.children === 'string' && /^\d+\.$/.test(spanProps.children));
-      });
-      
-      // Check if this is an empty line (paragraph break)
-      const isEmpty = line.length === 0 || (line.length === 1 && line[0].props?.children === '');
-      
-      return (
-        <div 
-          key={lineIndex} 
-          className={`
-            ${isEmpty ? 'h-2' : 'min-h-[1.5rem]'} 
-            ${isListItem ? 'mb-3 flex items-start' : 'mb-1'}
-          `}
-        >
-          {line}
-        </div>
-      );
-    });
+    return <div className="space-y-2">{elements}</div>;
   };
 
   return (

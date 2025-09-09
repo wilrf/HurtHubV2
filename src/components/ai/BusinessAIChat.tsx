@@ -109,9 +109,8 @@ export function BusinessAIChat({
           </div>
           
           {/* Floating input at bottom */}
-          <div className="absolute bottom-0 left-0 right-0">
-            <div className="bg-midnight-900/95 backdrop-blur-xl p-4 pt-2 pb-6 shadow-[0_-15px_50px_-5px_rgba(0,0,0,0.5),0_-5px_20px_-5px_rgba(0,0,0,0.3)]">
-              <ChatInput
+          <div className="absolute bottom-0 left-0 right-0 bg-midnight-900/95 backdrop-blur-xl p-4 pt-2 pb-6 shadow-[0_-15px_50px_-5px_rgba(0,0,0,0.5),0_-5px_20px_-5px_rgba(0,0,0,0.3)]">
+            <ChatInput
                 input={input}
                 setInput={setInput}
                 handleSendMessage={handleSendMessage}
@@ -119,7 +118,6 @@ export function BusinessAIChat({
                 isDarkMode={isDarkMode}
                 module={module}
               />
-            </div>
           </div>
         </div>
       );
@@ -176,9 +174,8 @@ export function BusinessAIChat({
       </div>
       
       {/* Floating input at bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <div className="bg-midnight-900/95 backdrop-blur-xl p-4 pt-2 pb-6 shadow-[0_-15px_50px_-5px_rgba(0,0,0,0.5),0_-5px_20px_-5px_rgba(0,0,0,0.3)]">
-          <ChatInput
+      <div className="absolute bottom-0 left-0 right-0 bg-midnight-900/95 backdrop-blur-xl p-4 pt-2 pb-6 shadow-[0_-15px_50px_-5px_rgba(0,0,0,0.5),0_-5px_20px_-5px_rgba(0,0,0,0.3)]">
+        <ChatInput
             input={input}
             setInput={setInput}
             handleSendMessage={handleSendMessage}
@@ -186,7 +183,6 @@ export function BusinessAIChat({
             isDarkMode={isDarkMode}
             module={module}
           />
-        </div>
       </div>
     </div>
   );
