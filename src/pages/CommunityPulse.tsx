@@ -15,10 +15,12 @@ import {
 import { useState, useEffect } from "react";
 
 import { BusinessAIChat } from "@/components/ai/BusinessAIChat";
+import { CommunityPrompts } from "@/components/ai/CommunityPrompts";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { businessDataService } from "@/services/businessDataService";
+import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
 import type { BusinessAnalytics, Business } from "@/types/business";
 // Dark mode only - no theme switching
@@ -29,10 +31,21 @@ export function CommunityPulse() {
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWelcomeState, setIsWelcomeState] = useState(true);
+  
+  // Get messages from the chat hook
+  const { messages, setInput } = useBusinessAIChat("community-pulse");
 
   useEffect(() => {
     loadCommunityData();
   }, []);
+  
+  // Watch for when messages appear to exit welcome state
+  useEffect(() => {
+    if (messages.length > 0) {
+      setIsWelcomeState(false);
+    }
+  }, [messages]);
 
   const loadCommunityData = async () => {
     setIsLoading(true);
@@ -54,6 +67,10 @@ export function CommunityPulse() {
   const formatNumber = (num: number | undefined | null) => {
     if (num == null || isNaN(num)) return "0";
     return num.toLocaleString();
+  };
+  
+  const handlePromptSelect = (prompt: string) => {
+    setInput(prompt);
   };
 
   const getCommunityMetrics = () => {
@@ -196,33 +213,66 @@ export function CommunityPulse() {
         </div>
       </div>
 
-      {/* AI Assistant - Full Width Above the Fold */}
-      <Card variant={isDarkMode ? "glass" : "elevated"} className="mb-8">
-        <CardHeader className="pb-4 border-b border-midnight-700/50">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-xl font-bold flex items-center mb-2">
-                <Network className="h-6 w-6 mr-2 text-sapphire-400" />
-                AI Community Insights Assistant
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Ask about community trends, business connections, or
-                neighborhood developments
-              </p>
+      {/* AI Assistant Section */}
+      <div className="space-y-6">
+        {isWelcomeState ? (
+          /* Welcome State - Above the fold, visible immediately */
+          <div className="flex flex-col items-center justify-start pt-8">
+            <div className="max-w-2xl w-full space-y-6">
+              {/* Welcome message */}
+              <div className="text-center">
+                <h2 className="text-xl font-medium text-foreground">
+                  Ready to explore Charlotte's community pulse?
+                </h2>
+              </div>
+              
+              {/* Chat input - prominent and accessible */}
+              <BusinessAIChat
+                module="community-pulse"
+                className="min-h-0"
+                isWelcomeState={true}
+                onFirstMessage={() => setIsWelcomeState(false)}
+              />
+              
+              {/* Suggested prompts - accessible without scrolling */}
+              <CommunityPrompts onPromptSelect={handlePromptSelect} />
             </div>
-            <Badge
-              variant="secondary"
-              className="flex items-center px-3 py-1.5"
-            >
-              <Zap className="h-3 w-3 mr-1" />
-              AI Powered
-            </Badge>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <BusinessAIChat module="community-pulse" className="h-[500px]" />
-        </CardContent>
-      </Card>
+        ) : (
+          /* Chat State - Full chat interface */
+          <Card variant={isDarkMode ? "glass" : "elevated"}>
+            <CardHeader className="pb-4 border-b border-midnight-700/50">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold flex items-center mb-2">
+                    <Network className="h-6 w-6 mr-2 text-sapphire-400" />
+                    AI Community Insights Assistant
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Ask about community trends, business connections, or
+                    neighborhood developments
+                  </p>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className="flex items-center px-3 py-1.5"
+                >
+                  <Zap className="h-3 w-3 mr-1" />
+                  AI Powered
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <BusinessAIChat 
+                module="community-pulse" 
+                className="min-h-[500px] max-h-[60vh]"
+                isWelcomeState={false}
+                onFirstMessage={() => setIsWelcomeState(false)}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
 
       {/* Community Health Metrics */}
