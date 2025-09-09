@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { businessDataService } from "@/services/businessDataService";
 import { api } from "@/services/api";
 
-import type { Business, BusinessAnalytics } from "@/types/business";
+// Business types removed - data is loaded but not stored in state
 
 interface Message {
   id: string;
@@ -15,21 +15,14 @@ interface Message {
 
 export function useBusinessAIChat(
   module: "business-intelligence" | "community-pulse",
+  skipDataLoading = false,
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null);
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const getWelcomeMessage = useCallback(() => {
-    if (module === "business-intelligence") {
-      return `👋 Hi! I'm your Business Intelligence AI assistant. I have access to Charlotte's business data including ${businesses.length} businesses across ${analytics?.topIndustries.length || 0} industries.\n\nI can help you analyze market trends, compare businesses, identify opportunities, and answer questions about:\n• Industry performance and benchmarks\n• Revenue and employment analytics  \n• Geographic business distribution\n• Competitive landscape analysis\n• Growth patterns and market insights\n\nWhat would you like to explore today?`;
-    } else {
-      return `👋 Welcome to Community Pulse AI! I'm here to help you understand Charlotte's business community dynamics and trends.\n\nI can analyze:\n• Community business sentiment and engagement\n• Neighborhood economic development patterns\n• Local industry clusters and ecosystems\n• Business network connections and partnerships\n• Economic impact on different communities\n\nHow can I help you understand Charlotte's business community today?`;
-    }
-  }, [module, businesses, analytics]);
+  // Removed unused getWelcomeMessage function - messages start empty per design
 
   const getSuggestedQuestions = useCallback(() => {
     if (module === "business-intelligence") {
@@ -66,31 +59,25 @@ export function useBusinessAIChat(
       };
 
       scheduleWork(async () => {
-        const [analyticsData, businessData] = await Promise.all([
+        // Preload data for performance but don't use directly
+        await Promise.all([
           businessDataService.getAnalytics(),
           businessDataService.getAllBusinesses(),
         ]);
-
-        setAnalytics(analyticsData);
-        setBusinesses(businessData);
-
-        const welcomeMessage: Message = {
-          id: "1",
-          role: "assistant",
-          content: getWelcomeMessage(),
-          timestamp: new Date(),
-          suggestions: getSuggestedQuestions(),
-        };
-        setMessages([welcomeMessage]);
+        
+        // Don't add any initial messages - let the user start the conversation
       });
     } catch (err) {
       console.error("Failed to load data for AI chat:", err);
     }
-  }, [getWelcomeMessage, getSuggestedQuestions]);
+  }, []);
 
   useEffect(() => {
-    loadDataAndInitialize();
-  }, [loadDataAndInitialize]);
+    // Only load data if not skipping (i.e., when hook is actually being used)
+    if (!skipDataLoading) {
+      loadDataAndInitialize();
+    }
+  }, [loadDataAndInitialize, skipDataLoading]);
 
   useEffect(() => {
     // Only scroll if there are actual messages and not on initial load
@@ -121,9 +108,11 @@ export function useBusinessAIChat(
       throw new Error("No content in response");
     } catch (error) {
       console.error("Charlotte AI API failed:", error);
-      
+
       // NO FALLBACK - Enforce database-only context per CLAUDE.md
-      throw new Error(`AI chat service unavailable: ${error instanceof Error ? error.message : 'Unknown error'}. All responses must use database context.`);
+      throw new Error(
+        `AI chat service unavailable: ${error instanceof Error ? error.message : "Unknown error"}. All responses must use database context.`,
+      );
     }
   };
 

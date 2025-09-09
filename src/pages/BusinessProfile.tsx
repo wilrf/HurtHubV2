@@ -75,11 +75,12 @@ export function BusinessProfile() {
   };
 
   const formatNumber = (num: number | undefined | null) => {
-    if (num == null || isNaN(num)) return "0";
+    if (num == null || isNaN(num)) return "N/A";
     return num.toLocaleString();
   };
 
-  const formatPercentage = (num: number) => {
+  const formatPercentage = (num: number | undefined) => {
+    if (num === undefined || num === null) return "N/A";
     return `${(num * 100).toFixed(1)}%`;
   };
 
@@ -177,7 +178,7 @@ export function BusinessProfile() {
             </h1>
             <p className="text-muted-foreground flex items-center mt-1">
               <MapPin className="h-4 w-4 mr-1" />
-              {business.neighborhood}, {business.address.city}
+              {business.neighborhood || business.address?.city || "Unknown"}, {business.address?.city || "Unknown"}
             </p>
           </div>
         </div>
@@ -250,14 +251,14 @@ export function BusinessProfile() {
                     <div className="text-center p-4 border rounded-lg">
                       <Users className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">
-                        {formatNumber(business.employees)}
+                        {formatNumber(business.employeeCount)}
                       </p>
                       <p className="text-xs text-muted-foreground">Employees</p>
                     </div>
                     <div className="text-center p-4 border rounded-lg">
                       <Calendar className="h-6 w-6 mx-auto mb-2 text-sapphire-500" />
                       <p className="text-2xl font-bold">
-                        {new Date().getFullYear() - business.yearEstablished}
+                        {business.yearFounded ? new Date().getFullYear() - business.yearFounded : "N/A"}
                       </p>
                       <p className="text-xs text-muted-foreground">Years Old</p>
                     </div>
@@ -400,7 +401,7 @@ export function BusinessProfile() {
                       </span>
                       <Badge variant="secondary">
                         Industry Average:{" "}
-                        {formatCurrency(business.revenuePerEmployee * 0.85)}
+                        {formatCurrency((business.revenuePerEmployee || 0) * 0.85)}
                       </Badge>
                     </div>
                   </div>
@@ -516,11 +517,11 @@ export function BusinessProfile() {
                       Full Address
                     </p>
                     <p className="text-sm">
-                      {business.address.line1}
+                      {business.address?.line1 || "Address not available"}
                       <br />
-                      {business.address.line2 && `${business.address.line2}\n`}
-                      {business.address.city}, {business.address.state}{" "}
-                      {business.address.zipCode}
+                      {business.address?.line2 && `${business.address.line2}\n`}
+                      {business.address?.city}, {business.address?.state}{" "}
+                      {business.address?.zipCode}
                     </p>
                   </div>
 
@@ -693,7 +694,7 @@ export function BusinessProfile() {
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Founded</span>
                 <span className="text-sm font-medium">
-                  {business.yearEstablished}
+                  {business.yearFounded}
                 </span>
               </div>
               <div className="flex justify-between">

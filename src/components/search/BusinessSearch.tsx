@@ -1,4 +1,4 @@
-import { Search, Filter } from "lucide-react";
+import { Filter, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import { Badge } from "@/components/ui/Badge";
@@ -24,7 +24,8 @@ interface SearchInputProps {
 function SearchInput({
   query,
   setQuery,
-  placeholder,
+  // placeholder param preserved for API compatibility but using hardcoded value
+  placeholder: _placeholder,
   showFilters,
   activeFiltersCount,
   showFiltersPanel,
@@ -36,13 +37,14 @@ function SearchInput({
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={placeholder}
-        leftIcon={<Search className="h-4 w-4" />}
-        className="pr-24"
+        placeholder="Search businesses, industries, or neighborhoods..."
+        leftIcon={<Sparkles className="h-4 w-4 text-sapphire-400" />}
+        variant="search"
+        className="pr-28"
       />
 
       {showFilters && (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {activeFiltersCount > 0 && (
             <Badge variant="secondary" className="text-xs">
               {activeFiltersCount}
@@ -52,7 +54,12 @@ function SearchInput({
             variant="ghost"
             size="sm"
             onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-            className={`p-1 ${showFiltersPanel ? "text-primary" : ""}`}
+            className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-all duration-200 ${
+              showFiltersPanel 
+                ? "text-sapphire-600 bg-sapphire-50 dark:bg-sapphire-900/20" 
+                : "text-gray-600 dark:text-gray-400"
+            }`}
+            title={showFiltersPanel ? "Hide filters" : "Show filters"}
           >
             <Filter className="h-4 w-4" />
           </Button>

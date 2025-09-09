@@ -1,21 +1,24 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Playwright config for testing with vercel dev
- * (external server already running)
+ * Playwright config for Vercel deployment testing
+ * Uses VERCEL_URL environment variable from deployment context
  */
 export default defineConfig({
   testDir: "./tests",
   timeout: 60000,
   fullyParallel: true,
-  retries: 0,
-  workers: 1, // Use single worker for this test
-  reporter: [['list'], ['html']],
+  retries: 1, // Retry once for network flakiness
+  workers: 1,
+  reporter: [["list"], ["html"]],
   use: {
-    baseURL: 'http://localhost:3009', // Match Vercel dev server
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Use Vercel URL from environment or fallback to production
+    baseURL: process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://charlotte-econdev-platform.vercel.app",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
@@ -23,5 +26,5 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // No webServer - we're using external vercel dev
+  // Tests run against Vercel deployments, no local server needed
 });

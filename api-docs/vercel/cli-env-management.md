@@ -3,9 +3,11 @@
 ## Complete Reference for `vercel env` Command
 
 ### Purpose
+
 The `vercel env` command is used to manage Environment Variables of a Project, providing functionality to list, add, remove, and export variables.
 
 ## Authentication First
+
 Before using any `vercel env` commands, ensure you're authenticated:
 
 ```bash
@@ -22,6 +24,7 @@ vercel link
 ## Core Subcommands
 
 ### 1. List Environment Variables
+
 ```bash
 # List all environment variables
 vercel env ls
@@ -36,6 +39,7 @@ vercel env ls --git-branch main
 ```
 
 ### 2. Add Environment Variables
+
 ```bash
 # Interactive add (will prompt for value and environment)
 vercel env add
@@ -56,6 +60,7 @@ vercel env add VARIABLE_NAME --git-branch feature-branch
 ```
 
 **Interactive Flow Example:**
+
 ```bash
 $ vercel env add
 ? What's the name of the variable? OPENAI_API_KEY
@@ -67,6 +72,7 @@ $ vercel env add
 ```
 
 ### 3. Remove Environment Variables
+
 ```bash
 # Remove from specific environment
 vercel env rm VARIABLE_NAME production
@@ -81,6 +87,7 @@ vercel env rm VARIABLE_NAME production --yes
 ```
 
 ### 4. Pull Environment Variables
+
 ```bash
 # Pull development environment variables to .env.local
 vercel env pull
@@ -104,6 +111,7 @@ vercel env pull --yes
 ## Command Options
 
 ### Global Options
+
 - `--cwd <path>`: Change working directory
 - `--debug`: Enable debug mode
 - `--scope <team>`: Set context to team
@@ -111,12 +119,14 @@ vercel env pull --yes
 - `--yes`: Skip confirmation prompts
 
 ### Environment-Specific Options
+
 - `--environment <env>`: Target specific environment (production, preview, development)
 - `--git-branch <branch>`: Target specific git branch
 
 ## Best Practices
 
 ### 1. Secure Handling
+
 ```bash
 # For sensitive values, use file input to avoid command history
 echo "sk-1234567890" > temp_key.txt
@@ -125,6 +135,7 @@ rm temp_key.txt
 ```
 
 ### 2. Environment Strategy
+
 ```bash
 # Different values for different environments
 vercel env add DATABASE_URL production  # Production DB
@@ -133,6 +144,7 @@ vercel env add DATABASE_URL development # Local/dev DB
 ```
 
 ### 3. Team Workflow
+
 ```bash
 # Pull latest environment variables for development
 vercel env pull .env.local --environment=development
@@ -142,6 +154,7 @@ echo ".env.local" >> .gitignore
 ```
 
 ### 4. CI/CD Integration
+
 ```bash
 # Use token for automated deployments
 vercel env add SECRET_KEY production --token $VERCEL_TOKEN --yes
@@ -150,6 +163,7 @@ vercel env add SECRET_KEY production --token $VERCEL_TOKEN --yes
 ## Common Patterns
 
 ### Initial Project Setup
+
 ```bash
 # 1. Link to project
 vercel link
@@ -162,6 +176,7 @@ vercel dev
 ```
 
 ### Production Deployment Setup
+
 ```bash
 # Add all required production environment variables
 vercel env add OPENAI_API_KEY production
@@ -174,6 +189,7 @@ vercel --prod
 ```
 
 ### Debugging Environment Issues
+
 ```bash
 # List all environment variables to verify
 vercel env ls
@@ -197,6 +213,7 @@ vercel env pull .env.preview --environment=preview
 ## Error Handling
 
 ### Common Issues
+
 ```bash
 # Variable already exists
 Error: A variable with the name `VARIABLE_NAME` already exists
@@ -207,6 +224,7 @@ vercel env add VARIABLE_NAME production
 ```
 
 ### Authentication Issues
+
 ```bash
 # Not logged in
 Error: Not authenticated
@@ -217,6 +235,7 @@ vercel link  # If needed
 ```
 
 ### Project Not Linked
+
 ```bash
 # No project found
 Error: No project linked
@@ -226,6 +245,7 @@ vercel link
 ```
 
 ## Reference Links
+
 - [Vercel CLI Documentation](https://vercel.com/docs/cli)
 - [Environment Variables Overview](https://vercel.com/docs/environment-variables)
 - [Sensitive Environment Variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables)

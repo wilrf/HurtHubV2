@@ -17,6 +17,8 @@ const inputVariants = cva(
           "border-glass-border bg-glass backdrop-blur-md hover:border-sapphire-600/30 focus:shadow-lg focus:shadow-sapphire-500/10",
         midnight:
           "border-midnight-700 bg-midnight-800 text-white placeholder:text-midnight-400 hover:border-midnight-600 focus:border-sapphire-600",
+        search:
+          "border-slate-500 bg-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.15)] placeholder:text-slate-400 hover:scale-[1.01] hover:border-slate-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.25)] hover:bg-slate-800/60 focus:scale-[1.02] focus:border-slate-300 focus:shadow-[0_0_30px_rgba(99,102,241,0.35)] focus:bg-slate-800/70",
       },
       inputSize: {
         default: "h-12",
@@ -50,7 +52,7 @@ const InputAdornment = ({
   children: React.ReactNode;
 }) => (
   <div
-    className={`absolute ${position}-3 top-1/2 -translate-y-1/2 text-muted-foreground`}
+    className={`absolute ${position === "left" ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none`}
   >
     {children}
   </div>

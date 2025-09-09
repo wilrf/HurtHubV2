@@ -5,8 +5,9 @@
 Hurt Hub V2 uses **Supabase** (PostgreSQL) as its primary database platform, providing a robust, scalable, and real-time data foundation for Charlotte's business intelligence platform.
 
 ### **Database Information**
+
 - **Platform**: Supabase (PostgreSQL 15+)
-- **Project ID**: `osnbklmavnsxpgktdeun` 
+- **Project ID**: `osnbklmavnsxpgktdeun`
 - **Region**: US East (AWS)
 - **Connection**: Supavisor connection pooling for optimal performance
 - **Current Data**: ~299 Charlotte businesses with comprehensive business intelligence data
@@ -16,6 +17,7 @@ Hurt Hub V2 uses **Supabase** (PostgreSQL) as its primary database platform, pro
 ## 📊 Core Database Tables
 
 ### **1. `companies` Table** - Business Entity Master Data
+
 **Purpose**: Central repository for all Charlotte business entities
 
 ```sql
@@ -39,19 +41,21 @@ CREATE TABLE companies (
 
 **Current Data Volume**: ~299 Charlotte businesses
 **Key Industries Represented**:
+
 - Financial Services (Bank of America, Lowe's)
-- Energy (Duke Energy)  
+- Energy (Duke Energy)
 - Automotive (Sonic Automotive)
 - Technology & Manufacturing (Honeywell)
 - And 20+ other industry sectors
 
 **Sample Data Structure**:
+
 ```typescript
 {
   id: "uuid-string",
   name: "Bank of America",
   industry: "Financial Services",
-  sector: "Banking", 
+  sector: "Banking",
   description: "Multinational investment bank and financial services company",
   founded_year: 1998,
   employees_count: 213000,
@@ -63,6 +67,7 @@ CREATE TABLE companies (
 ```
 
 **Indexes & Performance**:
+
 - ✅ Primary key index on `id`
 - ✅ Text search index on `name`, `industry`, `description`
 - ✅ Performance index on `revenue` and `employees_count`
@@ -71,6 +76,7 @@ CREATE TABLE companies (
 ---
 
 ### **2. `developments` Table** - Business News & Updates
+
 **Purpose**: Business development news, announcements, and market intelligence
 
 ```sql
@@ -89,6 +95,7 @@ CREATE TABLE developments (
 ```
 
 **Data Categories**:
+
 - **News**: General business news and updates
 - **Investment**: Funding rounds, acquisitions, financial moves
 - **Expansion**: New locations, market expansion, growth
@@ -96,19 +103,21 @@ CREATE TABLE developments (
 - **Other**: Miscellaneous business developments
 
 **Sentiment Analysis**:
+
 - ✅ **Positive**: Growth, success, positive market news
 - ✅ **Negative**: Layoffs, closures, negative market impact
 - ✅ **Neutral**: Factual announcements without sentiment
 
 **Relationships**:
+
 ```sql
 -- Foreign key relationship to companies
 company_id → companies.id (CASCADE DELETE)
 
 -- Query pattern example:
-SELECT d.*, c.name as company_name 
-FROM developments d 
-JOIN companies c ON d.company_id = c.id 
+SELECT d.*, c.name as company_name
+FROM developments d
+JOIN companies c ON d.company_id = c.id
 WHERE d.published_at >= '2024-01-01'
 ORDER BY d.published_at DESC;
 ```
@@ -116,6 +125,7 @@ ORDER BY d.published_at DESC;
 ---
 
 ### **3. `economic_indicators` Table** - Regional Economic Data
+
 **Purpose**: Charlotte regional economic metrics and indicators
 
 ```sql
@@ -134,29 +144,32 @@ CREATE TABLE economic_indicators (
 ```
 
 **Economic Metrics Tracked**:
+
 - **Unemployment Rate**: Monthly unemployment percentage
 - **GDP Growth**: Quarterly GDP growth rate
-- **Job Growth**: New jobs created (monthly/quarterly)  
+- **Job Growth**: New jobs created (monthly/quarterly)
 - **Inflation Rate**: Regional inflation metrics
 - **Median Income**: Household median income data
 - **Population Growth**: Regional population growth rate
 - **Business Confidence Index**: Business sentiment indicator
 
 **Time Series Analysis**:
+
 ```sql
 -- Trend analysis query pattern
-SELECT 
+SELECT
   date,
   unemployment_rate,
   LAG(unemployment_rate) OVER (ORDER BY date) as prev_month,
   unemployment_rate - LAG(unemployment_rate) OVER (ORDER BY date) as change
-FROM economic_indicators 
+FROM economic_indicators
 ORDER BY date DESC;
 ```
 
 ---
 
 ### **4. `ai_conversations` Table** - Chat History & Session Management
+
 **Purpose**: AI conversation logging and business intelligence chat history
 
 ```sql
@@ -173,6 +186,7 @@ CREATE TABLE ai_conversations (
 ```
 
 **AI Integration Features**:
+
 - **Session Tracking**: Persistent conversation sessions
 - **Module Support**: Business Intelligence vs Community Pulse contexts
 - **Model Logging**: Track which AI model generated responses
@@ -180,6 +194,7 @@ CREATE TABLE ai_conversations (
 - **Business Context**: Conversations include real Charlotte business data
 
 **Sample Conversation Data**:
+
 ```typescript
 {
   id: "uuid",
@@ -197,19 +212,20 @@ CREATE TABLE ai_conversations (
 ```
 
 **Query Patterns**:
+
 ```sql
 -- Recent conversations by module
-SELECT * FROM ai_conversations 
-WHERE module = 'business-intelligence' 
+SELECT * FROM ai_conversations
+WHERE module = 'business-intelligence'
 AND created_at >= NOW() - INTERVAL '7 days'
 ORDER BY created_at DESC;
 
 -- Token usage analysis
-SELECT 
+SELECT
   DATE(created_at) as date,
   COUNT(*) as conversation_count,
   AVG((token_usage->>'total_tokens')::int) as avg_tokens
-FROM ai_conversations 
+FROM ai_conversations
 GROUP BY DATE(created_at)
 ORDER BY date DESC;
 ```
@@ -217,6 +233,7 @@ ORDER BY date DESC;
 ---
 
 ### **5. `ai_session_summaries` Table** - Conversation Metadata
+
 **Purpose**: AI session summaries and conversation analytics
 
 ```sql
@@ -234,23 +251,25 @@ CREATE TABLE ai_session_summaries (
 ```
 
 **Session Analytics**:
+
 - **Conversation Summaries**: AI-generated summaries of long conversations
 - **Topic Extraction**: Key business topics discussed (revenue, companies, industry, etc.)
 - **Usage Metrics**: Message counts, token usage, session duration
 - **Activity Tracking**: Session start/end times, last activity
 
 **Key Topics Tracked**:
+
 ```typescript
 // Automatically extracted topics
 key_topics: [
   "revenue",
-  "companies", 
+  "companies",
   "industry",
   "employment",
   "growth",
   "economic",
-  "developments"
-]
+  "developments",
+];
 ```
 
 ---
@@ -258,6 +277,7 @@ key_topics: [
 ## 🔗 Database Relationships & Foreign Keys
 
 ### **Relationship Diagram**
+
 ```
 companies (1) ←→ (many) developments
     ↓
@@ -269,14 +289,15 @@ companies (1) ←→ (many) developments
 ### **Key Relationships**
 
 #### **1. Companies ↔ Developments** (One-to-Many)
+
 ```sql
 -- Companies can have multiple developments
-ALTER TABLE developments 
-ADD CONSTRAINT fk_company_developments 
+ALTER TABLE developments
+ADD CONSTRAINT fk_company_developments
 FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE;
 
 -- Query: Get company with recent developments
-SELECT 
+SELECT
   c.name,
   c.industry,
   d.title,
@@ -288,12 +309,13 @@ ORDER BY d.published_at DESC;
 ```
 
 #### **2. AI Sessions ↔ Conversations** (One-to-Many)
+
 ```sql
 -- Sessions can have multiple conversation entries
 -- Linked by session_id (not FK to allow flexible session management)
 
 -- Query: Get session with all conversations
-SELECT 
+SELECT
   s.summary,
   s.key_topics,
   c.user_message,
@@ -312,47 +334,50 @@ ORDER BY c.created_at;
 ### **1. Business Intelligence Queries**
 
 #### **Top Performers Analysis**
+
 ```sql
 -- Top companies by revenue with industry context
-SELECT 
+SELECT
   name,
   industry,
   revenue,
   employees_count,
   (revenue / NULLIF(employees_count, 0)) as revenue_per_employee,
   RANK() OVER (ORDER BY revenue DESC) as revenue_rank
-FROM companies 
+FROM companies
 WHERE status = 'active' AND revenue IS NOT NULL
 ORDER BY revenue DESC
 LIMIT 10;
 ```
 
 #### **Industry Analysis**
+
 ```sql
 -- Industry breakdown with analytics
-SELECT 
+SELECT
   industry,
   COUNT(*) as company_count,
   AVG(revenue) as avg_revenue,
   SUM(employees_count) as total_employees,
   AVG(employees_count) as avg_employees
-FROM companies 
+FROM companies
 WHERE status = 'active'
 GROUP BY industry
 ORDER BY avg_revenue DESC;
 ```
 
 #### **Growth Analysis** (with developments)
+
 ```sql
 -- Companies with positive recent developments
-SELECT 
+SELECT
   c.name,
   c.industry,
   c.revenue,
   COUNT(d.id) as positive_developments
 FROM companies c
 JOIN developments d ON c.id = d.company_id
-WHERE d.sentiment = 'positive' 
+WHERE d.sentiment = 'positive'
   AND d.published_at >= NOW() - INTERVAL '6 months'
 GROUP BY c.id, c.name, c.industry, c.revenue
 ORDER BY positive_developments DESC, c.revenue DESC;
@@ -361,23 +386,25 @@ ORDER BY positive_developments DESC, c.revenue DESC;
 ### **2. AI Analytics Queries**
 
 #### **Conversation Analytics**
+
 ```sql
 -- AI usage patterns by module
-SELECT 
+SELECT
   module,
   COUNT(*) as conversation_count,
   AVG(LENGTH(user_message)) as avg_question_length,
   AVG(LENGTH(ai_response)) as avg_response_length,
   SUM((token_usage->>'total_tokens')::int) as total_tokens
-FROM ai_conversations 
+FROM ai_conversations
 WHERE created_at >= NOW() - INTERVAL '30 days'
 GROUP BY module;
 ```
 
 #### **Popular Business Topics**
+
 ```sql
 -- Most discussed topics in AI conversations
-SELECT 
+SELECT
   topic,
   COUNT(*) as mention_count
 FROM ai_session_summaries s,
@@ -390,16 +417,17 @@ LIMIT 10;
 ### **3. Economic Indicator Analysis**
 
 #### **Economic Trend Analysis**
+
 ```sql
 -- Economic indicators trend over time
-SELECT 
+SELECT
   date,
   unemployment_rate,
   gdp_growth,
   job_growth,
   LAG(unemployment_rate) OVER (ORDER BY date) as prev_unemployment,
   (unemployment_rate - LAG(unemployment_rate) OVER (ORDER BY date)) as unemployment_change
-FROM economic_indicators 
+FROM economic_indicators
 WHERE date >= NOW() - INTERVAL '12 months'
 ORDER BY date;
 ```
@@ -409,6 +437,7 @@ ORDER BY date;
 ## 🔒 Security & Access Control
 
 ### **Row Level Security (RLS)**
+
 ```sql
 -- Enable RLS on sensitive tables
 ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
@@ -424,6 +453,7 @@ FOR ALL USING (auth.uid() IS NOT NULL);
 ```
 
 ### **Data Privacy**
+
 - ✅ **No PII Storage**: Business data only, no personal information
 - ✅ **Anonymized AI Sessions**: No user identification in chat logs
 - ✅ **Secure API Access**: Server-side service role keys only
@@ -434,6 +464,7 @@ FOR ALL USING (auth.uid() IS NOT NULL);
 ## ⚡ Performance Optimization
 
 ### **Indexing Strategy**
+
 ```sql
 -- Primary indexes for fast queries
 CREATE INDEX idx_companies_industry ON companies(industry);
@@ -452,6 +483,7 @@ CREATE INDEX idx_economic_indicators_date ON economic_indicators(date DESC);
 ```
 
 ### **Query Optimization**
+
 - ✅ **Connection Pooling**: Supavisor for optimal connection management
 - ✅ **Prepared Statements**: Parameterized queries for security and performance
 - ✅ **Result Caching**: Application-level caching with SWR
@@ -462,20 +494,22 @@ CREATE INDEX idx_economic_indicators_date ON economic_indicators(date DESC);
 ## 📈 Data Volume & Growth
 
 ### **Current Data Metrics** (as of deployment)
+
 ```sql
 -- Current table sizes
-SELECT 
+SELECT
   schemaname,
   tablename,
   attname,
   n_distinct,
   most_common_vals
-FROM pg_stats 
-WHERE schemaname = 'public' 
+FROM pg_stats
+WHERE schemaname = 'public'
   AND tablename IN ('companies', 'developments', 'ai_conversations');
 ```
 
 **Estimated Volumes**:
+
 - **Companies**: ~299 active Charlotte businesses
 - **Developments**: Growing dataset of business news and updates
 - **AI Conversations**: Growing with user engagement
@@ -483,6 +517,7 @@ WHERE schemaname = 'public'
 - **AI Session Summaries**: Proportional to conversation volume
 
 ### **Growth Projections**
+
 - **Companies**: Steady growth as more Charlotte businesses are indexed
 - **AI Conversations**: High growth expected with user adoption
 - **Developments**: Regular updates from business news sources
@@ -493,6 +528,7 @@ WHERE schemaname = 'public'
 ## 🔧 Database Client Integration
 
 ### **Supabase Client Configuration** (`src/lib/supabase.ts`)
+
 ```typescript
 // Client-side configuration
 const supabase = createClient<Database>(
@@ -503,11 +539,12 @@ const supabase = createClient<Database>(
       persistSession: true,
       autoRefreshToken: true,
     },
-  }
+  },
 );
 ```
 
 ### **Common Operations Helper Functions**
+
 ```typescript
 // Pre-built query helpers for common operations
 export const supabaseAdmin = {
@@ -533,13 +570,14 @@ export const supabaseAdmin = {
 ```
 
 ### **Type Safety Integration**
+
 ```typescript
 // Full TypeScript integration with generated types
 import type { Database } from "../types/database.types";
 
 // All database operations are fully typed
-const companies: Database['public']['Tables']['companies']['Row'][] = 
-  await supabase.from('companies').select('*');
+const companies: Database["public"]["Tables"]["companies"]["Row"][] =
+  await supabase.from("companies").select("*");
 ```
 
 ---
@@ -547,6 +585,7 @@ const companies: Database['public']['Tables']['companies']['Row'][] =
 ## 🧪 Development & Testing
 
 ### **Database Testing Patterns**
+
 ```sql
 -- Health check queries used in /api/health-check
 SELECT COUNT(*) FROM companies WHERE status = 'active';
@@ -555,6 +594,7 @@ SELECT COUNT(*) FROM developments WHERE published_at >= NOW() - INTERVAL '30 day
 ```
 
 ### **Data Seeding & Migration**
+
 - **Production Data**: Real Charlotte business data (~299 companies)
 - **Development Data**: Subset of production data for testing
 - **Migration Strategy**: Supabase migrations for schema changes
@@ -565,15 +605,17 @@ SELECT COUNT(*) FROM developments WHERE published_at >= NOW() - INTERVAL '30 day
 ## 📊 Monitoring & Analytics
 
 ### **Database Metrics**
+
 - **Connection Usage**: Monitor active connections via Supavisor
 - **Query Performance**: Slow query monitoring and optimization
 - **Storage Growth**: Table size and growth rate tracking
 - **API Usage**: Track requests per table/operation
 
 ### **Business Intelligence Queries**
+
 ```sql
 -- Dashboard KPIs
-SELECT 
+SELECT
   COUNT(*) FILTER (WHERE status = 'active') as active_companies,
   SUM(revenue) FILTER (WHERE status = 'active') as total_revenue,
   SUM(employees_count) FILTER (WHERE status = 'active') as total_employees,
@@ -581,7 +623,7 @@ SELECT
 FROM companies;
 
 -- AI Usage Analytics
-SELECT 
+SELECT
   DATE_TRUNC('day', created_at) as date,
   COUNT(*) as daily_conversations,
   COUNT(DISTINCT session_id) as unique_sessions
@@ -593,8 +635,8 @@ ORDER BY date;
 
 ---
 
-*Generated: 2025-09-02*
-*Last Updated: 2025-09-02*  
-*Database Version: PostgreSQL 15+ (Supabase)*  
-*Total Tables: 5 core tables*  
-*Current Data Volume: ~299 companies + growing AI/development data*
+_Generated: 2025-09-02_
+_Last Updated: 2025-09-02_  
+_Database Version: PostgreSQL 15+ (Supabase)_  
+_Total Tables: 5 core tables_  
+_Current Data Volume: ~299 companies + growing AI/development data_

@@ -12,15 +12,16 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  Sparkles,
+  Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import { BusinessAIChat } from "@/components/ai/BusinessAIChat";
-import { Badge } from "@/components/ui/Badge";
+import { SuggestedPrompts } from "@/components/ai/SuggestedPrompts";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { businessDataService } from "@/services/businessDataService";
+import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
 import type { BusinessAnalytics, Business } from "@/types/business";
 // Dark mode only - no theme switching
@@ -32,12 +33,24 @@ export function BusinessIntelligence() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState<
-    "revenue" | "employees" | "growth" | "age"
+    "revenue" | "employees" | "revenueGrowth" | "grossMargin"
   >("revenue");
+  const [isWelcomeState, setIsWelcomeState] = useState(true);
+  
+  // Get all data from the chat hook - starts with no messages
+  const hookData = useBusinessAIChat("business-intelligence");
+  const { messages, setInput } = hookData;
 
   useEffect(() => {
     loadAnalyticsData();
   }, []);
+
+  // Watch for when messages appear to exit welcome state
+  useEffect(() => {
+    if (messages.length > 0) {
+      setIsWelcomeState(false);
+    }
+  }, [messages]);
 
   const loadAnalyticsData = async () => {
     setIsLoading(true);
@@ -71,6 +84,17 @@ export function BusinessIntelligence() {
     return num.toLocaleString();
   };
 
+  const handlePromptSelect = (prompt: string) => {
+    setInput(prompt);
+    // Don't change state or send message here - let the user click send
+    // This matches CommunityPulse behavior which works correctly
+  };
+
+  const handleNewChat = () => {
+    // Clear messages by reloading the page or resetting state
+    window.location.reload();
+  };
+
   const getPerformanceIndicator = (current: number, benchmark: number) => {
     const diff = ((current - benchmark) / benchmark) * 100;
     if (diff > 5)
@@ -91,7 +115,7 @@ export function BusinessIntelligence() {
   const getTopPerformers = (
     metric: "revenue" | "employees" | "revenueGrowth" | "grossMargin",
   ) => {
-    return businesses.sort((a, b) => b[metric] - a[metric]).slice(0, 10);
+    return businesses.sort((a, b) => (b[metric] || 0) - (a[metric] || 0)).slice(0, 10);
   };
 
   const getIndustryInsights = () => {
@@ -113,7 +137,7 @@ export function BusinessIntelligence() {
       const data = industryMap.get(industry);
       data.count++;
       data.totalRevenue += business.revenue;
-      data.totalEmployees += business.employees;
+      data.totalEmployees += business.employeeCount;
       if (business.rating) {
         data.totalRatings += business.rating;
       }
@@ -159,17 +183,28 @@ export function BusinessIntelligence() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Business Intelligence
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Advanced analytics and market insights for Charlotte's business
-            ecosystem
-          </p>
+        <div className="flex items-center gap-4">
+          <Activity className="h-7 w-7 text-sapphire-400" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              AI Business Intelligence Assistant
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Ask questions about market trends, company performance, or get strategic insights
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleNewChat}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            New Chat
+          </Button>
           <Button variant="outline" size="sm">
             Export Report
           </Button>
@@ -179,34 +214,68 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
-      {/* AI Assistant - Expanded and Prominent */}
-      <Card variant={isDarkMode ? "glass" : "elevated"} className="mb-8">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-2xl font-bold flex items-center mb-2">
-                <Activity className="h-7 w-7 mr-3 text-sapphire-400" />
-                AI Business Intelligence Assistant
-              </CardTitle>
-              <p className="text-base text-muted-foreground">
-                Ask questions about market trends, company performance, or get
-                strategic insights
-              </p>
+      {/* Main Chat Section - Proper spacing from header */}
+      <div className="space-y-6 pt-24">
+        {isWelcomeState ? (
+          /* Welcome State - Above the fold, visible immediately */
+          <div className="flex flex-col items-center justify-start">
+            <div className="max-w-2xl w-full">
+              {/* Welcome message and input grouped together */}
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h2 className="text-xl font-medium text-foreground">
+                    Ready to turn data into decisions?
+                  </h2>
+                </div>
+                
+                {/* Chat input - prominent and accessible */}
+                <BusinessAIChat
+                  key="business-ai-chat"
+                  module="business-intelligence"
+                  className="min-h-0"
+                  isWelcomeState={true}
+                  onFirstMessage={() => setIsWelcomeState(false)}
+                  externalMessages={hookData.messages}
+                  externalInput={hookData.input}
+                  externalIsLoading={hookData.isLoading}
+                  externalSetInput={hookData.setInput}
+                  externalHandleSendMessage={hookData.handleSendMessage}
+                  externalMessagesEndRef={hookData.messagesEndRef}
+                />
+              </div>
+              
+              {/* Suggested prompts - separated and de-emphasized */}
+              <div className="mt-6">
+                <SuggestedPrompts onPromptSelect={handlePromptSelect} />
+              </div>
             </div>
-            <Badge variant="secondary" className="flex items-center px-4 py-2">
-              <Sparkles className="h-4 w-4 mr-1" />
-              AI Assistant
-            </Badge>
           </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <BusinessAIChat module="business-intelligence" className="min-h-[700px]" />
-        </CardContent>
-      </Card>
+        ) : (
+          /* Chat State - Full chat interface */
+          <Card variant={isDarkMode ? "glass" : "elevated"}>
+            <CardContent className="p-0">
+              <BusinessAIChat
+                key="business-ai-chat"
+                module="business-intelligence"
+                className="min-h-[500px] max-h-[60vh]"
+                isWelcomeState={false}
+                onFirstMessage={() => setIsWelcomeState(false)}
+                externalMessages={hookData.messages}
+                externalInput={hookData.input}
+                externalIsLoading={hookData.isLoading}
+                externalSetInput={hookData.setInput}
+                externalHandleSendMessage={hookData.handleSendMessage}
+                externalMessagesEndRef={hookData.messagesEndRef}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Key Performance Indicators */}
-      {analytics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="mt-24">
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
@@ -276,7 +345,8 @@ export function BusinessIntelligence() {
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Performance Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -298,7 +368,7 @@ export function BusinessIntelligence() {
                   <Button
                     key={metric.key}
                     variant={
-                      selectedMetric === metric.key ? "default" : "ghost"
+                      selectedMetric === metric.key ? "default" : "outline"
                     }
                     size="sm"
                     onClick={() => setSelectedMetric(metric.key as any)}
@@ -317,7 +387,7 @@ export function BusinessIntelligence() {
                   ? "revenue"
                   : selectedMetric === "employees"
                     ? "employees"
-                    : selectedMetric === "growth"
+                    : selectedMetric === "revenueGrowth"
                       ? "revenueGrowth"
                       : "grossMargin",
               )
@@ -355,10 +425,10 @@ export function BusinessIntelligence() {
                         {selectedMetric === "revenue"
                           ? formatCurrency(business.revenue)
                           : selectedMetric === "employees"
-                            ? formatNumber(business.employees)
-                            : selectedMetric === "growth"
-                              ? `${(business.revenueGrowth * 100).toFixed(1)}%`
-                              : `${(business.grossMargin * 100).toFixed(1)}%`}
+                            ? formatNumber(business.employeeCount)
+                            : selectedMetric === "revenueGrowth"
+                              ? `${((business.revenueGrowth || 0) * 100).toFixed(1)}%`
+                              : `${((business.grossMargin || 0) * 100).toFixed(1)}%`}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {business.neighborhood}
@@ -562,7 +632,7 @@ export function BusinessIntelligence() {
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Market Leaders</h4>
                   <p className="text-2xl font-bold text-sapphire-500">
-                    {businesses.filter((b) => b.revenue > 5000000).length}
+                    {businesses.filter((b) => (b.revenue || 0) > 5000000).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Companies with $5M+ revenue
@@ -572,7 +642,7 @@ export function BusinessIntelligence() {
                 <div className="text-center p-6 border rounded-lg">
                   <h4 className="font-semibold mb-2">Growth Champions</h4>
                   <p className="text-2xl font-bold text-sapphire-400">
-                    {businesses.filter((b) => b.revenueGrowth > 0.2).length}
+                    {businesses.filter((b) => (b.revenueGrowth || 0) > 0.2).length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     20%+ revenue growth
@@ -583,7 +653,7 @@ export function BusinessIntelligence() {
                   <h4 className="font-semibold mb-2">High Efficiency</h4>
                   <p className="text-2xl font-bold text-sapphire-500">
                     {
-                      businesses.filter((b) => b.revenuePerEmployee > 100000)
+                      businesses.filter((b) => (b.revenuePerEmployee || 0) > 100000)
                         .length
                     }
                   </p>

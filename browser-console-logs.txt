@@ -1,0 +1,40 @@
+index-CWwUAq4a.js:17 ✅ AI features are enabled - API key handled server-side
+index-CWwUAq4a.js:17 ⚠️ Analytics are enabled but GOOGLE_ANALYTICS_ID is not set
+(anonymous) @ index-CWwUAq4a.js:17
+index-CWwUAq4a.js:205 🚀 Running on Vercel preview environment
+index-CWwUAq4a.js:205 📡 API Base: https://hurt-hub-v2-fhwlaf91t-wilrfs-projects.vercel.app
+index-CWwUAq4a.js:205 🔧 Version: a9f93ad
+env-test-BDDUZ3Nz.js:1 🧪 Client-side Environment Variables Test
+
+env-test-BDDUZ3Nz.js:7 📋 Environment Variable Status:
+env-test-BDDUZ3Nz.js:7 ✅ VITE_SUPABASE_URL: https://osnbklmavnsxpgktdeun.supabase.co
+env-test-BDDUZ3Nz.js:7 ✅ VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zbmJrbG1hdm5zeHBna3RkZXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2Njk2MDMsImV4cCI6MjA3MjI0NTYwM30.FRzohCOuWNEhA8IXRZvbS2C5tf5DSCrHYGqN8CBaxL0
+
+env-test-BDDUZ3Nz.js:7 ✅ VITE_APP_ENV: staging
+
+env-test-BDDUZ3Nz.js:7 ✅ VITE_APP_NAME: Charlotte Economic Development Platform
+
+env-test-BDDUZ3Nz.js:7 ✅ VITE_API_BASE_URL: https://hurt-hub-v2.vercel.app
+env-test-BDDUZ3Nz.js:7 ✅ VITE_DEBUG_MODE: false
+
+env-test-BDDUZ3Nz.js:7 ✅ VITE_MOCK_API: false
+
+env-test-BDDUZ3Nz.js:7 
+🔍 Configuration Validation:
+env-test-BDDUZ3Nz.js:8 ✅ Supabase URL format looks correct
+env-test-BDDUZ3Nz.js:9 
+✅ Environment configuration looks good!
+businessDataService-COcpPV31.js:1 ✅ Loaded 294 businesses from database
+vendor-D3F3s8fL.js:32 TypeError: Cannot read properties of undefined (reading 'length')
+    at D (CommunityPulse-CjeZHjoD.js:1:1991)
+    at le (CommunityPulse-CjeZHjoD.js:1:3759)
+    at Iu (vendor-D3F3s8fL.js:30:16995)
+    at Qu (vendor-D3F3s8fL.js:32:3154)
+    at ca (vendor-D3F3s8fL.js:32:44936)
+    at oa (vendor-D3F3s8fL.js:32:39850)
+    at ic (vendor-D3F3s8fL.js:32:39778)
+    at yl (vendor-D3F3s8fL.js:32:39632)
+    at oi (vendor-D3F3s8fL.js:32:35986)
+    at ra (vendor-D3F3s8fL.js:32:34934)
+$u @ vendor-D3F3s8fL.js:32
+community:1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.

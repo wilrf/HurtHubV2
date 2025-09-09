@@ -7,6 +7,7 @@ Successfully converted Hurt Hub V2 from mixed data sources (static JSON + databa
 ## 🔧 What Was Implemented
 
 ### 1. New API Endpoints Created
+
 - **`/api/businesses`** - Primary endpoint for all business data retrieval
   - Supports filtering, pagination, sorting
   - Returns analytics and filter options
@@ -23,6 +24,7 @@ Successfully converted Hurt Hub V2 from mixed data sources (static JSON + databa
   - Comprehensive analytics
 
 ### 2. Updated Existing APIs
+
 - **`/api/ai-search`** - Now uses semantic search with vector embeddings
   - Combines vector similarity with keyword matching
   - Uses PostgreSQL's semantic_business_search function
@@ -34,6 +36,7 @@ Successfully converted Hurt Hub V2 from mixed data sources (static JSON + databa
   - Fails fast when database unavailable
 
 ### 3. Frontend Service Layer Rewrite
+
 - **`businessDataService.ts`** - Completely rewritten to use APIs
   - Removed static JSON file loading (`improvedDemoData.json`)
   - Added intelligent caching (5-minute TTL)
@@ -47,6 +50,7 @@ Successfully converted Hurt Hub V2 from mixed data sources (static JSON + databa
 ## 🏗️ Architecture Changes
 
 ### Before (Mixed Sources)
+
 ```
 Frontend → businessDataService → improvedDemoData.json (static)
        ↘ useBusinessAIChat → API failure → aiService (web fallback)
@@ -54,6 +58,7 @@ Frontend → businessDataService → improvedDemoData.json (static)
 ```
 
 ### After (Database-First)
+
 ```
 Frontend → businessDataService → /api/businesses → Supabase
        ↘ useBusinessAIChat → /api/ai-chat-simple → /api/ai-search → Supabase
@@ -63,12 +68,14 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🧠 AI-Powered Features Added
 
 ### Semantic Search with Embeddings
+[(full guide)](docs/embeddings-vector-search.md)
 - Uses PostgreSQL pgvector extension
 - OpenAI text-embedding-3-small model
 - `semantic_business_search` database function
 - Similarity threshold filtering (>0.3)
 
 ### Hybrid Search Strategy
+
 1. **Semantic Search** (70% of results)
    - Vector similarity matching
    - Understands business context and intent
@@ -80,6 +87,7 @@ Frontend → businessDataService → /api/businesses → Supabase
    - Revenue/employee range filters
 
 ### AI Intent Analysis
+
 - Uses GPT-4o-mini to understand search queries
 - Extracts industries, locations, and filters
 - Optimizes database queries based on intent
@@ -87,16 +95,19 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🚫 Fallbacks Eliminated
 
 ### Chat System
+
 - ❌ Removed: `aiService` fallback in useBusinessAIChat
 - ❌ Removed: Generic OpenAI responses without data context
 - ✅ Now: Database-only responses or explicit errors
 
 ### Search System
+
 - ❌ Removed: Static JSON file search
 - ❌ Removed: Fallback search strategies in context API
 - ✅ Now: Database queries with semantic enhancement
 
 ### Data Loading
+
 - ❌ Removed: `/improvedDemoData.json` dependency
 - ❌ Removed: Client-side data processing and indexing
 - ✅ Now: Server-side database queries with caching
@@ -104,11 +115,13 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 📊 Database Schema Utilized
 
 ### Core Tables
+
 - **`companies`** - 299+ Charlotte businesses
   - Added: `embedding vector(1536)` column for semantic search
   - Existing: name, industry, revenue, employees, etc.
 
 ### Vector Search Functions
+
 - **`semantic_business_search()`** - Returns similar businesses by embedding
 - **`embedding_updates`** - Tracks which companies have embeddings
 - **`generate_business_embeddings()`** - Utility for bulk embedding generation
@@ -116,15 +129,17 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## ✅ CLAUDE.md Compliance Achieved
 
 ### No Fallbacks Rule
+
 - **Before**: Multiple `||` operators providing silent defaults
 - **After**: All fallbacks removed, explicit error throwing
-- **Example**: 
+- **Example**:
   ```typescript
   // Before: const apiKey = process.env.OPENAI_API_KEY || '';
   // After: if (!apiKey) throw new Error('OPENAI_API_KEY required');
   ```
 
 ### Fail-Fast Behavior
+
 - Missing environment variables → Immediate startup failure
 - Database connection issues → Clear error messages
 - API failures → No silent degradation to inferior service
@@ -132,16 +147,19 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🚀 Performance Optimizations
 
 ### Caching Strategy
+
 - Frontend: 5-minute cache for API responses
 - Smart cache invalidation based on data freshness
 - Reduced API calls through intelligent batching
 
 ### Database Efficiency
+
 - Vector search with optimized similarity thresholds
 - Hybrid approach prevents over-reliance on expensive embeddings
 - Proper indexing on search columns
 
 ### Small Dataset Optimization
+
 - No unnecessary performance monitoring (dataset < 1000 companies)
 - Simple pagination without complex cursor logic
 - Direct database queries without excessive abstraction layers
@@ -149,12 +167,14 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🧪 Testing & Validation
 
 ### Test Script Created
+
 - `test-database-first.mjs` - Comprehensive testing utility
 - Tests all new endpoints with real queries
 - Validates semantic search functionality
 - Option to generate embeddings on demand
 
 ### TypeScript Compliance
+
 - All new APIs properly typed
 - Updated business interfaces for API compatibility
 - Eliminated compilation errors and warnings
@@ -162,18 +182,21 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 📈 Benefits Realized
 
 ### For Users
+
 - **Faster search** - Semantic understanding of queries
 - **More relevant results** - AI-powered business matching
 - **Consistent data** - Single source of truth (database)
 - **Real-time updates** - No stale static file data
 
 ### For Developers
+
 - **Simpler architecture** - One data source, clear flow
 - **Better debugging** - Explicit errors, no silent fallbacks
 - **Easier scaling** - Database-centric, API-first design
 - **CLAUDE.md compliant** - No forbidden fallback patterns
 
 ### For Business
+
 - **Data integrity** - All insights from real database
 - **Scalability** - Ready to grow from 300 to thousands of companies
 - **AI-powered insights** - Semantic search and intelligent matching
@@ -182,6 +205,7 @@ Frontend → businessDataService → /api/businesses → Supabase
 ## 🚀 Deployment Ready
 
 ### Production Checklist
+
 1. ✅ All APIs test successfully
 2. ✅ TypeScript compilation clean
 3. ✅ Build process successful
@@ -191,6 +215,7 @@ Frontend → businessDataService → /api/businesses → Supabase
 7. ⏳ Deploy to production
 
 ### Next Steps
+
 ```bash
 # Generate embeddings for all companies
 node test-database-first.mjs --generate-embeddings

@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 /**
  * Singleton pattern for OpenAI client initialization
@@ -17,43 +17,47 @@ export function getOpenAIClient(): OpenAI {
   // Lazy initialization ensures env vars are loaded
   if (!cachedClient) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
-    
+
     if (!apiKey) {
-      throw new Error('OPENAI_API_KEY not configured in environment variables');
+      throw new Error("OPENAI_API_KEY not configured in environment variables");
     }
-    
+
     // Validate expected format
-    if (!apiKey.startsWith('sk-')) {
-      throw new Error(`Invalid OpenAI key format: key should start with 'sk-' but starts with '${apiKey.substring(0, 3)}'`);
+    if (!apiKey.startsWith("sk-")) {
+      throw new Error(
+        `Invalid OpenAI key format: key should start with 'sk-' but starts with '${apiKey.substring(0, 3)}'`,
+      );
     }
-    
+
     // Check for project key vs legacy key
-    const isProjectKey = apiKey.startsWith('sk-proj-');
+    const isProjectKey = apiKey.startsWith("sk-proj-");
     const expectedLength = isProjectKey ? 164 : 51;
-    
+
     // Log diagnostics (never the actual key)
-    console.log('OpenAI Client Initialization:', {
+    console.log("OpenAI Client Initialization:", {
       keyLength: apiKey.length,
       expectedLength,
       isProjectKey,
       lengthValid: apiKey.length === expectedLength,
-      keyPrefix: apiKey.substring(0, 12) + '...'
+      keyPrefix: apiKey.substring(0, 12) + "...",
     });
-    
+
     // Warn if key length is unexpected but don't fail
     // (OpenAI may change key lengths in the future)
     if (apiKey.length !== expectedLength) {
-      console.warn(`OpenAI key length (${apiKey.length}) differs from expected (${expectedLength})`);
+      console.warn(
+        `OpenAI key length (${apiKey.length}) differs from expected (${expectedLength})`,
+      );
     }
-    
+
     // Create the client with validated key
-    cachedClient = new OpenAI({ 
+    cachedClient = new OpenAI({
       apiKey,
       maxRetries: 3,
-      timeout: 30000 // 30 second timeout
+      timeout: 30000, // 30 second timeout
     });
   }
-  
+
   return cachedClient;
 }
 
@@ -78,7 +82,7 @@ export function validateOpenAIConfig(): {
 } {
   try {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
-    
+
     if (!apiKey) {
       return {
         isValid: false,
@@ -86,30 +90,30 @@ export function validateOpenAIConfig(): {
         keyLength: 0,
         isProjectKey: false,
         expectedLength: 164,
-        error: 'OPENAI_API_KEY not found in environment'
+        error: "OPENAI_API_KEY not found in environment",
       };
     }
-    
-    const isProjectKey = apiKey.startsWith('sk-proj-');
+
+    const isProjectKey = apiKey.startsWith("sk-proj-");
     const expectedLength = isProjectKey ? 164 : 51;
-    
-    if (!apiKey.startsWith('sk-')) {
+
+    if (!apiKey.startsWith("sk-")) {
       return {
         isValid: false,
         hasKey: true,
         keyLength: apiKey.length,
         isProjectKey: false,
         expectedLength,
-        error: 'Invalid key format - must start with sk-'
+        error: "Invalid key format - must start with sk-",
       };
     }
-    
+
     return {
       isValid: true,
       hasKey: true,
       keyLength: apiKey.length,
       isProjectKey,
-      expectedLength
+      expectedLength,
     };
   } catch (error: any) {
     return {
@@ -118,7 +122,7 @@ export function validateOpenAIConfig(): {
       keyLength: 0,
       isProjectKey: false,
       expectedLength: 164,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -136,21 +140,20 @@ export async function testOpenAIConnection(): Promise<{
   try {
     const client = getOpenAIClient();
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: 'Say OK in one word' }],
-      max_tokens: 5
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: "Say OK in one word" }],
+      max_tokens: 5,
     });
-    
+
     return {
       success: true,
-      response: completion.choices[0]?.message?.content || 'OK',
-      model: completion.model
+      response: completion.choices[0]?.message?.content || "OK",
+      model: completion.model,
     };
   } catch (error: any) {
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
-

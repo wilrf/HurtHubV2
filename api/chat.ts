@@ -1,21 +1,12 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenAI from 'openai';
-
-// Initialize OpenAI with GPT-5
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY environment variable is required');
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { getOpenAIClient } from "../lib/openai-singleton.js";
 
 export const config = {
   maxDuration: 60,
 };
 
 interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -25,64 +16,67 @@ interface ChatRequest {
   temperature?: number;
   stream?: boolean;
   sessionId?: string;
-  module?: 'business-intelligence' | 'community-pulse';
+  module?: "business-intelligence" | "community-pulse";
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
+    // Initialize OpenAI client using singleton
+    const openai = getOpenAIClient();
+    
     const {
       messages,
-      model = 'gpt-4o-mini', // Default to gpt-4o-mini
+      model = "gpt-4o-mini", // Default to gpt-4o-mini
       temperature = 0.7,
       stream = false,
       sessionId,
-      module = 'business-intelligence'
+      module = "business-intelligence",
     } = req.body as ChatRequest;
 
     // Add system context based on module
     const systemMessage = getSystemMessage(module);
     const contextualMessages: ChatMessage[] = [
-      { role: 'system', content: systemMessage },
-      ...messages
+      { role: "system", content: systemMessage },
+      ...messages,
     ];
 
     // Use smart AI completion that includes database context
 
     if (stream) {
       // For streaming, we'll use the regular OpenAI call but with enhanced context
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
 
       const stream = await openai.chat.completions.create({
         model,
         messages: contextualMessages,
         temperature,
         stream: true,
-        max_tokens: 8000,
+        max_completion_tokens: 8000,
       });
 
       for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
+        const content = chunk.choices[0]?.delta?.content || "";
         if (content) {
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
         }
       }
 
-      res.write('data: [DONE]\n\n');
+      res.write("data: [DONE]\n\n");
       return res.end();
     } else {
       // Use smart completion for regular responses
@@ -90,10 +84,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         model,
         messages: contextualMessages,
         temperature,
-        max_tokens: 8000,
+        max_completion_tokens: 8000,
       });
 
-      const responseContent = completion.choices[0]?.message?.content || '';
+      const responseContent = completion.choices[0]?.message?.content || "";
 
       // Store conversation in memory (will be enhanced with Supabase later)
       if (sessionId) {
@@ -108,22 +102,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
   } catch (error: any) {
-    console.error('GPT-5 API Error:', error);
-    
+    console.error("GPT-5 API Error:", error);
+
     if (error.status === 401) {
       return res.status(401).json({
-        error: 'Invalid OpenAI API key. Please check your configuration.',
+        error: "Invalid OpenAI API key. Please check your configuration.",
       });
     }
 
     if (error.status === 429) {
       return res.status(429).json({
-        error: 'Rate limit exceeded. Please try again later.',
+        error: "Rate limit exceeded. Please try again later.",
       });
     }
 
     return res.status(500).json({
-      error: 'Failed to process chat request',
+      error: "Failed to process chat request",
       details: error.message,
     });
   }
@@ -134,7 +128,7 @@ function getSystemMessage(module: string): string {
   You have access to comprehensive business data including company information, revenue analytics, employment statistics, and market trends.
   Provide deep, cutting-edge analysis with actionable insights.`;
 
-  if (module === 'business-intelligence') {
+  if (module === "business-intelligence") {
     return `${baseContext}
     
     Focus on:
@@ -167,8 +161,11 @@ function generateSessionId(): string {
 async function storeConversation(
   sessionId: string,
   messages: ChatMessage[],
-  response: string
+  response: string,
 ): Promise<void> {
   // This will be implemented with Supabase in the next step
-  console.log('Storing conversation:', { sessionId, messageCount: messages.length });
+  console.log("Storing conversation:", {
+    sessionId,
+    messageCount: messages.length,
+  });
 }

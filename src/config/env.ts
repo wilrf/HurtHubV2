@@ -43,37 +43,44 @@ class Environment {
   }
 
   private loadConfig(): EnvConfig {
-    // Critical Vercel-only validation
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
-    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
-    
-    if (!vercelUrl || !vercelEnv) {
-      throw new Error(
-        'VITE_VERCEL_URL and VITE_VERCEL_ENV are required. ' +
-        'This application only runs on Vercel deployments. ' +
-        'Push your changes to a branch for preview deployment.'
-      );
-    }
 
     // Validate Supabase configuration
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
+
     if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error(
-        'Supabase configuration missing. ' +
-        'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY required. ' +
-        'Add to Vercel Dashboard → Environment Variables.'
+        "Supabase configuration missing. " +
+          "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY required. " +
+          "Add to Vercel Dashboard → Environment Variables.",
       );
     }
 
     // Feature flags with defaults
-    const enableAI = this.parseBoolean(import.meta.env.VITE_ENABLE_AI_FEATURES, true);
-    const enableRealTime = this.parseBoolean(import.meta.env.VITE_ENABLE_REAL_TIME, true);
-    const enableAnalytics = this.parseBoolean(import.meta.env.VITE_ENABLE_ANALYTICS, false);
-    const enableExport = this.parseBoolean(import.meta.env.VITE_ENABLE_EXPORT, true);
-    const debugMode = this.parseBoolean(import.meta.env.VITE_DEBUG_MODE, !this.isVercelProduction(vercelEnv));
-    const showDevTools = this.parseBoolean(import.meta.env.VITE_SHOW_DEV_TOOLS, !this.isVercelProduction(vercelEnv));
+    const enableAI = this.parseBoolean(
+      import.meta.env.VITE_ENABLE_AI_FEATURES,
+      true,
+    );
+    const enableRealTime = this.parseBoolean(
+      import.meta.env.VITE_ENABLE_REAL_TIME,
+      true,
+    );
+    const enableAnalytics = this.parseBoolean(
+      import.meta.env.VITE_ENABLE_ANALYTICS,
+      false,
+    );
+    const enableExport = this.parseBoolean(
+      import.meta.env.VITE_ENABLE_EXPORT,
+      true,
+    );
+    const debugMode = this.parseBoolean(
+      import.meta.env.VITE_DEBUG_MODE,
+      false,
+    );
+    const showDevTools = this.parseBoolean(
+      import.meta.env.VITE_SHOW_DEV_TOOLS,
+      false,
+    );
 
     return {
       // Application (Vercel-based)
@@ -108,37 +115,53 @@ class Environment {
   }
 
   private getAppName(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return vercelUrl.replace('.vercel.app', '');
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return vercelUrl.replace(".vercel.app", "");
+    }
+    return "Hurt Hub V2";
   }
 
   private getApiBaseUrl(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return `https://${vercelUrl}`;
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return `https://${vercelUrl}`;
+    }
+    // Fallback for local development or when VITE_VERCEL_URL is not set
+    return window.location.origin;
   }
 
   private getWebSocketUrl(): string {
-    const vercelUrl = import.meta.env.VITE_VERCEL_URL!; // Already validated in loadConfig
-    return `wss://${vercelUrl}/ws`;
+    const vercelUrl = import.meta.env.VITE_VERCEL_URL;
+    if (vercelUrl) {
+      return `wss://${vercelUrl}/ws`;
+    }
+    // Fallback for local development or when VITE_VERCEL_URL is not set
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${wsProtocol}//${window.location.host}/ws`;
   }
 
   private getAppVersion(): string {
     const gitSha = import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA;
     if (!gitSha) {
-      console.warn('VITE_VERCEL_GIT_COMMIT_SHA not available, using timestamp');
+      console.warn("VITE_VERCEL_GIT_COMMIT_SHA not available, using timestamp");
       return new Date().toISOString().slice(0, 10);
     }
     return gitSha.slice(0, 7); // Short commit hash
   }
 
   private getAppEnv(): EnvConfig["APP_ENV"] {
-    const vercelEnv = import.meta.env.VITE_VERCEL_ENV!; // Already validated in loadConfig
-    if (vercelEnv === 'production') return 'production';
-    if (vercelEnv === 'preview') return 'staging';
-    return 'development';
+    const vercelEnv = import.meta.env.VITE_VERCEL_ENV;
+    if (vercelEnv === "production") return "production";
+    if (vercelEnv === "preview") return "staging";
+    // Default to development when VITE_VERCEL_ENV is not available
+    return "development";
   }
 
-  private parseBoolean(value: string | undefined, defaultValue: boolean = false): boolean {
+  private parseBoolean(
+    value: string | undefined,
+    defaultValue: boolean = false,
+  ): boolean {
     if (value === undefined) {
       return defaultValue;
     }
@@ -150,9 +173,6 @@ class Environment {
     return cleanValue === "true";
   }
 
-  private isVercelProduction(vercelEnv: string): boolean {
-    return vercelEnv === 'production';
-  }
 
   private validateConfig(): void {
     const errors: string[] = [];
@@ -190,7 +210,9 @@ class Environment {
       if (this.isProduction()) {
         // In production, try to recover gracefully instead of crashing
         console.error("🚨 PRODUCTION CONFIG ERROR:", errorMessage);
-        throw new Error(`Environment configuration failed in production: ${errorMessage}`);
+        throw new Error(
+          `Environment configuration failed in production: ${errorMessage}`,
+        );
       } else {
         console.error(errorMessage);
       }
@@ -241,14 +263,14 @@ class Environment {
   get supabase(): { url: string; anonKey: string } {
     const url = this.config.VITE_SUPABASE_URL;
     const anonKey = this.config.VITE_SUPABASE_ANON_KEY;
-    
+
     if (!url || !anonKey) {
       throw new Error(
-        'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required. ' +
-        'Configure in Vercel Dashboard → Environment Variables.'
+        "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are required. " +
+          "Configure in Vercel Dashboard → Environment Variables.",
       );
     }
-    
+
     return { url, anonKey };
   }
 
@@ -287,7 +309,6 @@ class Environment {
   get debugMode(): boolean {
     return this.config.DEBUG_MODE;
   }
-
 
   get showDevTools(): boolean {
     return this.config.SHOW_DEV_TOOLS;
@@ -337,22 +358,22 @@ class Environment {
    * @returns Full URL to the API endpoint
    */
   apiPath(endpoint: string): string {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
     return `${this.config.API_BASE_URL}/api${cleanEndpoint}`;
   }
 
   /**
    * Get deployment environment (Vercel-specific)
    */
-  get vercelEnvironment(): 'production' | 'preview' {
-    return this.config.APP_ENV === 'production' ? 'production' : 'preview';
+  get vercelEnvironment(): "production" | "preview" {
+    return this.config.APP_ENV === "production" ? "production" : "preview";
   }
 
   /**
    * Check if running in Vercel preview environment
    */
   get isVercelPreview(): boolean {
-    return this.vercelEnvironment === 'preview';
+    return this.vercelEnvironment === "preview";
   }
 
   /**

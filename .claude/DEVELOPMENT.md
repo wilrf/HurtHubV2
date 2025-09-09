@@ -3,12 +3,15 @@
 ## 🚀 Quick Start
 
 ### **Prerequisites**
+
 - **Node.js**: 18.0.0+ (LTS recommended)
 - **npm**: 8.0.0+
 - **Git**: Latest version
 - **Code Editor**: VS Code recommended with TypeScript support
+- **Vercel Account**: Required for deployment
 
 ### **Initial Setup**
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -17,21 +20,26 @@ cd hurt-hub-v2
 # Install dependencies
 npm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your actual credentials
+# Create a feature branch
+git checkout -b feature/my-feature
 
-# Validate configuration
+# Validate configuration locally
 node scripts/validate-deployment.cjs
-node scripts/validate-deployment.cjs --test-connection  # Test API connections
 
-# Start development server
-npm run dev
+# Make your changes
+code .  # Open in VS Code
+
+# Deploy to Vercel preview
+git add .
+git commit -m "feat: your feature"
+git push origin feature/my-feature
 ```
 
 **Access the application**:
-- **Frontend**: http://localhost:3000
-- **API**: http://localhost:3000/api/*
+
+- **Preview**: Auto-generated Vercel URL (e.g., `https://hurt-hub-v2-<hash>.vercel.app`)
+- **Production**: `https://hurt-hub-v2.vercel.app`
+- **API**: `https://[deployment-url]/api/*`
 
 ---
 
@@ -40,22 +48,28 @@ npm run dev
 ### **Environment Variables Setup**
 
 #### **📁 Clean Environment Structure (2025-09-02 Cleanup)**
+
 We simplified from **9 confusing files → 3 clean files**:
 
-| File | Purpose | Committed? | Contains Real Keys? |
-|------|---------|------------|--------------------|
-| `.env` | Local development | ❌ NO | ✅ YES (your keys) |
-| `.env.production` | Production template | ❌ NO | ❌ NO (placeholders only) |
-| `.env.example` | Developer template | ✅ YES | ❌ NO (examples only) |
+| File              | Purpose             | Committed? | Contains Real Keys?       |
+| ----------------- | ------------------- | ---------- | ------------------------- |
+| `.env`            | Local development   | ❌ NO      | ✅ YES (your keys)        |
+| `.env.production` | Production template | ❌ NO      | ❌ NO (placeholders only) |
+| `.env.example`    | Developer template  | ✅ YES     | ❌ NO (examples only)     |
 
 **📖 See `ENV_GUIDE.md` for complete documentation**
 
-#### **Required Variables** (`.env`)
+#### **Required Variables** (Vercel Dashboard)
+
+**Note**: All environment variables are managed in Vercel Dashboard. No local `.env` file is needed.
+
 ```bash
+# Configure in Vercel Dashboard → Settings → Environment Variables
+
 # 🤖 OpenAI Configuration (Server-side only)
 OPENAI_API_KEY=sk-proj-your-actual-key-here
 
-# 🗄️ Supabase Configuration  
+# 🗄️ Supabase Configuration
 VITE_SUPABASE_URL=https://osnbklmavnsxpgktdeun.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
@@ -73,7 +87,9 @@ VITE_SHOW_DEV_TOOLS=true
 ```
 
 #### **⚠️ CRITICAL: Environment File Security**
+
 **NO NEWLINES IN VALUES** - They break parsing!
+
 ```bash
 # ❌ WRONG - Has newline characters
 VITE_APP_NAME="My App\n"
@@ -85,26 +101,30 @@ OPENAI_API_KEY="sk-proj-key"
 ```
 
 #### **🚨 CRITICAL: No Fallbacks Rule**
+
 **Always fail fast - never use fallback values:**
+
 ```typescript
 // ❌ WRONG - Silent failure
-const apiKey = process.env.OPENAI_API_KEY || '';
+const apiKey = process.env.OPENAI_API_KEY || "";
 
 // ✅ CORRECT - Explicit failure
 const apiKey = process.env.OPENAI_API_KEY;
-if (!apiKey) throw new Error('OPENAI_API_KEY is required');
+if (!apiKey) throw new Error("OPENAI_API_KEY is required");
 ```
 
 #### **🔄 Singleton Pattern for API Clients**
+
 **Use lazy initialization to avoid serverless timing issues:**
+
 ```typescript
 // lib/openai-singleton.ts
-import { getOpenAIClient } from '../lib/openai-singleton';
+import { getOpenAIClient } from "../lib/openai-singleton";
 
 // Inside API handler (NOT module level)
 export default async function handler(req, res) {
   try {
-    const openai = getOpenAIClient();  // Lazy initialization
+    const openai = getOpenAIClient(); // Lazy initialization
     // Use openai client...
   } catch (error) {
     // Handle initialization errors
@@ -113,6 +133,7 @@ export default async function handler(req, res) {
 ```
 
 ### **Environment Variable Prefixes**
+
 - **`VITE_`**: Client-side variables (accessible in browser)
 - **No prefix**: Server-side only (API endpoints)
 - **Security**: Never expose API keys client-side
@@ -122,24 +143,30 @@ export default async function handler(req, res) {
 ## 📦 Development Commands
 
 ### **Core Development**
-```bash
-# Start development server with hot reload
-npm run dev
 
-# Build for production
+```bash
+# Local development is not supported - use Vercel preview deployments
+npm run dev  # Shows: "⚠️ Local dev is unsupported. Push to branch for preview deployment."
+
+# Build for production (for CI/validation only)
 npm run build
 
-# Preview production build locally  
-npm run preview
+# Deploy to Vercel preview
+git push origin feature/your-branch
+# Vercel automatically creates a preview deployment
+
+# Deploy to production
+vercel --prod  # Or merge to main branch
 ```
 
 ### **Code Quality**
+
 ```bash
 # Run ESLint
 npm run lint
 npm run lint:fix       # Auto-fix issues
 
-# Type checking  
+# Type checking
 npm run type-check
 
 # Run all quality checks
@@ -163,6 +190,7 @@ npm run quality:fix    # Auto-fix all issues
 ```
 
 ### **Testing**
+
 ```bash
 # Unit tests with Vitest
 npm run test
@@ -177,6 +205,7 @@ npm run test:e2e:headed # Run with browser UI
 ```
 
 ### **Deployment**
+
 ```bash
 # Pre-deployment validation
 node scripts/validate-deployment.cjs           # Check configuration
@@ -201,6 +230,7 @@ npm run vercel:env
 ## 🏗️ Project Architecture
 
 ### **Directory Structure**
+
 ```
 hurt-hub-v2/
 ├── api/                     # Vercel Edge Functions
@@ -208,7 +238,7 @@ hurt-hub-v2/
 │   ├── ai-search.ts         # AI-powered search
 │   ├── diagnose.ts          # Comprehensive diagnostics
 │   ├── test-openai.ts       # OpenAI configuration test
-│   ├── health-check.ts      # System health monitoring  
+│   ├── health-check.ts      # System health monitoring
 │   ├── data-query.ts        # Business data queries
 │   └── context.ts           # AI conversation context
 ├── lib/                     # Shared libraries
@@ -219,7 +249,7 @@ hurt-hub-v2/
 │   │   ├── ai/             # AI chat components
 │   │   ├── ui/             # Design system
 │   │   └── search/         # Business search
-│   ├── pages/              # Route components  
+│   ├── pages/              # Route components
 │   ├── hooks/              # Custom React hooks
 │   ├── services/           # Business logic
 │   ├── store/              # Redux state management
@@ -231,7 +261,7 @@ hurt-hub-v2/
 │   ├── validate-docs.cjs    # Documentation validation
 │   └── update-docs.cjs      # Documentation updates
 ├── .env                    # Local development (not in git)
-├── .env.production         # Production template (not in git) 
+├── .env.production         # Production template (not in git)
 ├── .env.example           # Template with docs (in git)
 ├── ENV_GUIDE.md           # Complete environment guide
 ├── .env-backup/           # Archived old env files (can delete)
@@ -241,6 +271,7 @@ hurt-hub-v2/
 ```
 
 ### **Key Configuration Files**
+
 - **`package.json`**: Dependencies and scripts
 - **`vite.config.ts`**: Build configuration
 - **`tsconfig.json`**: TypeScript settings
@@ -253,6 +284,7 @@ hurt-hub-v2/
 ## 🔄 Development Workflow
 
 ### **Feature Development Process**
+
 1. **Planning**: Review requirements and create feature branch
 2. **Development**: Implement feature with proper typing
 3. **Validation**: Run `validate-deployment.cjs` to check configuration
@@ -263,6 +295,7 @@ hurt-hub-v2/
 8. **Deployment**: Deploy to staging, verify with `/api/diagnose`, then production
 
 ### **Git Workflow**
+
 ```bash
 # Create feature branch
 git checkout -b feature/ai-chat-improvements
@@ -277,9 +310,10 @@ git push origin feature/ai-chat-improvements
 ```
 
 ### **Commit Message Convention**
+
 ```bash
 feat: add new AI chat functionality
-fix: resolve environment variable loading issue  
+fix: resolve environment variable loading issue
 docs: update API documentation
 style: format code with Prettier
 refactor: optimize database queries
@@ -292,13 +326,14 @@ chore: update dependencies
 ## 🧪 Testing Strategy
 
 ### **Unit Testing** (Vitest)
+
 ```bash
 # Test structure
 src/
 ├── components/
 │   └── __tests__/          # Component tests
 ├── hooks/
-│   └── __tests__/          # Hook tests  
+│   └── __tests__/          # Hook tests
 ├── services/
 │   └── __tests__/          # Service tests
 └── utils/
@@ -306,17 +341,18 @@ src/
 ```
 
 **Example Test**:
+
 ```typescript
 // src/hooks/__tests__/useBusinessAIChat.test.ts
-import { renderHook } from '@testing-library/react';
-import { useBusinessAIChat } from '../useBusinessAIChat';
+import { renderHook } from "@testing-library/react";
+import { useBusinessAIChat } from "../useBusinessAIChat";
 
-describe('useBusinessAIChat', () => {
-  it('should initialize with default state', () => {
-    const { result } = renderHook(() => 
-      useBusinessAIChat('business-intelligence')
+describe("useBusinessAIChat", () => {
+  it("should initialize with default state", () => {
+    const { result } = renderHook(() =>
+      useBusinessAIChat("business-intelligence"),
     );
-    
+
     expect(result.current.messages).toEqual([]);
     expect(result.current.isLoading).toBe(false);
   });
@@ -324,20 +360,21 @@ describe('useBusinessAIChat', () => {
 ```
 
 ### **E2E Testing** (Playwright)
+
 ```typescript
 // tests/e2e/ai-chat.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('AI chat should respond to user messages', async ({ page }) => {
-  await page.goto('/business-intelligence');
-  
+test("AI chat should respond to user messages", async ({ page }) => {
+  await page.goto("/business-intelligence");
+
   // Wait for AI chat to load
   await page.waitForSelector('[data-testid="ai-chat"]');
-  
+
   // Send a message
-  await page.fill('[data-testid="chat-input"]', 'What are the top companies?');
+  await page.fill('[data-testid="chat-input"]', "What are the top companies?");
   await page.click('[data-testid="send-button"]');
-  
+
   // Verify response
   await expect(page.locator('[data-testid="ai-response"]')).toBeVisible();
 });
@@ -350,11 +387,13 @@ test('AI chat should respond to user messages', async ({ page }) => {
 ### **Vercel Deployment**
 
 #### **Automatic Deployment**
+
 - **Production**: Deploys on push to `main` branch
 - **Preview**: Deploys on push to any branch
 - **URL**: https://hurt-hub-v2.vercel.app
 
 #### **Manual Deployment**
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -370,6 +409,7 @@ vercel
 ```
 
 #### **Environment Variables in Vercel**
+
 ```bash
 # Set production environment variables
 vercel env add OPENAI_API_KEY production
@@ -380,10 +420,11 @@ vercel env pull
 ```
 
 ### **Build Configuration** (`vercel.json`)
+
 ```json
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist", 
+  "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
     {
@@ -401,6 +442,7 @@ vercel env pull
 ### **Common Development Issues**
 
 #### **1. Environment Variables Not Loading**
+
 ```bash
 # Check if variables are accessible
 node -e "console.log(process.env.OPENAI_API_KEY)"
@@ -413,6 +455,7 @@ npm run dev
 ```
 
 #### **2. TypeScript Errors**
+
 ```bash
 # Clear TypeScript cache
 rm -rf node_modules/.cache
@@ -426,29 +469,32 @@ npm run type-check
 ```
 
 #### **3. API Endpoint Issues**
+
 ```bash
-# Test API endpoints locally
-curl http://localhost:3000/api/health-check
+# Test API endpoints on Vercel preview
+curl https://hurt-hub-v2-<hash>.vercel.app/api/health-check
 
-# Check API logs in development
-npm run dev  # Watch terminal for API logs
+# Check API logs in Vercel Dashboard
+# Go to: Vercel Dashboard → Functions → View logs
 
-# Test AI chat endpoint
-node scripts/test-ai-simple.js
+# Test AI chat endpoint against deployment
+node scripts/test-ai-simple.js https://hurt-hub-v2-<hash>.vercel.app
 ```
 
 #### **4. Database Connection Issues**
-```bash
-# Test database connection
-curl http://localhost:3000/api/test-db
 
-# Verify Supabase credentials
-# Check Supabase dashboard for correct URLs
+```bash
+# Test database connection on deployed URL
+curl https://hurt-hub-v2-<hash>.vercel.app/api/test-db
+
+# Verify Supabase credentials in Vercel Dashboard
+# Check: Vercel Dashboard → Settings → Environment Variables
 ```
 
 ### **Development Tools**
 
 #### **VS Code Extensions**
+
 - **TypeScript**: Enhanced TypeScript support
 - **ESLint**: Real-time linting
 - **Prettier**: Code formatting
@@ -456,31 +502,34 @@ curl http://localhost:3000/api/test-db
 - **GitLens**: Git integration and history
 
 #### **Browser DevTools**
+
 - **React DevTools**: Component inspection
-- **Redux DevTools**: State debugging  
+- **Redux DevTools**: State debugging
 - **Network Tab**: API request monitoring
 - **Console**: Error tracking and logging
 
 ### **Debugging Techniques**
 
 #### **API Debugging**
+
 ```typescript
 // Add debug logging to API endpoints
-console.log('API Request:', req.body);
-console.log('Database Query Result:', data);
-console.log('OpenAI Response:', response);
+console.log("API Request:", req.body);
+console.log("Database Query Result:", data);
+console.log("OpenAI Response:", response);
 ```
 
 #### **Frontend Debugging**
+
 ```typescript
 // React component debugging
 useEffect(() => {
-  console.log('Component mounted with props:', props);
+  console.log("Component mounted with props:", props);
 }, []);
 
 // Redux state debugging
 const state = useSelector((state: RootState) => state);
-console.log('Current Redux state:', state);
+console.log("Current Redux state:", state);
 ```
 
 ---
@@ -490,9 +539,10 @@ console.log('Current Redux state:', state);
 ### **Creating New API Endpoints**
 
 #### **File Structure**
+
 ```typescript
 // api/new-endpoint.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export const config = {
   maxDuration: 30, // seconds
@@ -500,11 +550,11 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
@@ -512,41 +562,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // API logic here
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.error('API Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("API Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 ```
 
 #### **Environment Variable Access**
+
 ```typescript
 // ❌ WRONG - Never use fallbacks
-const apiKey = process.env.OPENAI_API_KEY || '';
+const apiKey = process.env.OPENAI_API_KEY || "";
 
 // ✅ CORRECT - Fail fast with explicit errors
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
-  throw new Error('OPENAI_API_KEY is required but not set in environment variables');
+  throw new Error(
+    "OPENAI_API_KEY is required but not set in environment variables",
+  );
 }
 ```
 
 ### **API Testing Scripts**
+
 ```javascript
 // scripts/test-new-endpoint.js
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
+
+// Use your Vercel preview URL or pass as argument
+const API_URL = process.argv[2] || "https://hurt-hub-v2.vercel.app";
 
 async function testEndpoint() {
   try {
-    const response = await fetch('http://localhost:3000/api/new-endpoint', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ test: 'data' })
+    const response = await fetch(`${API_URL}/api/new-endpoint`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ test: "data" }),
     });
-    
+
     const data = await response.json();
-    console.log('API Response:', data);
+    console.log("API Response:", data);
   } catch (error) {
-    console.error('Test failed:', error);
+    console.error("Test failed:", error);
   }
 }
 
@@ -560,6 +617,7 @@ testEndpoint();
 ### **Component Development Patterns**
 
 #### **Component Structure**
+
 ```typescript
 // src/components/example/ExampleComponent.tsx
 import { useState } from 'react';
@@ -572,10 +630,10 @@ interface ExampleComponentProps {
   onClick?: () => void;
 }
 
-export function ExampleComponent({ 
-  title, 
-  variant = 'default', 
-  onClick 
+export function ExampleComponent({
+  title,
+  variant = 'default',
+  onClick
 }: ExampleComponentProps) {
   const [isActive, setIsActive] = useState(false);
 
@@ -595,6 +653,7 @@ export function ExampleComponent({
 ```
 
 #### **Styling with TailwindCSS**
+
 ```scss
 // Custom design system colors
 .bg-midnight-950    // Primary dark background
@@ -602,7 +661,7 @@ export function ExampleComponent({
 .text-foreground    // Main text color
 .border-border      // Border color
 
-// Glass effect utilities  
+// Glass effect utilities
 .glass              // Translucent glass effect
 .backdrop-blur-sm   // Background blur
 ```
@@ -612,6 +671,7 @@ export function ExampleComponent({
 ## 🔧 Performance Optimization
 
 ### **Build Optimization**
+
 ```typescript
 // vite.config.ts - Bundle splitting
 export default defineConfig({
@@ -619,11 +679,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'], 
-          redux: ['@reduxjs/toolkit', 'react-redux'],
-          ui: ['@headlessui/react', 'framer-motion'],
-          charts: ['recharts'],
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          redux: ["@reduxjs/toolkit", "react-redux"],
+          ui: ["@headlessui/react", "framer-motion"],
+          charts: ["recharts"],
         },
       },
     },
@@ -633,6 +693,7 @@ export default defineConfig({
 ```
 
 ### **Code Splitting**
+
 ```typescript
 // Lazy loading for pages
 const BusinessIntelligence = lazy(() => import('@/pages/BusinessIntelligence'));
@@ -650,26 +711,27 @@ function ConditionalRender({ showHeavy }: { showHeavy: boolean }) {
 ```
 
 ### **Database Query Optimization**
+
 ```typescript
 // Efficient pagination
 async function getBusinesses(page: number, limit: number) {
   const { data } = await supabase
-    .from('companies')
-    .select('*')
+    .from("companies")
+    .select("*")
     .range(page * limit, (page + 1) * limit - 1)
-    .order('revenue', { ascending: false });
-  
+    .order("revenue", { ascending: false });
+
   return data;
 }
 
 // Index-optimized queries
 async function searchCompanies(query: string) {
   const { data } = await supabase
-    .from('companies') 
-    .select('name, industry, revenue')  // Only needed columns
-    .textSearch('name', query)          // Use text search index
-    .limit(20);                         // Limit results
-  
+    .from("companies")
+    .select("name, industry, revenue") // Only needed columns
+    .textSearch("name", query) // Use text search index
+    .limit(20); // Limit results
+
   return data;
 }
 ```
@@ -679,6 +741,7 @@ async function searchCompanies(query: string) {
 ## 📋 Development Checklist
 
 ### **Before Committing**
+
 - [ ] Run `npm run quality` (lint + type-check + format)
 - [ ] Run `npm run test` (unit tests)
 - [ ] Test API endpoints manually
@@ -688,6 +751,7 @@ async function searchCompanies(query: string) {
 - [ ] Verify AI chat functionality
 
 ### **Before Deploying**
+
 - [ ] Run `npm run build` successfully
 - [ ] Test production build with `npm run preview`
 - [ ] Verify environment variables in Vercel
@@ -697,6 +761,7 @@ async function searchCompanies(query: string) {
 - [ ] Monitor deployment logs
 
 ### **Code Review Checklist**
+
 - [ ] TypeScript types are properly defined
 - [ ] No fallback values used (fail fast principle)
 - [ ] Error handling is comprehensive
@@ -707,15 +772,49 @@ async function searchCompanies(query: string) {
 
 ---
 
+## 🐛 Known Issues & Future Improvements
+
+### **Pre-commit Hook Issues**
+
+#### **Overly Strict "companies" Word Detection (2025-09-08)**
+
+**Problem**: The pre-commit hook that checks for references to the defunct `companies` table is too aggressive. It flags legitimate uses of the word "companies" in:
+- AI prompts and natural language strings
+- Comments and documentation
+- Test descriptions
+- User-facing text where "companies" and "businesses" are interchangeable
+
+**Current Behavior**: ANY occurrence of "companies" triggers the hook, even in contexts like:
+```typescript
+// These all trigger false positives:
+"What are the top companies by revenue?"  // AI prompt
+"Discuss any companies mentioned"          // System message
+"// Transform data from companies table"   // Comment
+```
+
+**Desired Behavior**: The hook should ONLY check for actual database/code references:
+- `.from('companies')` - Direct database queries
+- `/api/companies` - API route references  
+- `interface Company` or `type Company` - Type definitions
+- `CompanyRepository`, `CompanyService` - Class names using old pattern
+
+**Workaround**: Currently must use `--no-verify` flag when committing if the word appears in legitimate contexts.
+
+**TODO**: Update the pre-commit hook to use more surgical pattern matching that allows natural language uses while catching actual code references to the old table structure.
+
+---
+
 ## 🆘 Getting Help
 
 ### **Documentation References**
+
 1. **Project Docs**: Check `.claude/` directory for comprehensive guides
-2. **API Docs**: See `api-docs/` for API-specific information  
+2. **API Docs**: See `api-docs/` for API-specific information
 3. **CLAUDE.md**: Development guidelines and rules
 4. **README.md**: Basic project information
 
 ### **Common Resources**
+
 - **React**: https://react.dev/
 - **TypeScript**: https://www.typescriptlang.org/docs/
 - **Vite**: https://vitejs.dev/guide/
@@ -724,6 +823,7 @@ async function searchCompanies(query: string) {
 - **Vercel**: https://vercel.com/docs
 
 ### **Debugging Resources**
+
 - **Browser DevTools**: F12 for debugging
 - **VS Code Debugger**: Built-in debugging support
 - **Network Tab**: Monitor API requests/responses
@@ -731,28 +831,47 @@ async function searchCompanies(query: string) {
 
 ---
 
-*Generated: 2025-09-02*
-*Last Updated: 2025-09-02*  
-*Development Environment: Node.js 18+ with Vite*  
-*Total Scripts: 15+ build and utility scripts*  
-*Code Quality: ESLint + Prettier + TypeScript strict mode*
+_Generated: 2025-09-02_
+_Last Updated: 2025-09-02_  
+_Development Environment: Node.js 18+ with Vite_  
+_Total Scripts: 15+ build and utility scripts_  
+_Code Quality: ESLint + Prettier + TypeScript strict mode_
 
-## ⚠️ 2025-09-03 Development Environment Advisory
-**vercel dev limitations**
-- Env vars set in the Vercel dashboard do NOT load reliably in `vercel dev`.
-- APIs fail with 500 (missing `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`).
-- Debugging consumed significant time; root cause still open.
+## 🚀 Vercel-Only Development Workflow
 
-**Recommended workflow**
-1. Run frontend locally with Vite for UI work:
+**Important**: This project uses a **Vercel-only deployment strategy**. Local development is intentionally disabled.
+
+### **Why Vercel-Only?**
+
+- ✅ **No environment variable issues** - Vercel manages all secrets
+- ✅ **Real API testing** - Always test with live services
+- ✅ **Production parity** - Preview environments match production exactly
+- ✅ **Zero configuration** - No local setup required
+- ✅ **Team consistency** - Everyone uses the same environment
+
+### **Development Workflow**
+
+1. **Edit code locally** in your preferred editor
+2. **Push to branch** for automatic preview deployment:
    ```bash
-   npm run dev  # http://localhost:3000 (APIs mocked/disabled)
+   git add .
+   git commit -m "feat: your changes"
+   git push origin feature/your-branch
    ```
-2. For full-stack testing deploy directly to production:
-   ```bash
-   vercel --prod
-   # test at https://hurt-hub-v2.vercel.app
-   ```
-3. Iterate: edit → deploy → test.
+3. **Test on Vercel preview URL** (auto-generated)
+4. **Merge to main** for production deployment
 
-This avoids the `vercel dev` blocker until we complete a root-cause fix.
+### **Quick Commands**
+
+```bash
+# Check code quality locally (no server needed)
+npm run quality  # lint + type-check + format
+
+# Deploy preview
+git push  # Automatic via GitHub integration
+
+# Deploy to production
+vercel --prod  # Or merge PR to main
+```
+
+**Note**: `npm run dev` is intentionally disabled and will show a helpful error message directing you to use Vercel preview deployments.

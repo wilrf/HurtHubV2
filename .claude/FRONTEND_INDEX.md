@@ -5,6 +5,7 @@
 The Hurt Hub V2 frontend is a modern React application built with TypeScript, featuring a robust component architecture, efficient state management, and optimized performance patterns.
 
 ### **Core Technology Stack**
+
 - **Framework**: React 18.2.0 + TypeScript 5.0.2
 - **Build Tool**: Vite 7.1.4 with SWC
 - **Styling**: TailwindCSS 3.3.3 with custom design system
@@ -22,6 +23,7 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ## 📱 Application Structure
 
 ### **Entry Point** (`src/main.tsx`)
+
 ```typescript
 // Application initialization with:
 ✅ React StrictMode for development checks
@@ -31,7 +33,9 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ```
 
 ### **Root Component** (`src/App.tsx`)
+
 **Architecture Pattern**: Provider Wrapper + Lazy Loading
+
 ```typescript
 <Provider store={store}>           // Redux store
   <ErrorBoundary>                  // Global error boundary
@@ -43,6 +47,7 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ```
 
 **Key Features**:
+
 - ✅ **Code Splitting**: All pages lazy-loaded for optimal performance
 - ✅ **Error Boundaries**: Graceful error handling
 - ✅ **Nested Routing**: Clean URL structure with nested layouts
@@ -53,9 +58,10 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ## 🗺️ Routing Architecture
 
 ### **Route Structure**
+
 ```
 / (Dashboard)                     # Default landing page
-├── /home                         # Alternative home page  
+├── /home                         # Alternative home page
 ├── /community                    # Community Pulse analytics
 ├── /business-intelligence        # Business Intelligence dashboard
 ├── /ai-assistant                 # AI chat interface
@@ -67,6 +73,7 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ```
 
 ### **Route Configuration Features**
+
 - ✅ **Lazy Loading**: Every route component is code-split
 - ✅ **Loading States**: Consistent loading spinners during navigation
 - ✅ **Redirects**: Legacy route handling (`/dashboard` → `/`)
@@ -78,11 +85,12 @@ The Hurt Hub V2 frontend is a modern React application built with TypeScript, fe
 ## 🎨 Component Architecture
 
 ### **Component Hierarchy**
+
 ```
 src/components/
 ├── ai/                          # AI and chat components
 │   ├── BusinessAIChat.tsx       # Main AI chat interface
-│   ├── ChatInput.tsx           # Message input component  
+│   ├── ChatInput.tsx           # Message input component
 │   └── ChatMessage.tsx         # Individual message display
 ├── common/                      # Shared common components
 │   └── ErrorBoundary.tsx       # Error boundary wrapper
@@ -108,9 +116,10 @@ src/components/
 ### **Design System Patterns**
 
 #### **1. UI Components** (`src/components/ui/`)
+
 **Philosophy**: Consistent, reusable, type-safe components
 
-- **Button Component**: 
+- **Button Component**:
   - Variants: `default`, `destructive`, `outline`, `secondary`, `ghost`, `glass`
   - Sizes: `sm`, `default`, `lg`, `icon`
   - Full TypeScript integration with proper prop typing
@@ -125,6 +134,7 @@ src/components/
   - Variants for different contexts (success, warning, error)
 
 #### **2. AI Components** (`src/components/ai/`)
+
 **Purpose**: Specialized components for AI chat functionality
 
 - **BusinessAIChat**: Main chat interface supporting both `business-intelligence` and `community-pulse` modules
@@ -132,6 +142,7 @@ src/components/
 - **ChatInput**: Advanced input with loading states and module-specific placeholders
 
 ### **Component Props & TypeScript**
+
 ```typescript
 // Example: BusinessAIChat component interface
 interface BusinessAIChatProps {
@@ -149,11 +160,12 @@ interface BusinessAIChatProps {
 ## 📄 Page Components
 
 ### **Core Pages** (`src/pages/`)
+
 ```typescript
 1. Dashboard.tsx              // Main landing dashboard
 2. HomePage.tsx               // Alternative home page
 3. BusinessIntelligence.tsx   // BI analytics + AI chat
-4. CommunityPulse.tsx        // Community analytics + AI chat  
+4. CommunityPulse.tsx        // Community analytics + AI chat
 5. AIAssistant.tsx           // Dedicated AI chat page
 6. CompanyDetails.tsx        // Individual company profiles
 7. BusinessProfile.tsx       // Business profile pages
@@ -166,6 +178,7 @@ interface BusinessAIChatProps {
 ### **Page Architecture Patterns**
 
 #### **Business Intelligence Page** (`BusinessIntelligence.tsx`)
+
 ```typescript
 // Structure:
 ✅ Header with export/scheduling actions
@@ -178,8 +191,9 @@ interface BusinessAIChatProps {
 ```
 
 #### **Community Pulse Page** (`CommunityPulse.tsx`)
+
 ```typescript
-// Structure: 
+// Structure:
 ✅ AI Chat with community-focused prompts
 ✅ Community engagement metrics
 ✅ Business network analysis
@@ -192,9 +206,10 @@ interface BusinessAIChatProps {
 ## 🪝 Custom Hooks Architecture
 
 ### **Hook Directory** (`src/hooks/`)
+
 ```typescript
 1. useAuth.ts               // Authentication state and actions
-2. useBusinessAIChat.ts     // AI chat functionality for business modules  
+2. useBusinessAIChat.ts     // AI chat functionality for business modules
 3. useBusinessSearch.ts     // Business search and filtering
 4. useGPT5Chat.ts          // Advanced GPT-5 chat integration
 5. useTheme.ts             // Theme management (dark mode)
@@ -204,6 +219,7 @@ interface BusinessAIChatProps {
 ### **Key Hooks Deep Dive**
 
 #### **1. `useBusinessAIChat`** - AI Chat Management
+
 ```typescript
 // Purpose: Manages AI conversations with business context
 interface UseBusinessAIChatReturn {
@@ -225,6 +241,7 @@ interface UseBusinessAIChatReturn {
 ```
 
 #### **2. `useBusinessSearch`** - Business Discovery
+
 ```typescript
 // Purpose: Advanced business search with filtering
 // Features:
@@ -236,7 +253,8 @@ interface UseBusinessAIChatReturn {
 ✅ Sort capabilities (revenue, employees, rating, age)
 ```
 
-#### **3. `useGPT5Chat`** - Advanced AI Integration  
+#### **3. `useGPT5Chat`** - Advanced AI Integration
+
 ```typescript
 // Purpose: GPT-5 integration with advanced features
 // Features:
@@ -253,6 +271,7 @@ interface UseBusinessAIChatReturn {
 ## 🗃️ State Management
 
 ### **Redux Store Structure** (`src/store/`)
+
 ```typescript
 store/
 ├── index.ts                 # Store configuration and setup
@@ -266,6 +285,7 @@ store/
 ### **State Management Patterns**
 
 #### **1. Authentication State** (`authSlice.ts`)
+
 ```typescript
 interface AuthState {
   user: User | null;
@@ -276,16 +296,18 @@ interface AuthState {
 ```
 
 #### **2. UI State Management** (`uiSlice.ts`)
+
 ```typescript
 interface UIState {
   notifications: Notification[];
   modals: { [key: string]: boolean };
   sidebarOpen: boolean;
-  theme: 'dark' | 'light';    // Currently fixed to dark
+  theme: "dark" | "light"; // Currently fixed to dark
 }
 ```
 
 #### **3. Business Data Caching** (`companiesSlice.ts`)
+
 ```typescript
 // Efficient caching of frequently accessed business data
 // Integration with SWR for smart data fetching
@@ -297,9 +319,10 @@ interface UIState {
 ## 🌐 Services & API Integration
 
 ### **Service Layer** (`src/services/`)
+
 ```typescript
 1. aiService.ts              # AI API integration and chat management
-2. apiClient.ts              # HTTP client with interceptors  
+2. apiClient.ts              # HTTP client with interceptors
 3. businessDataService.ts    # Business data operations
 4. index.ts                  # Service exports
 ```
@@ -307,10 +330,11 @@ interface UIState {
 ### **Service Architecture Patterns**
 
 #### **1. `aiService.ts`** - AI Integration Hub
+
 ```typescript
 // Core Functions:
 export async function createChatCompletion(req: ChatRequest): Promise<ChatResponse>
-export async function performDeepAnalysis(req: AnalysisRequest): Promise<AnalysisResponse>  
+export async function performDeepAnalysis(req: AnalysisRequest): Promise<AnalysisResponse>
 export async function queryBusinessData(query: string, type: string): Promise<any>
 export async function createSmartChatCompletion(req: ChatRequest): Promise<ChatResponse>
 
@@ -324,15 +348,16 @@ export async function createSmartChatCompletion(req: ChatRequest): Promise<ChatR
 ```
 
 #### **2. `businessDataService.ts`** - Business Data Management
+
 ```typescript
 class BusinessDataService {
   // Core business data operations
   async getAllBusinesses(): Promise<Business[]>
-  async getBusinessById(id: string): Promise<Business | null>  
+  async getBusinessById(id: string): Promise<Business | null>
   async searchBusinesses(query: string): Promise<Business[]>
   async getAnalytics(): Promise<BusinessAnalytics>
   async getBusinessesByIndustry(industry: string): Promise<Business[]>
-  
+
   // Performance features:
   ✅ Intelligent caching with cache invalidation
   ✅ Batch loading and pagination
@@ -343,6 +368,7 @@ class BusinessDataService {
 ```
 
 #### **3. `apiClient.ts`** - HTTP Client Infrastructure
+
 ```typescript
 class APIClient {
   // Features:
@@ -361,6 +387,7 @@ class APIClient {
 ## 🎯 Context Providers
 
 ### **Context Architecture** (`src/contexts/`)
+
 ```typescript
 1. AuthContext.tsx           # Authentication and user management
 2. ThemeContext.tsx         # Theme management (currently dark-only)
@@ -369,6 +396,7 @@ class APIClient {
 ### **Context Patterns**
 
 #### **AuthContext** - Authentication Management
+
 ```typescript
 interface AuthContextValue {
   user: User | null;
@@ -386,6 +414,7 @@ interface AuthContextValue {
 ```
 
 #### **ThemeContext** - UI Theme Management
+
 ```typescript
 // Currently configured for dark mode only
 // Infrastructure ready for light/dark toggle
@@ -398,9 +427,10 @@ interface AuthContextValue {
 ## 🏷️ Type Definitions
 
 ### **TypeScript Architecture** (`src/types/`)
+
 ```typescript
 1. api.ts                   # API response and request types
-2. business.ts             # Business entity and analytics types  
+2. business.ts             # Business entity and analytics types
 3. common.ts               # Shared utility types
 4. company.ts              # Company-specific data types
 5. database.ts             # Database schema types
@@ -411,6 +441,7 @@ interface AuthContextValue {
 ### **Core Type Definitions**
 
 #### **Business Types** (`business.ts`)
+
 ```typescript
 interface Business {
   id: string;
@@ -436,6 +467,7 @@ interface BusinessAnalytics {
 ```
 
 #### **API Types** (`api.ts`)
+
 ```typescript
 interface ApiResponse<T = any> {
   data: T;
@@ -449,7 +481,7 @@ interface ChatRequest {
   model?: string;
   temperature?: number;
   sessionId?: string;
-  module?: 'business-intelligence' | 'community-pulse';
+  module?: "business-intelligence" | "community-pulse";
 }
 ```
 
@@ -458,27 +490,30 @@ interface ChatRequest {
 ## 🎨 Styling Architecture
 
 ### **TailwindCSS Configuration** (`tailwind.config.js`)
+
 **Design System**: Custom color palette with dark mode focus
 
 ```typescript
 // Custom Color Palette:
 ✅ Midnight: Primary dark backgrounds (950, 900, 800, 700, 600)
-✅ Sapphire: Accent colors (500, 400, 300) 
+✅ Sapphire: Accent colors (500, 400, 300)
 ✅ Semantic colors: Success, warning, error, info
 ✅ Glass effect utilities for modern UI
 ✅ Custom spacing and typography scales
 ```
 
 ### **CSS Architecture**
+
 ```scss
 // Global styles structure:
 src/styles/
 ├── globals.css             # Base styles and CSS variables
-├── components.css          # Component-specific styles  
+├── components.css          # Component-specific styles
 └── utilities.css          # Custom utility classes
 ```
 
 ### **Styling Patterns**
+
 - ✅ **CSS Custom Properties**: Theme-aware color system
 - ✅ **Glass Morphism**: Modern transparent card effects
 - ✅ **Responsive Design**: Mobile-first approach with breakpoints
@@ -490,6 +525,7 @@ src/styles/
 ## ⚡ Performance Optimizations
 
 ### **Code Splitting Strategy**
+
 ```typescript
 // Route-level splitting:
 ✅ All pages lazy-loaded with React.lazy()
@@ -499,12 +535,13 @@ src/styles/
 // Bundle optimization:
 ✅ Vendor chunk: React, React-DOM
 ✅ Router chunk: React Router DOM
-✅ Redux chunk: Redux Toolkit, React Redux  
+✅ Redux chunk: Redux Toolkit, React Redux
 ✅ UI chunk: Headless UI, Framer Motion
 ✅ Charts chunk: Recharts (isolated for conditional loading)
 ```
 
 ### **Data Fetching Optimizations**
+
 ```typescript
 // SWR integration:
 ✅ Intelligent caching with automatic revalidation
@@ -519,6 +556,7 @@ src/styles/
 ```
 
 ### **Rendering Optimizations**
+
 ```typescript
 // React optimizations:
 ✅ useMemo and useCallback for expensive computations
@@ -538,6 +576,7 @@ src/styles/
 ## 🧪 Development Tools & Patterns
 
 ### **Development Experience**
+
 ```typescript
 // TypeScript integration:
 ✅ Strict mode enabled for maximum type safety
@@ -553,6 +592,7 @@ src/styles/
 ```
 
 ### **Code Organization Patterns**
+
 ```typescript
 // Import organization:
 1. External libraries (react, lucide-react, etc.)
@@ -570,6 +610,7 @@ src/styles/
 ```
 
 ### **Error Handling Strategy**
+
 ```typescript
 // Multi-layer error handling:
 ✅ Global error boundary in App.tsx
@@ -584,6 +625,7 @@ src/styles/
 ## 📊 Bundle Analysis
 
 ### **Current Bundle Size** (from Vite config)
+
 - **Vendor chunk**: React, React-DOM core libraries
 - **Router chunk**: Navigation and routing logic
 - **Redux chunk**: State management libraries
@@ -592,8 +634,9 @@ src/styles/
 - **Warning threshold**: 512KB per chunk
 
 ### **Loading Performance**
+
 - **First Contentful Paint**: Target <1.5s
-- **Time to Interactive**: Target <2.5s  
+- **Time to Interactive**: Target <2.5s
 - **Bundle size optimization**: Automated chunk splitting
 - **Asset optimization**: Automatic image and static asset optimization
 
@@ -602,6 +645,7 @@ src/styles/
 ## 🔮 Future Architecture Considerations
 
 ### **Planned Enhancements**
+
 1. **Progressive Web App**: Service worker and offline support
 2. **Advanced Caching**: More sophisticated caching strategies
 3. **Component Library**: Extract UI components to separate package
@@ -609,6 +653,7 @@ src/styles/
 5. **Advanced Analytics**: User interaction tracking and optimization
 
 ### **Scalability Patterns**
+
 - **Feature Modules**: Organized by business domain
 - **Shared Libraries**: Common utilities and components
 - **API Layer Abstraction**: Service layer for clean API integration
@@ -616,8 +661,8 @@ src/styles/
 
 ---
 
-*Generated: 2025-09-02*
-*Last Updated: 2025-09-02*  
-*Components Analyzed: 50+*  
-*Lines of Code: ~15,000+*  
-*TypeScript Coverage: 100%*
+_Generated: 2025-09-02_
+_Last Updated: 2025-09-02_  
+_Components Analyzed: 50+_  
+_Lines of Code: ~15,000+_  
+_TypeScript Coverage: 100%_

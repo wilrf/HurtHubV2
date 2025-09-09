@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Redesign Prototype - Hurt Hub Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a; /* midnight-950 */
+            color: #e8eaed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header .subtitle {
+            color: #85929e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            margin-left: 2rem;
+        }
+
+        .new-chat-btn {
+            background: rgba(30, 58, 95, 0.5);
+            border: 1px solid rgba(0, 86, 179, 0.3);
+            color: #60a5fa;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(0, 86, 179, 0.2);
+            border-color: rgba(0, 86, 179, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Welcome State */
+        .welcome-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 1.5rem;
+            min-height: 60vh;
+        }
+
+        .welcome-container.hidden {
+            display: none;
+        }
+
+        .welcome-content {
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 700px;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e8eaed 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-subtitle {
+            color: #85929e;
+            font-size: 1.125rem;
+            line-height: 1.6;
+        }
+
+        /* Chat Input Section - Unified Design */
+        .input-section {
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        .chat-input-wrapper {
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            background: rgba(30, 58, 95, 0.3);
+            border: 1px solid rgba(71, 85, 105, 0.5); /* slate-600 equivalent */
+            color: #e8eaed;
+            padding: 1.125rem 3.5rem 1.125rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            border-color: rgba(100, 116, 139, 0.6); /* slate-500 equivalent */
+            background: rgba(30, 58, 95, 0.4);
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+            transform: scale(1.01);
+        }
+
+        .chat-input::placeholder {
+            color: #5d6d7e;
+        }
+
+        .send-button {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 0.625rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            background: #004491;
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+        }
+
+        /* Suggested Prompts */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .prompt-chip {
+            background: rgba(30, 58, 95, 0.3);
+            border: 1px solid rgba(30, 58, 95, 0.5);
+            color: #e8eaed;
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9375rem;
+        }
+
+        .prompt-chip:hover {
+            background: rgba(0, 86, 179, 0.15);
+            border-color: rgba(0, 86, 179, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+        }
+
+        .prompt-chip .icon {
+            font-size: 1.25rem;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            position: relative;
+            margin-top: 2rem;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 0;
+            min-height: 400px;
+            max-height: 60vh;
+        }
+
+        .messages-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Message Styles */
+        .message {
+            display: flex;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            max-width: 70%;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #0056b3 0%, #004491 100%);
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message.assistant .message-content {
+            background: rgba(30, 58, 95, 0.3);
+            border: 1px solid rgba(30, 58, 95, 0.5);
+            color: #e8eaed;
+            margin-right: 20%;
+        }
+
+        .message-label {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            opacity: 0.6;
+        }
+
+        /* Pinned Input */
+        .chat-input-container {
+            background: linear-gradient(to top, 
+                rgba(10, 14, 26, 1) 0%, 
+                rgba(10, 14, 26, 0.95) 70%,
+                transparent 100%);
+            padding: 1.5rem 0 2rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        .chat-input-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Follow-up Prompts */
+        .followup-prompts {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .followup-chip {
+            background: rgba(30, 58, 95, 0.3);
+            border: 1px solid rgba(0, 86, 179, 0.2);
+            color: #60a5fa;
+            padding: 0.5rem 1rem;
+            border-radius: 0.625rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .followup-chip:hover {
+            background: rgba(0, 86, 179, 0.2);
+            border-color: rgba(0, 86, 179, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Analytics Section Below */
+        .analytics-section {
+            padding: 3rem 0;
+            border-top: 1px solid rgba(30, 58, 95, 0.3);
+            margin-top: 2rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 58, 95, 0.2);
+            border: 1px solid rgba(30, 58, 95, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border-color: rgba(0, 86, 179, 0.3);
+        }
+
+        .stat-label {
+            color: #85929e;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            color: #22c55e;
+            font-size: 0.875rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 150, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 150, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                        <path d="M2 17L12 22L22 17"/>
+                        <path d="M2 12L12 17L22 12"/>
+                    </svg>
+                    AI Business Intelligence Assistant
+                </h1>
+                <p class="subtitle">Ask questions about market trends, company performance, or get strategic insights</p>
+            </div>
+            <button class="new-chat-btn" onclick="resetChat()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14m7-7H5"/>
+                </svg>
+                New Chat
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Welcome State -->
+        <div class="welcome-container" id="welcomeContainer">
+            <div class="welcome-content">
+                <h2 class="welcome-title">Welcome to Business Intelligence</h2>
+                <p class="welcome-subtitle">
+                    I can help you analyze market trends, compare businesses, identify opportunities, 
+                    and answer strategic questions about Charlotte's business landscape.
+                </p>
+            </div>
+
+            <div class="input-section">
+                <div class="chat-input-wrapper">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="welcomeInput" 
+                        placeholder="Ask me about business analytics..."
+                        onkeydown="if(event.key === 'Enter') startChat()"
+                    >
+                    <button class="send-button" onclick="startChat()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="prompt-grid">
+                <button class="prompt-chip" onclick="usePrompt('What are the top performing industries?')">
+                    <span class="icon">📊</span>
+                    <span>What are the top performing industries?</span>
+                </button>
+                <button class="prompt-chip" onclick="usePrompt('Which neighborhoods have highest revenue?')">
+                    <span class="icon">📍</span>
+                    <span>Which neighborhoods have highest revenue?</span>
+                </button>
+                <button class="prompt-chip" onclick="usePrompt('Show companies with high growth')">
+                    <span class="icon">📈</span>
+                    <span>Show companies with high growth</span>
+                </button>
+                <button class="prompt-chip" onclick="usePrompt('Compare employees by industry')">
+                    <span class="icon">👥</span>
+                    <span>Compare employees by industry</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat State -->
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-messages" id="chatMessages">
+                <div class="messages-inner" id="messagesInner"></div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-inner">
+                    <div class="followup-prompts">
+                        <button class="followup-chip" onclick="followUp('Deep dive into metrics')">Deep dive into metrics</button>
+                        <button class="followup-chip" onclick="followUp('Year-over-year growth')">Year-over-year growth</button>
+                        <button class="followup-chip" onclick="followUp('Export visualization')">Export visualization</button>
+                        <button class="followup-chip" onclick="followUp('Market opportunities')">Market opportunities</button>
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <input 
+                            type="text" 
+                            class="chat-input" 
+                            id="chatInput" 
+                            placeholder="Ask a follow-up question..."
+                            onkeydown="if(event.key === 'Enter') sendMessage()"
+                        >
+                        <button class="send-button" onclick="sendMessage()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13"/>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="analytics-section">
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Businesses</div>
+                    <div class="stat-value">294</div>
+                    <div class="stat-change">+12% from last quarter</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value">$904.6M</div>
+                    <div class="stat-change">+8.5% year over year</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Employees</div>
+                    <div class="stat-value">5,235</div>
+                    <div class="stat-change">+15% job growth</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Revenue/Business</div>
+                    <div class="stat-value">$3.1M</div>
+                    <div class="stat-change">+3.2% efficiency</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample responses
+        const sampleResponses = [
+            "Based on Charlotte's comprehensive business data, I can see several interesting patterns emerging:\n\n<strong>Top Industries by Revenue:</strong>\n• Financial Services: $45.2B annually\n• Healthcare: $23.8B annually\n• Technology: $18.5B annually\n• Real Estate: $12.3B annually\n\nWould you like me to drill down into any specific sector?",
+            "Looking at the geographic distribution:\n\n<strong>Highest Revenue Neighborhoods:</strong>\n1. Uptown: $28.3B\n2. South Park: $8.7B\n3. Ballantyne: $6.2B\n4. University City: $4.8B",
+            "I've identified several high-growth companies:\n\n<strong>Top Growth Companies:</strong>\n• TechVenture Inc: +127% growth\n• Carolina FinTech: +89% growth\n• Health Innovation Labs: +76% growth",
+        ];
+        let responseIndex = 0;
+
+        function usePrompt(prompt) {
+            document.getElementById('welcomeInput').value = prompt;
+            startChat();
+        }
+
+        function startChat() {
+            const input = document.getElementById('welcomeInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Hide welcome, show chat
+            document.getElementById('welcomeContainer').classList.add('hidden');
+            document.getElementById('chatContainer').classList.add('active');
+
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Clear input
+            input.value = '';
+            
+            // Simulate AI response
+            setTimeout(() => {
+                addMessage(sampleResponses[responseIndex % sampleResponses.length], 'assistant');
+                responseIndex++;
+            }, 1000);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            setTimeout(() => {
+                addMessage(sampleResponses[responseIndex % sampleResponses.length], 'assistant');
+                responseIndex++;
+            }, 1000);
+        }
+
+        function followUp(text) {
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+
+        function addMessage(text, sender) {
+            const messagesInner = document.getElementById('messagesInner');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'message-label';
+            labelDiv.textContent = sender === 'user' ? 'YOU' : 'ASSISTANT';
+            
+            contentDiv.appendChild(labelDiv);
+            contentDiv.innerHTML += text;
+            
+            messageDiv.appendChild(contentDiv);
+            messagesInner.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function resetChat() {
+            document.getElementById('messagesInner').innerHTML = '';
+            document.getElementById('chatContainer').classList.remove('active');
+            document.getElementById('welcomeContainer').classList.remove('hidden');
+            document.getElementById('welcomeInput').value = '';
+            document.getElementById('chatInput').value = '';
+            responseIndex = 0;
+        }
+    </script>
+</body>
+</html>

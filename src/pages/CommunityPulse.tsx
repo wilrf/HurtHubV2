@@ -15,10 +15,12 @@ import {
 import { useState, useEffect } from "react";
 
 import { BusinessAIChat } from "@/components/ai/BusinessAIChat";
+import { CommunityPrompts } from "@/components/ai/CommunityPrompts";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { businessDataService } from "@/services/businessDataService";
+import { useBusinessAIChat } from "@/hooks/useBusinessAIChat";
 
 import type { BusinessAnalytics, Business } from "@/types/business";
 // Dark mode only - no theme switching
@@ -29,10 +31,22 @@ export function CommunityPulse() {
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWelcomeState, setIsWelcomeState] = useState(true);
+  
+  // Get all data from the chat hook
+  const hookData = useBusinessAIChat("community-pulse");
+  const { messages, setInput } = hookData;
 
   useEffect(() => {
     loadCommunityData();
   }, []);
+  
+  // Watch for when messages appear to exit welcome state
+  useEffect(() => {
+    if (messages.length > 0) {
+      setIsWelcomeState(false);
+    }
+  }, [messages]);
 
   const loadCommunityData = async () => {
     setIsLoading(true);
@@ -55,13 +69,17 @@ export function CommunityPulse() {
     if (num == null || isNaN(num)) return "0";
     return num.toLocaleString();
   };
+  
+  const handlePromptSelect = (prompt: string) => {
+    setInput(prompt);
+  };
 
   const getCommunityMetrics = () => {
-    if (!businesses.length) return null;
+    if (!businesses.length || !analytics) return null;
 
     // Community engagement metrics based on business data
     const highEngagementBusinesses = businesses.filter(
-      (b) => b?.rating >= 4.0,
+      (b) => b?.rating && b.rating >= 4.0,
     ).length;
     const communityParticipation =
       businesses.length > 0
@@ -71,7 +89,7 @@ export function CommunityPulse() {
     const localBusinesses = businesses.filter(
       (b) => b?.businessType === "Local",
     ).length;
-    const neighborhoodDiversity = analytics?.topNeighborhoods.length || 0;
+    const neighborhoodDiversity = analytics.topNeighborhoods?.length || 0;
 
     const averageBusinessAge =
       businesses.length > 0
@@ -96,8 +114,10 @@ export function CommunityPulse() {
   };
 
   const getNeighborhoodPulse = () => {
-    return (
-      analytics?.topNeighborhoods.map((neighborhood) => ({
+    if (!analytics || !analytics.topNeighborhoods) {
+      return [];
+    }
+    return analytics.topNeighborhoods.map((neighborhood) => ({
         ...neighborhood,
         pulseScore: Math.round(
           (neighborhood.avgRating || 0) * 20 + Math.random() * 10,
@@ -106,8 +126,7 @@ export function CommunityPulse() {
           Math.random() > 0.3 ? "up" : Math.random() > 0.5 ? "down" : "stable",
         communityEvents: Math.floor(Math.random() * 8) + 2,
         businessGrowth: Math.random() > 0.4,
-      })) || []
-    );
+      }));
   };
 
   const getCommunityHighlights = () => {
@@ -195,162 +214,90 @@ export function CommunityPulse() {
         </div>
       </div>
 
-      {/* AI Assistant - Redesigned with Split Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* AI Chat Section - Takes 2/3 width on larger screens */}
-        <Card variant={isDarkMode ? "glass" : "elevated"} className="lg:col-span-2">
-          <CardHeader className="pb-4 border-b border-midnight-700/50">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold flex items-center mb-2">
-                  <Network className="h-6 w-6 mr-2 text-sapphire-400" />
-                  AI Community Insights Assistant
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Ask about community trends, business connections, or
-                  neighborhood developments
-                </p>
+      {/* AI Assistant Section - Proper spacing from header */}
+      <div className="space-y-6 pt-24">
+        {isWelcomeState ? (
+          /* Welcome State - Above the fold, visible immediately */
+          <div className="flex flex-col items-center justify-start">
+            <div className="max-w-2xl w-full">
+              {/* Welcome message and input grouped together */}
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h2 className="text-xl font-medium text-foreground">
+                    Ready to explore Charlotte's community pulse?
+                  </h2>
+                </div>
+                
+                {/* Chat input - prominent and accessible */}
+                <BusinessAIChat
+                  key="community-ai-chat"
+                  module="community-pulse"
+                  className="min-h-0"
+                  isWelcomeState={true}
+                  onFirstMessage={() => setIsWelcomeState(false)}
+                  externalMessages={hookData.messages}
+                  externalInput={hookData.input}
+                  externalIsLoading={hookData.isLoading}
+                  externalSetInput={hookData.setInput}
+                  externalHandleSendMessage={hookData.handleSendMessage}
+                  externalMessagesEndRef={hookData.messagesEndRef}
+                />
               </div>
-              <Badge variant="secondary" className="flex items-center px-3 py-1.5">
-                <Zap className="h-3 w-3 mr-1" />
-                AI Powered
-              </Badge>
+              
+              {/* Suggested prompts - separated and de-emphasized */}
+              <div className="mt-6">
+                <CommunityPrompts onPromptSelect={handlePromptSelect} />
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <BusinessAIChat module="community-pulse" className="h-[600px]" />
-          </CardContent>
-        </Card>
-
-        {/* Quick Insights Panel - Right sidebar */}
-        <div className="space-y-4">
-          {/* Quick Actions */}
-          <Card variant={isDarkMode ? "glass" : "elevated"} className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center">
-                <Zap className="h-4 w-4 mr-2 text-sapphire-400" />
-                Quick Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <button 
-                className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
-                onClick={() => {}}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Trending Topics</span>
-                  <TrendingUp className="h-3 w-3 text-sapphire-400" />
+          </div>
+        ) : (
+          /* Chat State - Full chat interface */
+          <Card variant={isDarkMode ? "glass" : "elevated"}>
+            <CardHeader className="pb-4 border-b border-midnight-700/50">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold flex items-center mb-2">
+                    <Network className="h-6 w-6 mr-2 text-sapphire-400" />
+                    AI Community Insights Assistant
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Ask about community trends, business connections, or
+                    neighborhood developments
+                  </p>
                 </div>
-                <span className="text-xs text-muted-foreground">Partnership networks, NoDa growth</span>
-              </button>
-              <button 
-                className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
-                onClick={() => {}}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Hot Neighborhoods</span>
-                  <MapPin className="h-3 w-3 text-sapphire-400" />
-                </div>
-                <span className="text-xs text-muted-foreground">South End, Plaza Midwood</span>
-              </button>
-              <button 
-                className="w-full text-left p-3 text-sm rounded-lg hover:bg-midnight-700/50 transition-colors border border-midnight-700/30"
-                onClick={() => {}}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Community Events</span>
-                  <Calendar className="h-3 w-3 text-sapphire-400" />
-                </div>
-                <span className="text-xs text-muted-foreground">{communityMetrics?.eventsThisMonth || 0} this month</span>
-              </button>
-            </CardContent>
-          </Card>
-
-          {/* Real-time Activity Feed */}
-          <Card variant={isDarkMode ? "glass" : "elevated"} className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center">
-                <Activity className="h-4 w-4 mr-2 text-sapphire-400" />
-                Live Community Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-sapphire-400 scrollbar-track-midnight-700/30">
-                <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-sapphire-400 rounded-full mt-1.5 animate-pulse" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">New Partnership</p>
-                    <p className="text-xs text-muted-foreground">15 businesses joined network</p>
-                    <p className="text-xs text-sapphire-400">2 mins ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-sapphire-500 rounded-full mt-1.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">Event Scheduled</p>
-                    <p className="text-xs text-muted-foreground">Tech Meetup in NoDa</p>
-                    <p className="text-xs text-sapphire-400">15 mins ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-sapphire-300 rounded-full mt-1.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">Growth Alert</p>
-                    <p className="text-xs text-muted-foreground">23% increase in Plaza</p>
-                    <p className="text-xs text-sapphire-400">1 hour ago</p>
-                  </div>
-                </div>
+                <Badge
+                  variant="secondary"
+                  className="flex items-center px-3 py-1.5"
+                >
+                  <Zap className="h-3 w-3 mr-1" />
+                  AI Powered
+                </Badge>
               </div>
-              <div className="pt-2 border-t border-midnight-700/50">
-                <button className="w-full text-xs text-sapphire-400 hover:text-sapphire-300 transition-colors">
-                  View all activity →
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* AI Suggestions */}
-          <Card variant={isDarkMode ? "glass" : "elevated"} className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center">
-                <MessageCircle className="h-4 w-4 mr-2 text-sapphire-400" />
-                Suggested Questions
-              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <button
-                className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
-                onClick={() => {
-                  // Could integrate with AI chat to auto-populate question
-                  console.log("Question clicked: What's the business growth trend in NoDa?");
-                }}
-              >
-                "What's the business growth trend in NoDa?"
-              </button>
-              <button
-                className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
-                onClick={() => {
-                  console.log("Question clicked: Which neighborhoods have the most partnerships?");
-                }}
-              >
-                "Which neighborhoods have the most partnerships?"
-              </button>
-              <button
-                className="w-full text-left p-2 text-xs rounded hover:bg-midnight-700/30 transition-colors"
-                onClick={() => {
-                  console.log("Question clicked: Show me community engagement metrics");
-                }}
-              >
-                "Show me community engagement metrics"
-              </button>
+            <CardContent className="p-0">
+              <BusinessAIChat 
+                key="community-ai-chat"
+                module="community-pulse" 
+                className="min-h-[500px] max-h-[60vh]"
+                isWelcomeState={false}
+                onFirstMessage={() => setIsWelcomeState(false)}
+                externalMessages={hookData.messages}
+                externalInput={hookData.input}
+                externalIsLoading={hookData.isLoading}
+                externalSetInput={hookData.setInput}
+                externalHandleSendMessage={hookData.handleSendMessage}
+                externalMessagesEndRef={hookData.messagesEndRef}
+              />
             </CardContent>
           </Card>
-        </div>
+        )}
       </div>
 
+
       {/* Community Health Metrics */}
-      {communityMetrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="mt-24">
+        {communityMetrics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
@@ -422,7 +369,8 @@ export function CommunityPulse() {
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Community Highlights */}
       <Card variant={isDarkMode ? "glass" : "elevated"}>

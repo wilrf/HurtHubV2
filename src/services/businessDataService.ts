@@ -44,7 +44,10 @@ class BusinessDataService {
    */
   async ensureLoaded(): Promise<void> {
     // Check if cache is still valid
-    if (this.cacheTimestamp && (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION) {
+    if (
+      this.cacheTimestamp &&
+      Date.now() - this.cacheTimestamp < this.CACHE_DURATION
+    ) {
       return;
     }
 
@@ -62,26 +65,32 @@ class BusinessDataService {
    */
   async getAllBusinesses(): Promise<Business[]> {
     const cacheKey = "allBusinesses";
-    
+
     // Return cached data if available and fresh
     if (this.allBusinessesCache.length > 0 && this.isCacheValid()) {
       return this.allBusinessesCache;
     }
 
     try {
-      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1000 });
-      
+      const data: ApiResponse = await api.getWithParams("/businesses", {
+        limit: 1000,
+      });
+
       this.allBusinessesCache = data.businesses;
       this.filterOptionsCache = data.filters;
       this.analyticsCache = data.analytics;
       this.cacheTimestamp = Date.now();
       this.cache.set(cacheKey, data.businesses);
 
-      console.log(`✅ Loaded ${data.businesses.length} businesses from database`);
+      console.log(
+        `✅ Loaded ${data.businesses.length} businesses from database`,
+      );
       return data.businesses;
     } catch (error) {
       console.error("❌ Failed to fetch all businesses:", error);
-      throw new Error(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Database connection failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 
@@ -94,24 +103,29 @@ class BusinessDataService {
     limit: number = 20,
   ): Promise<BusinessSearchResult> {
     const cacheKey = `search_${JSON.stringify(filters)}_${page}_${limit}`;
-    
+
     if (this.cache.has(cacheKey) && this.isCacheValid()) {
       return this.cache.get(cacheKey);
     }
 
     try {
       // Build query parameters object
-      const queryParams: Record<string, string | number | boolean | undefined> = {
-        page,
-        limit,
-      };
+      const queryParams: Record<string, string | number | boolean | undefined> =
+        {
+          page,
+          limit,
+        };
 
       // Add filters to query params
       if (filters.query) queryParams.query = filters.query;
-      if (filters.revenueRange?.min !== undefined) queryParams.minRevenue = filters.revenueRange.min;
-      if (filters.revenueRange?.max !== undefined) queryParams.maxRevenue = filters.revenueRange.max;
-      if (filters.employeeRange?.min !== undefined) queryParams.minEmployees = filters.employeeRange.min;
-      if (filters.employeeRange?.max !== undefined) queryParams.maxEmployees = filters.employeeRange.max;
+      if (filters.revenueRange?.min !== undefined)
+        queryParams.minRevenue = filters.revenueRange.min;
+      if (filters.revenueRange?.max !== undefined)
+        queryParams.maxRevenue = filters.revenueRange.max;
+      if (filters.employeeRange?.min !== undefined)
+        queryParams.minEmployees = filters.employeeRange.min;
+      if (filters.employeeRange?.max !== undefined)
+        queryParams.maxEmployees = filters.employeeRange.max;
 
       // Handle array parameters (industry, location, neighborhood)
       const searchParams = new URLSearchParams();
@@ -122,16 +136,20 @@ class BusinessDataService {
       });
 
       if (filters.industry?.length) {
-        filters.industry.forEach(ind => searchParams.append('industry', ind));
+        filters.industry.forEach((ind) => searchParams.append("industry", ind));
       }
       if (filters.location?.length) {
-        filters.location.forEach(loc => searchParams.append('location', loc));
+        filters.location.forEach((loc) => searchParams.append("location", loc));
       }
       if (filters.neighborhood?.length) {
-        filters.neighborhood.forEach(loc => searchParams.append('location', loc));
+        filters.neighborhood.forEach((loc) =>
+          searchParams.append("location", loc),
+        );
       }
 
-      const data: ApiResponse = await api.get(`/businesses?${searchParams.toString()}`);
+      const data: ApiResponse = await api.get(
+        `/businesses?${searchParams.toString()}`,
+      );
 
       const result: BusinessSearchResult = {
         businesses: data.businesses,
@@ -155,8 +173,50 @@ class BusinessDataService {
       return result;
     } catch (error) {
       console.error("❌ Failed to search businesses:", error);
-      throw new Error(`Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
+  }
+
+  /**
+   * Search businesses using semantic search - simple and effective
+   */
+  async searchBusinessesSemantic(
+    query: string,
+    limit: number = 20,
+  ): Promise<BusinessSearchResult> {
+    const cacheKey = `semantic_search_${query}_${limit}`;
+
+    if (this.cache.has(cacheKey) && this.isCacheValid()) {
+      return this.cache.get(cacheKey);
+    }
+
+    // Use API endpoint for semantic search (server-side has OpenAI access)
+    const response = await api.post("/ai-search", { 
+      query, 
+      limit,
+      searchType: 'semantic'
+    });
+    
+    // API returns 'results' not 'businesses'
+    const businesses = response.results || [];
+    const analytics = await this.getAnalytics();
+
+    const result: BusinessSearchResult = {
+      businesses,
+      total: businesses.length,
+      page: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      filters: { query },
+      searchType: 'semantic',
+      analytics,
+    };
+
+    this.cache.set(cacheKey, result);
+    return result;
   }
 
   /**
@@ -169,7 +229,9 @@ class BusinessDataService {
 
     try {
       // Analytics are included in the businesses API response
-      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1 });
+      const data: ApiResponse = await api.getWithParams("/businesses", {
+        limit: 1,
+      });
       this.analyticsCache = data.analytics;
       return data.analytics;
     } catch (error) {
@@ -201,7 +263,9 @@ class BusinessDataService {
     }
 
     try {
-      const data: ApiResponse = await api.getWithParams("/businesses", { limit: 1 });
+      const data: ApiResponse = await api.getWithParams("/businesses", {
+        limit: 1,
+      });
       this.filterOptionsCache = data.filters;
       return data.filters;
     } catch (error) {
@@ -222,14 +286,17 @@ class BusinessDataService {
     try {
       // First try to find in cache
       const allBusinesses = await this.getAllBusinesses();
-      const business = allBusinesses.find(b => b.id === id);
-      
+      const business = allBusinesses.find((b) => b.id === id);
+
       if (business) {
         return business;
       }
 
       // If not in cache, make specific API call
-      const data: ApiResponse = await api.getWithParams("/businesses", { companyIds: id, limit: 1 });
+      const data: ApiResponse = await api.getWithParams("/businesses", {
+        companyIds: id,
+        limit: 1,
+      });
       return data.businesses.length > 0 ? data.businesses[0] : null;
     } catch (error) {
       console.error(`❌ Failed to fetch business ${id}:`, error);
@@ -242,9 +309,14 @@ class BusinessDataService {
    */
   async getBusinessesByIndustry(industry: string): Promise<Business[]> {
     try {
-      return this.searchBusinesses({ industry: [industry] }, 1, 100).then(result => result.businesses);
+      return this.searchBusinesses({ industry: [industry] }, 1, 100).then(
+        (result) => result.businesses,
+      );
     } catch (error) {
-      console.error(`❌ Failed to fetch businesses for industry ${industry}:`, error);
+      console.error(
+        `❌ Failed to fetch businesses for industry ${industry}:`,
+        error,
+      );
       return [];
     }
   }
@@ -257,7 +329,7 @@ class BusinessDataService {
       const data: ApiResponse = await api.getWithParams("/businesses", {
         limit,
         sortBy: "created_at",
-        sortOrder: "desc"
+        sortOrder: "desc",
       });
       return data.businesses;
     } catch (error) {
@@ -270,7 +342,10 @@ class BusinessDataService {
    * Check if cache is still valid
    */
   private isCacheValid(): boolean {
-    return this.cacheTimestamp > 0 && (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION;
+    return (
+      this.cacheTimestamp > 0 &&
+      Date.now() - this.cacheTimestamp < this.CACHE_DURATION
+    );
   }
 
   /**
@@ -289,8 +364,8 @@ class BusinessDataService {
    */
   async generateEmbeddings(batchSize: number = 20): Promise<void> {
     try {
-      const result = await api.post('/generate-embeddings', { batchSize });
-      console.log('✅ Embeddings generated:', result);
+      const result = await api.post("/generate-embeddings", { batchSize });
+      console.log("✅ Embeddings generated:", result);
     } catch (error) {
       console.error("❌ Failed to generate embeddings:", error);
       throw error;

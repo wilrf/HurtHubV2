@@ -9,22 +9,24 @@ import "@/styles/globals.css";
 try {
   // This will throw immediately if not on Vercel
   const deploymentInfo = env.deploymentInfo;
-  
+
   console.log(`🚀 Running on Vercel ${deploymentInfo.environment} environment`);
   console.log(`📡 API Base: ${deploymentInfo.url}`);
   console.log(`🔧 Version: ${deploymentInfo.version}`);
-  
+
   // Environment variable testing in development/preview
   if (!deploymentInfo.isProduction) {
-    import("./utils/env-test").then(({ testEnvironmentVariables }) => {
-      testEnvironmentVariables();
-    }).catch(() => {
-      // Silently fail if env-test doesn't exist
-    });
+    import("./utils/env-test")
+      .then(({ testEnvironmentVariables }) => {
+        testEnvironmentVariables();
+      })
+      .catch(() => {
+        // Silently fail if env-test doesn't exist
+      });
   }
 } catch (_error) {
   // Show friendly error page for local access attempts
-  const rootElement = document.getElementById('root');
+  const rootElement = document.getElementById("root");
   if (rootElement) {
     rootElement.innerHTML = `
       <div style="
@@ -100,9 +102,9 @@ try {
       </div>
     `;
   }
-  
+
   // Prevent further execution
-  throw new Error('Vercel deployment required');
+  throw new Error("Vercel deployment required");
 }
 
 // Error reporting for Vercel deployments

@@ -1,7 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { createFullServices } from '../lib/api-bootstrap.js';
 
 export const config = {
   maxDuration: 60,
@@ -24,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -34,229 +32,222 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Initialize clients with proper error handling
-  let openai;
-  let supabase: SupabaseClient;
-
-  try {
-    // Initialize OpenAI client
-    const openaiApiKey = process.env.OPENAI_API_KEY?.trim();
-    if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY not configured in environment variables');
-    }
-    if (!openaiApiKey.startsWith('sk-')) {
-      throw new Error('Invalid OpenAI key format');
-    }
-    
-    openai = new OpenAI({ 
-      apiKey: openaiApiKey,
-      maxRetries: 3,
-      timeout: 30000
-    });
-  } catch (error: any) {
-    console.error('OpenAI initialization failed:', error.message);
-    return res.status(500).json({ 
-      error: 'AI service configuration error',
-      details: error.message 
-    });
-  }
-
-  try {
-    // Initialize Supabase - NEVER USE FALLBACKS (CLAUDE.md rule)
-    // The correct project is osnbklmavnsxpgktdeun (has 299 companies)
-    const supabaseUrl = process.env.SUPABASE_URL;
-    if (!supabaseUrl) {
-      throw new Error('SUPABASE_URL environment variable is required');
-    }
-
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
-    }
-
-    // Trim keys to handle any whitespace issues
-    supabase = createClient(supabaseUrl.trim(), supabaseKey.trim());
-
-    // Debug logging to verify environment variables
-    console.log('Environment check:', {
-      hasSupabaseUrl: !!supabaseUrl,
-      hasSupabaseKey: !!supabaseKey,
-      hasOpenAI: !!process.env.OPENAI_API_KEY,
-      urlPrefix: supabaseUrl.substring(0, 30),
-      keyPrefix: supabaseKey.substring(0, 20)
-    });
-  } catch (error: any) {
-    console.error('Supabase initialization failed:', error.message);
-    return res.status(500).json({ 
-      error: 'Database configuration error',
-      details: error.message 
-    });
-  }
-
   try {
     const {
       messages,
-      model = 'gpt-4o-mini', // Use real OpenAI model
-      temperature = 0.7,
+      model = 'gpt-4o-mini',
       module = 'business-intelligence',
-      sessionId = generateSessionId()
+      sessionId = generateSessionId(),
     } = req.body as ChatRequest;
+    
+    // Initialize all services using bootstrap utility
+    const { aiBusinessService, conversationService, openai } = createFullServices();
+    
+    // Get last user message
+    const lastUserMessage = messages[messages.length - 1]?.content || '';
+    
+    console.log('🎯 AI Chat Request:', {
+      sessionId,
+      module,
+      userMessage: lastUserMessage.substring(0, 100),
+      timestamp: new Date().toISOString(),
+    });
+    
+    // NUCLEAR-NUCLEAR OPTION: ALWAYS perform semantic search for EVERY query
+    // No regex needed - let AI decide what's relevant!
+    console.log('🚀 NUCLEAR-NUCLEAR: Performing semantic search for ALL queries');
+    
+    let businessContext = '';
+    let businessCount = 0;
+    let totalRevenue = 0;
+    let totalEmployees = 0;
+    let searchLatency = 0;
+    let databaseBusinessNames: string[] = [];
+    
+    // ALWAYS search - it's only 294 records, performance is fine!
+    const searchStart = Date.now();
+    
+    // NO TRY-CATCH - Let exceptions bubble up per architectural principles
+    // If semantic search fails, the entire request should fail - the business database IS the soul of this app
+    const semanticResults = await aiBusinessService.performSemanticSearch(lastUserMessage, 15);
+    
+    searchLatency = Date.now() - searchStart;
+    
+    console.log('🔍 NUCLEAR-NUCLEAR SEARCH EXECUTED:', {
+      query: lastUserMessage.substring(0, 50),
+      resultsFound: semanticResults.length,
+      latency: `${searchLatency}ms`,
+      method: 'semantic-vector-similarity',
+      approach: 'ALWAYS-ON'
+    });
+    
+    // Build context for AI to use IF relevant
+    if (semanticResults.length > 0) {
+      businessCount = semanticResults.length;
+      
+      // Take top 10 for context - AI will decide what's relevant
+      const contextBusinesses = semanticResults.slice(0, 10);
+      
+      // Store business names for chain of custody
+      databaseBusinessNames = contextBusinesses.map(b => b.name);
+      
+      businessContext = `SEMANTIC SEARCH RESULTS from Charlotte business database:
+(AI: You MUST add "(from our database)" after each of these business names when you mention them)
 
-    // Get the user's latest message
-    const userMessage = messages[messages.length - 1]?.content || '';
+`;
+      businessContext += contextBusinesses.map((b, i) => 
+        `${i + 1}. ${b.name}: ${b.industry || 'Industry not specified'}, ${b.neighborhood || b.city || 'Charlotte'}, ${b.employeeCount || 0} employees, $${(b.revenue || 0).toLocaleString()} revenue`
+      ).join('\n');
+      
+      // Calculate totals from all results
+      totalRevenue = semanticResults.reduce((sum, b) => sum + (b.revenue || 0), 0);
+      totalEmployees = semanticResults.reduce((sum, b) => sum + (b.employeeCount || 0), 0);
+      
+      businessContext += `\n\nAGGREGATE DATA:
+- Total matching businesses: ${businessCount}
+- Combined revenue: $${totalRevenue.toLocaleString()}
+- Total employees: ${totalEmployees.toLocaleString()}`;
+      
+    } else {
+      businessContext = 'SEMANTIC SEARCH: No businesses found matching this query in our Charlotte database.';
+    }
     
-    // Analyze what data the user might need using AI-powered search
-    const businessData = await fetchRelevantBusinessData(userMessage);
-    
-    // Build smart context with real data
-    const systemMessage = buildSmartSystemMessage(module, businessData);
+    // Build system message
+    const systemMessage = buildSystemMessage(module, businessContext, {
+      totalCompanies: businessCount,
+      totalRevenue,
+      totalEmployees,
+    });
     
     // Create messages with context
     const contextualMessages: ChatMessage[] = [
       { role: 'system', content: systemMessage },
-      ...messages
+      ...messages,
     ];
-
-    // Call OpenAI with real data context
+    
+    // Call OpenAI
+    console.log('🤖 Calling OpenAI:', {
+      model,
+      temperature: 0.3, // Lower to reduce hallucination
+      contextMessages: contextualMessages.length,
+    });
+    
     const completion = await openai.chat.completions.create({
       model,
       messages: contextualMessages,
-      temperature,
-      max_tokens: 2000,
+      temperature: 0.3,
+      max_completion_tokens: 2000,
     });
-
+    
     const responseContent = completion.choices[0]?.message?.content || '';
-
-    // Store conversation in database
-    await storeConversation(sessionId, messages, responseContent, supabase);
-
+    
+    console.log('✅ OpenAI Response:', {
+      model: completion.model,
+      totalTokens: completion.usage?.total_tokens,
+      responseLength: responseContent.length,
+    });
+    
+    // Store conversation using service
+    if (sessionId) {
+      await conversationService.storeConversation(
+        sessionId,
+        [...messages, { role: 'assistant', content: responseContent }],
+        {
+          module,
+          model: completion.model,
+          token_usage: completion.usage,
+          created_via: 'ai-chat-simple',
+        }
+      );
+    }
+    
     return res.status(200).json({
       content: responseContent,
       usage: completion.usage,
       model: completion.model,
       sessionId,
+      metadata: {
+        dataSource: businessCount > 0 ? 'nuclear-nuclear-semantic' : 'semantic-no-results',
+        businessesProvided: businessCount,
+        databaseBusinessNames, // Chain of custody: which businesses came from our database
+        searchMethod: 'always-on-vector-similarity',
+        searchLatency: searchLatency > 0 ? `${Math.round(searchLatency)}ms` : null,
+        totalRevenue,
+        totalEmployees,
+        timestamp: new Date().toISOString(),
+        approach: 'AI-decides-relevance',
+      },
     });
-
-  } catch (error: any) {
+    
+  } catch (error) {
     console.error('AI Chat Error:', error);
     
-    // Add debugging info in development
-    const debugInfo = process.env.NODE_ENV !== 'production' ? {
-      hasOpenAI: !!process.env.OPENAI_API_KEY,
-      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
-      hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      errorType: error.constructor.name,
-      errorCode: (error as any).code
-    } : {};
-    
-    if (error.status === 401) {
+    if ((error as any)?.status === 401) {
       return res.status(401).json({
         error: 'Invalid OpenAI API key. Please check your configuration.',
-        debug: debugInfo
       });
     }
-
+    
     return res.status(500).json({
-      error: 'Failed to process chat request',
-      details: error.message,
-      debug: debugInfo
+      error: error instanceof Error ? error.message : 'Internal server error',
     });
   }
 }
 
-// Fetch relevant business data based on user query using AI-powered search
-async function fetchRelevantBusinessData(query: string) {
-  const data: any = {
-    companies: [],
-    developments: [],
-    economicIndicators: [],
-    summary: {}
-  };
+function buildSystemMessage(module: string, businessContext: string, summary: any): string {
+  let systemMessage = `You are a Charlotte business intelligence assistant with access to a local business database.
 
-  try {
-    // Use AI-powered search for better results - NO FALLBACKS
-    // Get base URL for API calls - Vercel-only deployment
-    const vercelUrl = process.env.VERCEL_URL;
-    if (!vercelUrl) {
-      throw new Error('VERCEL_URL environment variable is required - this app only runs on Vercel');
-    }
-    const baseUrl = `https://${vercelUrl}`;
-    
-    console.log(`Making AI search request to: ${baseUrl}/api/ai-search`);
-    const searchResponse = await fetch(`${baseUrl}/api/ai-search`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        query, 
-        limit: 20,
-        useAI: true 
-      })
-    });
+IMPORTANT: A semantic search has been performed on our business database using the user's exact query. The results are provided below.
 
-    if (!searchResponse.ok) {
-      throw new Error(`AI search failed with status ${searchResponse.status}`);
-    }
+CRITICAL FORMATTING REQUIREMENT:
 
-    const searchData = await searchResponse.json();
-    if (!searchData.results) {
-      throw new Error('AI search returned invalid response format');
-    }
+You MUST format your responses using these XML-like tags for proper rendering:
 
-    data.companies = searchData.results;
-    data.summary.searchIntent = searchData.intent;
-    data.summary.totalCompanies = searchData.results.length;
-    
-    // Calculate summary statistics
-    if (searchData.results.length > 0) {
-      data.summary.totalRevenue = searchData.results.reduce((sum: number, c: any) => sum + (c.revenue || 0), 0);
-      data.summary.totalEmployees = searchData.results.reduce((sum: number, c: any) => sum + (c.employees_count || 0), 0);
-    }
-    
-    console.log(`AI Search returned ${searchData.results.length} relevant companies`);
-    return data;
+For regular paragraphs:
+<p>Your paragraph text here</p>
 
-  } catch (error: any) {
-    console.error('AI-powered search failed:', error);
-    throw new Error(`Failed to fetch business data: ${error.message}`);
-  }
-}
+For lists (numbered or bulleted):
+<list type="numbered">
+  <item><business db="true">Business Name</business> - Description of the business</item>
+  <item>Regular list item without a business name</item>
+</list>
 
-// Build system message with real business data
-function buildSmartSystemMessage(module: string, businessData: any): string {
-  let systemMessage = `You are an AI assistant specialized in business intelligence for Charlotte, NC. 
-You have access to real business data and should provide specific, data-driven insights.`;
+<list type="bullet">
+  <item>Bullet point content</item>
+</list>
 
-  // Add actual data context
-  if (businessData.companies && businessData.companies.length > 0) {
-    systemMessage += `\n\nCOMPANIES IN DATABASE (${businessData.companies.length} shown):`;
-    businessData.companies.slice(0, 5).forEach((company: any) => {
-      systemMessage += `\n- ${company.name} (${company.industry}): $${(company.revenue || 0).toLocaleString()} revenue, ${company.employees_count || 'N/A'} employees`;
-    });
+For business names:
+<business db="true">Company Name</business> - for businesses from our database
+<business db="false">Other Company</business> - for businesses NOT in our database
+
+EXAMPLE RESPONSE:
+<p>Here are the top performing companies in Charlotte based on revenue:</p>
+<list type="numbered">
+  <item><business db="true">High Branch Brewing</business> - This manufacturing company in Ballantyne has reported an impressive revenue of $12,017,120 with 41 employees.</item>
+  <item><business db="true">Financial Strategies Of Lake Norman Inc</business> - Operating in the finance and insurance sector in SouthEnd, this company has a revenue of $1,523,268 and employs 15 people.</item>
+  <item><business db="true">Edgewater Residential Capital Inc</business> - Also in finance and insurance, located in NoDa, this firm has a revenue of $2,788,698 with 16 employees.</item>
+</list>
+
+RULES:
+1. ALWAYS use the XML-like tags for formatting
+2. NEVER use markdown asterisks (**) for bold
+3. NEVER use parentheses like "(from our database)" - use the db="true" attribute instead
+4. Each business from the database MUST be wrapped in <business db="true">
+5. Keep your language natural and conversational within the tags
+6. Use exact figures from the database - never estimate`;
+
+  // Add business context (always present now with nuclear-nuclear approach)
+  if (businessContext) {
+    systemMessage += '\n\n' + businessContext;
+  } else {
+    systemMessage += '\n\nNo business data available for this query.';
   }
 
-  if (businessData.developments && businessData.developments.length > 0) {
-    systemMessage += `\n\nRECENT DEVELOPMENTS:`;
-    businessData.developments.slice(0, 3).forEach((dev: any) => {
-      systemMessage += `\n- ${dev.title} (${dev.companies?.name || 'Unknown'})`;
-    });
-  }
-
-  if (businessData.summary.latestEconomic) {
-    const eco = businessData.summary.latestEconomic;
-    systemMessage += `\n\nLATEST ECONOMIC INDICATORS (${eco.date}):`;
-    systemMessage += `\n- Unemployment Rate: ${eco.unemploymentRate}%`;
-    systemMessage += `\n- GDP Growth: ${eco.gdpGrowth}%`;
-    systemMessage += `\n- Job Growth: ${eco.jobGrowth}`;
-  }
-
-  if (businessData.summary.totalCompanies) {
+  if (summary.totalCompanies) {
     systemMessage += `\n\nMARKET SUMMARY:`;
-    systemMessage += `\n- Total Companies Analyzed: ${businessData.summary.totalCompanies}`;
-    systemMessage += `\n- Combined Revenue: $${businessData.summary.totalRevenue?.toLocaleString() || 0}`;
-    systemMessage += `\n- Total Employees: ${businessData.summary.totalEmployees?.toLocaleString() || 0}`;
-    if (businessData.summary.topIndustries) {
-      systemMessage += `\n- Top Industries: ${businessData.summary.topIndustries.map((i: any) => i.industry).join(', ')}`;
-    }
+    systemMessage += `\n- Total Companies Analyzed: ${summary.totalCompanies}`;
+    systemMessage += `\n- Combined Revenue: $${summary.totalRevenue?.toLocaleString() || 0}`;
+    systemMessage += `\n- Total Employees: ${summary.totalEmployees?.toLocaleString() || 0}`;
   }
 
   // Module-specific instructions
@@ -268,46 +259,15 @@ Provide specific company names, actual revenue figures, and real data from the d
 Reference specific businesses and real data from the database above.`;
   }
 
-  systemMessage += `\n\nIMPORTANT: Use the real data provided above in your responses. Be specific with company names, numbers, and trends.`;
+  systemMessage += `\n\nKEY REMINDERS: 
+- Lead with database businesses when available, clearly marked "(from our database)"
+- You CAN discuss external businesses if relevant, marked "(general knowledge)" or "(not in our database)"
+- Specific numbers (revenue, employees) must ONLY come from the database above
+- Help users understand both our local market data AND broader context when useful`;
 
   return systemMessage;
 }
 
-// Store conversation in Supabase
-async function storeConversation(
-  sessionId: string,
-  messages: ChatMessage[],
-  aiResponse: string,
-  supabase: SupabaseClient
-): Promise<void> {
-  try {
-    const userMessage = messages[messages.length - 1]?.content || '';
-    
-    const { error } = await supabase
-      .from('ai_conversations')
-      .insert({
-        session_id: sessionId,
-        user_message: userMessage,
-        ai_response: aiResponse,
-        module: 'business-intelligence',
-        token_usage: {
-          total_tokens: 0, // Would need to calculate from OpenAI response
-        },
-        created_at: new Date().toISOString(),
-      });
-
-    if (error) {
-      console.error('Failed to store conversation:', error);
-      // NO FALLBACK - Let it fail
-      throw error;
-    }
-  } catch (error: any) {
-    console.error('Error storing conversation:', error);
-    throw new Error(`Failed to store conversation: ${error.message}`);
-  }
-}
-
-// Generate unique session ID
 function generateSessionId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
