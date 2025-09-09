@@ -3,7 +3,6 @@
  */
 
 import { api } from "@/services/api";
-import { aiBusinessService } from "@/core/services/AIBusinessService";
 import type {
   Business,
   BusinessSearchFilters,
@@ -193,8 +192,14 @@ class BusinessDataService {
       return this.cache.get(cacheKey);
     }
 
-    // Just use the existing AIBusinessService - no complications
-    const businesses = await aiBusinessService.performSemanticSearch(query, limit);
+    // Use API endpoint for semantic search (server-side has OpenAI access)
+    const response = await api.post("/ai-search", { 
+      query, 
+      limit,
+      searchType: 'semantic'
+    });
+    
+    const businesses = response.businesses || [];
     const analytics = await this.getAnalytics();
 
     const result: BusinessSearchResult = {
