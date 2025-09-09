@@ -215,7 +215,7 @@ export function CommunityPulse() {
       </div>
 
       {/* AI Assistant Section - Proper spacing from header */}
-      <div className="space-y-6 mt-24">
+      <div className="space-y-6 pt-24">
         {isWelcomeState ? (
           /* Welcome State - Above the fold, visible immediately */
           <div className="flex flex-col items-center justify-start">

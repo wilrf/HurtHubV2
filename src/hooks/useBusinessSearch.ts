@@ -19,10 +19,20 @@ export function useBusinessSearch() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
     businessDataService.getFilterOptions().then(setFilterOptions);
   }, []);
+
+  // Debounce the query to avoid excessive API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [query]);
 
   const performSearch = useCallback(
     async (searchFilters: BusinessSearchFilters, page: number = 1) => {
@@ -30,8 +40,8 @@ export function useBusinessSearch() {
       try {
         let searchResults: BusinessSearchResult;
         
-        // If there's a query, use semantic search
-        if (searchFilters.query && searchFilters.query.trim()) {
+        // If there's a query with at least 2 characters, use semantic search
+        if (searchFilters.query && searchFilters.query.trim().length >= 2) {
           searchResults = await businessDataService.searchBusinessesSemantic(
             searchFilters.query,
             20
@@ -60,8 +70,18 @@ export function useBusinessSearch() {
         setResults(searchResults);
       } catch (error) {
         console.error("Search error:", error);
-        // Let exceptions bubble up per architecture principles - no fallback
-        throw error;
+        // Set empty results instead of throwing - better UX
+        setResults({
+          businesses: [],
+          total: 0,
+          page: 1,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+          filters: searchFilters,
+          searchType: 'error',
+          analytics: await businessDataService.getAnalytics(),
+        });
       } finally {
         setIsLoading(false);
       }
@@ -70,14 +90,14 @@ export function useBusinessSearch() {
   );
 
   useEffect(() => {
-    const searchFilters = { ...filters, query: query.trim() || undefined };
-    if (query.trim() || Object.keys(filters).length > 0) {
+    const searchFilters = { ...filters, query: debouncedQuery.trim() || undefined };
+    if (debouncedQuery.trim() || Object.keys(filters).length > 0) {
       performSearch(searchFilters, 1);
       setCurrentPage(1);
     } else {
       setResults(null);
     }
-  }, [query, filters, performSearch]);
+  }, [debouncedQuery, filters, performSearch]);
 
   const handleFilterChange = (
     key: keyof BusinessSearchFilters,

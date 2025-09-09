@@ -199,7 +199,8 @@ class BusinessDataService {
       searchType: 'semantic'
     });
     
-    const businesses = response.businesses || [];
+    // API returns 'results' not 'businesses'
+    const businesses = response.results || [];
     const analytics = await this.getAnalytics();
 
     const result: BusinessSearchResult = {
