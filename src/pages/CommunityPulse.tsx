@@ -214,38 +214,39 @@ export function CommunityPulse() {
         </div>
       </div>
 
-      {/* AI Assistant Section - Added more spacing from header */}
-      <div className="space-y-6 mt-12 pt-8">
+      {/* AI Assistant Section - Proper spacing from header */}
+      <div className="space-y-6 mt-16">
         {isWelcomeState ? (
           /* Welcome State - Above the fold, visible immediately */
           <div className="flex flex-col items-center justify-start">
-            <div className="max-w-2xl w-full space-y-6">
-              {/* Welcome message */}
-              <div className="text-center">
-                <h2 className="text-xl font-medium text-foreground">
-                  Ready to explore Charlotte's community pulse?
-                </h2>
-              </div>
-              
-              {/* Chat input container with subtle background */}
-              <div className="bg-midnight-800/20 rounded-2xl p-6 mb-8">
+            <div className="max-w-2xl w-full">
+              {/* Welcome message and input grouped together */}
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h2 className="text-xl font-medium text-foreground">
+                    Ready to explore Charlotte's community pulse?
+                  </h2>
+                </div>
+                
                 {/* Chat input - prominent and accessible */}
                 <BusinessAIChat
-                key="community-ai-chat"
-                module="community-pulse"
-                className="min-h-0"
-                isWelcomeState={true}
-                onFirstMessage={() => setIsWelcomeState(false)}
-                externalMessages={hookData.messages}
-                externalInput={hookData.input}
-                externalIsLoading={hookData.isLoading}
-                externalSetInput={hookData.setInput}
-                externalHandleSendMessage={hookData.handleSendMessage}
-                externalMessagesEndRef={hookData.messagesEndRef}
-              />
+                  key="community-ai-chat"
+                  module="community-pulse"
+                  className="min-h-0"
+                  isWelcomeState={true}
+                  onFirstMessage={() => setIsWelcomeState(false)}
+                  externalMessages={hookData.messages}
+                  externalInput={hookData.input}
+                  externalIsLoading={hookData.isLoading}
+                  externalSetInput={hookData.setInput}
+                  externalHandleSendMessage={hookData.handleSendMessage}
+                  externalMessagesEndRef={hookData.messagesEndRef}
+                />
+              </div>
               
-              {/* Suggested prompts - accessible without scrolling */}
-              <CommunityPrompts onPromptSelect={handlePromptSelect} />
+              {/* Suggested prompts - separated and de-emphasized */}
+              <div className="mt-6">
+                <CommunityPrompts onPromptSelect={handlePromptSelect} />
               </div>
             </div>
           </div>

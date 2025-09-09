@@ -43,9 +43,9 @@ export function SuggestedPrompts({
             key={index}
             onClick={() => onPromptSelect(prompt.prompt)}
             className={`
-              flex items-center gap-2 py-2 px-4
+              flex items-center gap-2 py-1.5 px-3
               ${isDarkMode 
-                ? "bg-midnight-800/30 hover:bg-midnight-800/50 border-midnight-600/30 text-gray-400 hover:text-gray-300" 
+                ? "bg-midnight-800/20 hover:bg-midnight-800/30 border-midnight-600/20 text-gray-500 hover:text-gray-400" 
                 : "bg-white hover:bg-gray-50 border-gray-200"
               }
               border rounded-lg
@@ -54,13 +54,13 @@ export function SuggestedPrompts({
             `}
           >
             <Icon
-              className={`h-4 w-4 flex-shrink-0 ${
-                isDarkMode ? "text-sapphire-400" : "text-blue-500"
+              className={`h-3.5 w-3.5 flex-shrink-0 ${
+                isDarkMode ? "text-sapphire-500/70" : "text-blue-500"
               } group-hover:scale-110 transition-transform`}
             />
             <span
               className={`text-xs ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
+                isDarkMode ? "text-gray-500" : "text-gray-700"
               }`}
             >
               {prompt.text}
