@@ -103,7 +103,7 @@ function AssistantMessage({
             currentLine.push(
               <span
                 key={index}
-                className="cursor-help underline decoration-dotted decoration-sapphire-400/50 hover:decoration-sapphire-400 transition-colors"
+                className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-1 rounded transition-all duration-200"
                 onMouseEnter={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   setHoveredBusiness({
@@ -142,7 +142,7 @@ function AssistantMessage({
             currentLine = [];
           }
           currentLine.push(
-            <span key={index} className="text-muted-foreground">• </span>
+            <span key={index} className="text-muted-foreground mr-2">•</span>
           );
           break;
         case SegmentType.NUMBERED_LIST:
@@ -152,8 +152,8 @@ function AssistantMessage({
             currentLine = [];
           }
           currentLine.push(
-            <span key={index} className="text-muted-foreground">
-              {segment.getListNumber()}. 
+            <span key={index} className="text-muted-foreground mr-2">
+              {segment.getListNumber()}.
             </span>
           );
           break;
@@ -169,12 +169,30 @@ function AssistantMessage({
       lines.push(currentLine);
     }
     
-    // Render lines as separate divs
-    return lines.map((line, lineIndex) => (
-      <div key={lineIndex} className="min-h-[1.5rem]">
-        {line}
-      </div>
-    ));
+    // Render lines as separate divs with proper spacing
+    return lines.map((line, lineIndex) => {
+      // Check if this line starts with a list marker (bullet or number)
+      const isListItem = line.some(element => {
+        const spanProps = element.props;
+        return spanProps?.children === '•' || 
+               (typeof spanProps?.children === 'string' && /^\d+\.$/.test(spanProps.children));
+      });
+      
+      // Check if this is an empty line (paragraph break)
+      const isEmpty = line.length === 0 || (line.length === 1 && line[0].props?.children === '');
+      
+      return (
+        <div 
+          key={lineIndex} 
+          className={`
+            ${isEmpty ? 'h-2' : 'min-h-[1.5rem]'} 
+            ${isListItem ? 'mb-3 flex items-start' : 'mb-1'}
+          `}
+        >
+          {line}
+        </div>
+      );
+    });
   };
 
   return (
@@ -188,13 +206,13 @@ function AssistantMessage({
           <Bot className="h-4 w-4 text-sapphire-400" />
         </div>
         <div
-          className={`p-3 rounded-lg ${
+          className={`p-4 rounded-lg ${
             isDarkMode
               ? "bg-sapphire-900/20 border border-midnight-700"
               : "bg-gray-50 border"
           }`}
         >
-          <div className="text-sm leading-relaxed">
+          <div className="text-sm leading-7 space-y-1">
             {renderSegments()}
           </div>
           <p className="text-xs opacity-70 mt-2">

@@ -110,8 +110,8 @@ export function BusinessAIChat({
           
           {/* Floating input at bottom */}
           <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-            <div className="bg-gradient-to-t from-midnight-900 via-midnight-900/90 to-transparent h-20 pointer-events-none" />
-            <div className="bg-midnight-900/95 backdrop-blur-lg p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-20px_40px_-10px_rgba(0,0,0,0.5)]">
+            <div className="bg-gradient-to-t from-midnight-900/80 via-midnight-900/40 to-transparent h-16 pointer-events-none" />
+            <div className="bg-midnight-900/90 backdrop-blur-md p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.15)]">
               <ChatInput
                 input={input}
                 setInput={setInput}
@@ -178,8 +178,8 @@ export function BusinessAIChat({
       
       {/* Floating input at bottom */}
       <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <div className="bg-gradient-to-t from-midnight-900 via-midnight-900/90 to-transparent h-20 pointer-events-none" />
-        <div className="bg-midnight-900/95 backdrop-blur-lg p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-20px_40px_-10px_rgba(0,0,0,0.5)]">
+        <div className="bg-gradient-to-t from-midnight-900/80 via-midnight-900/40 to-transparent h-16 pointer-events-none" />
+        <div className="bg-midnight-900/90 backdrop-blur-md p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.15)]">
           <ChatInput
             input={input}
             setInput={setInput}

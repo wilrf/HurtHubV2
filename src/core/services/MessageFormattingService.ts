@@ -176,7 +176,28 @@ export class MessageFormattingService {
    */
   private parseInlineFormatting(text: string): MessageSegment[] {
     const segments: MessageSegment[] = [];
+    
+    // First, clean up any standalone asterisks that aren't part of formatting
+    // This helps prevent orphaned asterisks from showing in the output
+    let cleanedText = text;
+    
+    // Process bold first (**text** or __text__)
+    cleanedText = cleanedText.replace(/\*\*([^*]+)\*\*/g, '{{BOLD_START}}$1{{BOLD_END}}');
+    cleanedText = cleanedText.replace(/__([^_]+)__/g, '{{BOLD_START}}$1{{BOLD_END}}');
+    
+    // Process italic (*text* or _text_) - but not if it's part of bold
+    cleanedText = cleanedText.replace(/(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g, '{{ITALIC_START}}$1{{ITALIC_END}}');
+    cleanedText = cleanedText.replace(/(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)/g, '{{ITALIC_START}}$1{{ITALIC_END}}');
+    
+    // Remove any remaining standalone asterisks that weren't part of valid formatting
+    cleanedText = cleanedText.replace(/(?<!\{)\*+(?!\})/g, '');
+    
+    // Now parse the cleaned text with our markers
     let position = 0;
+    const markers = [
+      { pattern: /\{\{BOLD_START\}\}([^{]+)\{\{BOLD_END\}\}/g, type: SegmentType.BOLD },
+      { pattern: /\{\{ITALIC_START\}\}([^{]+)\{\{ITALIC_END\}\}/g, type: SegmentType.ITALIC }
+    ];
     
     // Find all formatting matches and sort by position
     const matches: Array<{
@@ -186,38 +207,17 @@ export class MessageFormattingService {
       content: string;
     }> = [];
     
-    // Find bold patterns (**text**)
-    let match;
-    const boldPattern = /\*\*([^*]+)\*\*/g;
-    while ((match = boldPattern.exec(text)) !== null) {
-      matches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        type: SegmentType.BOLD,
-        content: match[1]
-      });
-    }
-    
-    // Find bold patterns (__text__)
-    const boldUnderscorePattern = /__([^_]+)__/g;
-    while ((match = boldUnderscorePattern.exec(text)) !== null) {
-      matches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        type: SegmentType.BOLD,
-        content: match[1]
-      });
-    }
-    
-    // Find italic patterns (*text*) - avoid conflicts with bold
-    const italicPattern = /(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g;
-    while ((match = italicPattern.exec(text)) !== null) {
-      matches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        type: SegmentType.ITALIC,
-        content: match[1]
-      });
+    for (const marker of markers) {
+      let match;
+      marker.pattern.lastIndex = 0; // Reset regex
+      while ((match = marker.pattern.exec(cleanedText)) !== null) {
+        matches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          type: marker.type,
+          content: match[1]
+        });
+      }
     }
     
     // Sort matches by position
