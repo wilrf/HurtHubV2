@@ -184,14 +184,14 @@ export function MainLayout() {
               <Menu className="h-5 w-5 icon-bounce" />
             </Button>
 
-            {/* Search bar */}
-            <div className="flex-1 max-w-md mx-4">
+            {/* Search bar - subtle and compact */}
+            <div className="flex-1 max-w-sm ml-4 mr-6">
               <Input
                 type="search"
-                placeholder="Search companies, news, developments..."
+                placeholder="Quick search..."
                 variant="search"
-                leftIcon={<Search className="h-4 w-4" />}
-                className="w-full"
+                leftIcon={<Search className="h-3 w-3 opacity-60" />}
+                className="w-full h-8 text-sm bg-midnight-900/40 border-midnight-700/50 text-gray-400 placeholder:text-gray-500"
               />
             </div>
 

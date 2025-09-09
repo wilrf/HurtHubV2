@@ -132,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       model,
       messages: contextualMessages,
       temperature: 0.3,
-      max_tokens: 2000,
+      max_completion_tokens: 2000,
     });
     
     const responseContent = completion.choices[0]?.message?.content || '';

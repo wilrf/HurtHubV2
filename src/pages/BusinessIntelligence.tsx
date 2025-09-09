@@ -219,8 +219,8 @@ export function BusinessIntelligence() {
       {/* Main Chat Section */}
       <div className="space-y-6">
         {isWelcomeState ? (
-          /* Welcome State - Centered content group */
-          <div className="min-h-[50vh] flex flex-col items-center justify-center">
+          /* Welcome State - Above the fold, visible immediately */
+          <div className="flex flex-col items-center justify-start pt-8">
             <div className="max-w-2xl w-full space-y-6">
               {/* Welcome message */}
               <div className="text-center">
@@ -229,7 +229,7 @@ export function BusinessIntelligence() {
                 </h2>
               </div>
               
-              {/* Chat input - close to welcome message */}
+              {/* Chat input - prominent and accessible */}
               <BusinessAIChat
                 module="business-intelligence"
                 className="min-h-0"
@@ -237,7 +237,7 @@ export function BusinessIntelligence() {
                 onFirstMessage={() => setIsWelcomeState(false)}
               />
               
-              {/* Suggested prompts - close to input */}
+              {/* Suggested prompts - accessible without scrolling */}
               <SuggestedPrompts onPromptSelect={handlePromptSelect} />
             </div>
           </div>
@@ -247,7 +247,7 @@ export function BusinessIntelligence() {
             <CardContent className="p-0">
               <BusinessAIChat
                 module="business-intelligence"
-                className="min-h-[600px]"
+                className="min-h-[500px] max-h-[60vh]"
                 isWelcomeState={false}
                 onFirstMessage={() => setIsWelcomeState(false)}
               />

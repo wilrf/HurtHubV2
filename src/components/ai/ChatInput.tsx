@@ -34,7 +34,7 @@ export function ChatInput({
           placeholder={module === "business-intelligence" ? "Ask about Charlotte businesses..." : "Ask about community trends..."}
           disabled={isLoading}
           variant={isDarkMode ? "midnight" : "default"}
-          className="w-full py-3 px-4 text-base bg-sapphire-800/40 border-sapphire-600/50 rounded-xl ring-2 ring-sapphire-500/20 focus:ring-sapphire-400/40 focus:border-sapphire-400/60 transition-all duration-200 placeholder:text-sapphire-300/60"
+          className="w-full py-3 px-4 text-base bg-midnight-800/60 border-midnight-600/40 rounded-xl focus:bg-midnight-700/80 focus:border-midnight-500/60 transition-all duration-200 text-foreground placeholder:text-muted-foreground/80"
         />
       </div>
     </div>
