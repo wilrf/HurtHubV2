@@ -109,7 +109,7 @@ export function BusinessAIChat({
           </div>
           
           {/* Floating input at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 pb-2">
+          <div className="absolute bottom-0 left-0 right-4 p-3 pb-2">
             <ChatInput
                 input={input}
                 setInput={setInput}
@@ -176,7 +176,7 @@ export function BusinessAIChat({
       </div>
       
       {/* Floating input at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 pb-2">
+      <div className="absolute bottom-0 left-0 right-4 p-3 pb-2">
         <ChatInput
             input={input}
             setInput={setInput}
