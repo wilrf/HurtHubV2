@@ -47,21 +47,10 @@ export function BusinessIntelligence() {
 
   // Watch for when messages appear to exit welcome state
   useEffect(() => {
-    console.log('[BusinessIntelligence] Messages changed:', {
-      messageCount: messages.length,
-      messages: messages,
-      currentWelcomeState: isWelcomeState,
-      hookData: {
-        hasMessages: hookData.messages.length > 0,
-        isLoading: hookData.isLoading,
-        input: hookData.input
-      }
-    });
     if (messages.length > 0) {
-      console.log('[BusinessIntelligence] Setting welcome state to false');
       setIsWelcomeState(false);
     }
-  }, [messages, isWelcomeState, hookData]);
+  }, [messages]);
 
   const loadAnalyticsData = async () => {
     setIsLoading(true);
@@ -95,13 +84,10 @@ export function BusinessIntelligence() {
     return num.toLocaleString();
   };
 
-  const handlePromptSelect = async (prompt: string) => {
+  const handlePromptSelect = (prompt: string) => {
     setInput(prompt);
-    setIsWelcomeState(false);
-    // Small delay to ensure state updates before sending
-    setTimeout(() => {
-      originalHandleSendMessage();
-    }, 100);
+    // Don't change state or send message here - let the user click send
+    // This matches CommunityPulse behavior which works correctly
   };
 
   const handleNewChat = () => {
