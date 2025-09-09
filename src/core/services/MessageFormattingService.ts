@@ -59,73 +59,173 @@ export class MessageFormattingService {
   }
 
   /**
-   * Parse markdown formatting into segments
+   * Single-pass markdown parser - CORRECT APPROACH
+   * Parses all formatting in one pass to maintain proper text order
    */
   private parseMarkdown(text: string): MessageSegment[] {
     const segments: MessageSegment[] = [];
-    let currentText = text;
-
-    // Handle bold text (**text** or __text__)
-    currentText = this.parseFormatting(
-      currentText,
-      /\*\*([^*]+)\*\*/g,
-      SegmentType.BOLD,
-      segments
-    );
-    currentText = this.parseFormatting(
-      currentText,
-      /__([^_]+)__/g,
-      SegmentType.BOLD,
-      segments
-    );
-
-    // Handle italic text (*text* or _text_) - be careful not to match bold
-    currentText = this.parseFormatting(
-      currentText,
-      /(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g,
-      SegmentType.ITALIC,
-      segments
-    );
-    currentText = this.parseFormatting(
-      currentText,
-      /(?<!_)_(?!_)([^_]+)(?<!_)_(?!_)/g,
-      SegmentType.ITALIC,
-      segments
-    );
-
-    // Handle bullet points
-    currentText = currentText.replace(/^[*-]\s+(.+)$/gm, (match, content) => {
-      segments.push(new MessageSegment(SegmentType.BULLET, content));
-      return "";
-    });
-
-    // Handle numbered lists
-    currentText = currentText.replace(/^(\d+)\.\s+(.+)$/gm, (match, number, content) => {
-      segments.push(new MessageSegment(
-        SegmentType.NUMBERED_LIST,
-        content,
-        { number: parseInt(number) }
-      ));
-      return "";
-    });
-
-    // Add any remaining plain text
-    if (currentText.trim()) {
-      segments.push(new MessageSegment(SegmentType.TEXT, currentText));
+    
+    // Process line by line to handle lists first
+    const lines = text.split('\n');
+    let lineIndex = 0;
+    
+    while (lineIndex < lines.length) {
+      const line = lines[lineIndex];
+      
+      // Check if this is a numbered list item
+      const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+      if (numberedMatch) {
+        const content = numberedMatch[2];
+        
+        // Create numbered list marker segment
+        segments.push(new MessageSegment(
+          SegmentType.NUMBERED_LIST,
+          "",  // Empty content - this is just the list marker
+          { number: parseInt(numberedMatch[1]) }
+        ));
+        
+        // Parse and add the content with preserved formatting
+        const inlineSegments = this.parseInlineFormatting(content);
+        segments.push(...inlineSegments);
+        lineIndex++;
+        continue;
+      }
+      
+      // Check if this is a bullet point
+      const bulletMatch = line.match(/^[*-]\s+(.+)$/);
+      if (bulletMatch) {
+        const content = bulletMatch[1];
+        
+        // Create bullet marker segment
+        segments.push(new MessageSegment(SegmentType.BULLET, ""));
+        
+        // Parse and add the content with preserved formatting
+        const inlineSegments = this.parseInlineFormatting(content);
+        segments.push(...inlineSegments);
+        lineIndex++;
+        continue;
+      }
+      
+      // Regular line - parse inline formatting
+      if (line.trim()) {
+        const inlineSegments = this.parseInlineFormatting(line);
+        segments.push(...inlineSegments);
+      }
+      
+      // Add newline if not the last line
+      if (lineIndex < lines.length - 1) {
+        segments.push(new MessageSegment(SegmentType.TEXT, '\n'));
+      }
+      
+      lineIndex++;
     }
-
+    
     // If no segments were created, return the original text as plain
     if (segments.length === 0 && text) {
       segments.push(new MessageSegment(SegmentType.TEXT, text));
     }
-
+    
     return segments;
+  }
+  
+  /**
+   * Parse inline formatting (bold, italic) in correct order
+   */
+  private parseInlineFormatting(text: string): MessageSegment[] {
+    const segments: MessageSegment[] = [];
+    let position = 0;
+    
+    // Find all formatting matches and sort by position
+    const matches: Array<{
+      start: number;
+      end: number;
+      type: SegmentType;
+      content: string;
+    }> = [];
+    
+    // Find bold patterns (**text**)
+    let match;
+    const boldPattern = /\*\*([^*]+)\*\*/g;
+    while ((match = boldPattern.exec(text)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type: SegmentType.BOLD,
+        content: match[1]
+      });
+    }
+    
+    // Find bold patterns (__text__)
+    const boldUnderscorePattern = /__([^_]+)__/g;
+    while ((match = boldUnderscorePattern.exec(text)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type: SegmentType.BOLD,
+        content: match[1]
+      });
+    }
+    
+    // Find italic patterns (*text*) - avoid conflicts with bold
+    const italicPattern = /(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g;
+    while ((match = italicPattern.exec(text)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type: SegmentType.ITALIC,
+        content: match[1]
+      });
+    }
+    
+    // Sort matches by position
+    matches.sort((a, b) => a.start - b.start);
+    
+    // Process matches in order
+    for (const formatMatch of matches) {
+      // Add text before the match
+      if (formatMatch.start > position) {
+        const beforeText = text.substring(position, formatMatch.start);
+        if (beforeText) {
+          segments.push(new MessageSegment(SegmentType.TEXT, beforeText));
+        }
+      }
+      
+      // Add the formatted segment
+      segments.push(new MessageSegment(formatMatch.type, formatMatch.content));
+      
+      // Update position
+      position = formatMatch.end;
+    }
+    
+    // Add any remaining text
+    if (position < text.length) {
+      const remainingText = text.substring(position);
+      if (remainingText) {
+        segments.push(new MessageSegment(SegmentType.TEXT, remainingText));
+      }
+    }
+    
+    // If no formatting found, return the original text
+    if (segments.length === 0 && text) {
+      segments.push(new MessageSegment(SegmentType.TEXT, text));
+    }
+    
+    return segments;
+  }
+  
+  /**
+   * Convert segments back to plain text for list content
+   */
+  private _segmentsToText(segments: MessageSegment[]): string {
+    return segments
+      .map(segment => segment.content)
+      .join('');
   }
 
   /**
    * Generic formatting parser
    */
-  private parseFormatting(
+  private _parseFormatting(
     text: string,
     pattern: RegExp,
     type: SegmentType,

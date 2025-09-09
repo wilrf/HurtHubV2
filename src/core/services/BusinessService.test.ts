@@ -19,7 +19,7 @@ class MockBusinessRepository implements IBusinessRepository {
     return limit ? this.businesses.slice(0, limit) : this.businesses;
   }
 
-  async search(query: string, filters?: any): Promise<Business[]> {
+  async search(_query: string, _filters?: any): Promise<Business[]> {
     return this.businesses;
   }
 
@@ -56,7 +56,7 @@ class MockBusinessRepository implements IBusinessRepository {
     return this.businesses.slice(0, limit || 10);
   }
 
-  async updateEmbedding(id: string, embedding: number[]): Promise<void> {
+  async updateEmbedding(_id: string, _embedding: number[]): Promise<void> {
     // Mock implementation - does nothing in tests
   }
 
