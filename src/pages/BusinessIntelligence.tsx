@@ -33,7 +33,7 @@ export function BusinessIntelligence() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMetric, setSelectedMetric] = useState<
-    "revenue" | "employees" | "growth" | "age"
+    "revenue" | "employees" | "revenueGrowth" | "grossMargin"
   >("revenue");
   const [isWelcomeState, setIsWelcomeState] = useState(true);
   
@@ -384,7 +384,7 @@ export function BusinessIntelligence() {
                   ? "revenue"
                   : selectedMetric === "employees"
                     ? "employees"
-                    : selectedMetric === "growth"
+                    : selectedMetric === "revenueGrowth"
                       ? "revenueGrowth"
                       : "grossMargin",
               )
@@ -423,7 +423,7 @@ export function BusinessIntelligence() {
                           ? formatCurrency(business.revenue)
                           : selectedMetric === "employees"
                             ? formatNumber(business.employeeCount)
-                            : selectedMetric === "growth"
+                            : selectedMetric === "revenueGrowth"
                               ? `${((business.revenueGrowth || 0) * 100).toFixed(1)}%`
                               : `${((business.grossMargin || 0) * 100).toFixed(1)}%`}
                       </p>
