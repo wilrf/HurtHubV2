@@ -33,8 +33,9 @@ export function CommunityPulse() {
   const [isLoading, setIsLoading] = useState(true);
   const [isWelcomeState, setIsWelcomeState] = useState(true);
   
-  // Get messages from the chat hook
-  const { messages, setInput } = useBusinessAIChat("community-pulse");
+  // Get all data from the chat hook
+  const hookData = useBusinessAIChat("community-pulse");
+  const { messages, setInput } = hookData;
 
   useEffect(() => {
     loadCommunityData();
@@ -232,6 +233,12 @@ export function CommunityPulse() {
                 className="min-h-0"
                 isWelcomeState={true}
                 onFirstMessage={() => setIsWelcomeState(false)}
+                externalMessages={hookData.messages}
+                externalInput={hookData.input}
+                externalIsLoading={hookData.isLoading}
+                externalSetInput={hookData.setInput}
+                externalHandleSendMessage={hookData.handleSendMessage}
+                externalMessagesEndRef={hookData.messagesEndRef}
               />
               
               {/* Suggested prompts - accessible without scrolling */}

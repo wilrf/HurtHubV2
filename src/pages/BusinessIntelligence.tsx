@@ -37,8 +37,9 @@ export function BusinessIntelligence() {
   >("revenue");
   const [isWelcomeState, setIsWelcomeState] = useState(true);
   
-  // Get messages from the chat hook - starts with no messages
-  const { messages, setInput, handleSendMessage: originalHandleSendMessage } = useBusinessAIChat("business-intelligence");
+  // Get all data from the chat hook - starts with no messages
+  const hookData = useBusinessAIChat("business-intelligence");
+  const { messages, setInput, handleSendMessage: originalHandleSendMessage } = hookData;
 
   useEffect(() => {
     loadAnalyticsData();
@@ -235,6 +236,12 @@ export function BusinessIntelligence() {
                 className="min-h-0"
                 isWelcomeState={true}
                 onFirstMessage={() => setIsWelcomeState(false)}
+                externalMessages={hookData.messages}
+                externalInput={hookData.input}
+                externalIsLoading={hookData.isLoading}
+                externalSetInput={hookData.setInput}
+                externalHandleSendMessage={hookData.handleSendMessage}
+                externalMessagesEndRef={hookData.messagesEndRef}
               />
               
               {/* Suggested prompts - accessible without scrolling */}
