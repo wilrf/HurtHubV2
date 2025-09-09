@@ -38,7 +38,7 @@ export function ChatInput({
           variant={isDarkMode ? "midnight" : "default"}
           className={`w-full py-4 px-5 text-base rounded-xl transition-all duration-200 text-foreground placeholder:text-muted-foreground/60 ${
             isWelcomeState 
-              ? "bg-midnight-800/80 border-2 border-sapphire-500/40 focus:border-sapphire-500 focus:bg-midnight-800/90" 
+              ? "bg-midnight-900/90 border-2 border-sapphire-500/50 shadow-md focus:border-sapphire-500 focus:bg-midnight-900" 
               : "bg-midnight-900 border border-midnight-500/70 focus:border-sapphire-500 focus:ring-2 focus:ring-sapphire-500/30 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_-20px_50px_-5px_rgba(59,130,246,0.25),0_-15px_35px_-5px_rgba(17,24,39,0.9),0_10px_40px_-5px_rgba(0,0,0,0.5),0_0_80px_15px_rgba(0,0,0,0.4)] backdrop-blur-xl"
           }`}
         />

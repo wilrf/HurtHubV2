@@ -3,6 +3,7 @@
  */
 
 import { api } from "@/services/api";
+import { aiBusinessService } from "@/core/services/AIBusinessService";
 import type {
   Business,
   BusinessSearchFilters,
@@ -180,98 +181,36 @@ class BusinessDataService {
   }
 
   /**
-   * Search businesses using AI-powered semantic search
+   * Search businesses using semantic search - simple and effective
    */
-  async searchBusinessesWithAI(
+  async searchBusinessesSemantic(
     query: string,
     limit: number = 20,
   ): Promise<BusinessSearchResult> {
-    const cacheKey = `ai_search_${query}_${limit}`;
+    const cacheKey = `semantic_search_${query}_${limit}`;
 
     if (this.cache.has(cacheKey) && this.isCacheValid()) {
       return this.cache.get(cacheKey);
     }
 
-    try {
-      const data = await api.post("/unified-search", {
-        query,
-        useAI: true,
-        limit,
-      });
+    // Just use the existing AIBusinessService - no complications
+    const businesses = await aiBusinessService.performSemanticSearch(query, limit);
+    const analytics = await this.getAnalytics();
 
-      const result: BusinessSearchResult = {
-        businesses: data.businesses || [],
-        total: data.businesses?.length || 0,
-        page: 1,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-        filters: { query },
-        analytics: data.analytics,
-        searchType: 'semantic',
-      };
+    const result: BusinessSearchResult = {
+      businesses,
+      total: businesses.length,
+      page: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      filters: { query },
+      searchType: 'semantic',
+      analytics,
+    };
 
-      this.cache.set(cacheKey, result);
-      return result;
-    } catch (error) {
-      console.error("❌ Failed to perform AI search:", error);
-      // Fallback to regular search if AI fails
-      return this.searchBusinesses({ query }, 1, limit);
-    }
-  }
-
-  /**
-   * Smart search that automatically chooses between AI and structured search
-   */
-  async smartSearch(
-    query: string,
-    filters: BusinessSearchFilters = {},
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<BusinessSearchResult> {
-    // Determine if we should use AI or structured search
-    const shouldUseAI = this.shouldUseSemanticSearch(query, filters);
-
-    if (shouldUseAI && !Object.keys(filters).length) {
-      // Use AI search for natural language queries without filters
-      const result = await this.searchBusinessesWithAI(query, limit);
-      
-      // If AI search returns too few results, try structured search as fallback
-      if (result.businesses.length < 3) {
-        const structuredResult = await this.searchBusinesses({ ...filters, query }, page, limit);
-        if (structuredResult.businesses.length > result.businesses.length) {
-          return { ...structuredResult, searchType: 'hybrid' };
-        }
-      }
-      
-      return result;
-    } else {
-      // Use structured search for queries with filters or exact patterns
-      return this.searchBusinesses({ ...filters, query }, page, limit);
-    }
-  }
-
-  /**
-   * Determine if semantic search should be used based on query pattern
-   */
-  private shouldUseSemanticSearch(query: string, filters: BusinessSearchFilters): boolean {
-    if (!query || query.length < 3) return false;
-    
-    // Check if query has structured patterns
-    const hasStructuredPattern = /^[A-Z]/.test(query) && // Starts with capital (likely business name)
-                                 !query.includes(' ') && // Single word
-                                 query.length < 20; // Not too long
-    
-    // Check for filter syntax
-    const hasFilterSyntax = query.includes(':') || 
-                           query.includes('=') ||
-                           query.startsWith('"') && query.endsWith('"');
-    
-    // Check if other filters are applied
-    const hasOtherFilters = Object.keys(filters).filter(k => k !== 'query').length > 0;
-    
-    // Use semantic search for natural language queries
-    return !hasStructuredPattern && !hasFilterSyntax && !hasOtherFilters;
+    this.cache.set(cacheKey, result);
+    return result;
   }
 
   /**

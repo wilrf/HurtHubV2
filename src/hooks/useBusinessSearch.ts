@@ -28,17 +28,40 @@ export function useBusinessSearch() {
     async (searchFilters: BusinessSearchFilters, page: number = 1) => {
       setIsLoading(true);
       try {
-        // Always use smart search - it automatically picks the best method
-        const searchResults = await businessDataService.smartSearch(
-          searchFilters.query || '',
-          searchFilters,
-          page,
-          20,
-        );
+        let searchResults: BusinessSearchResult;
+        
+        // If there's a query, use semantic search
+        if (searchFilters.query && searchFilters.query.trim()) {
+          searchResults = await businessDataService.searchBusinessesSemantic(
+            searchFilters.query,
+            20
+          );
+        } else if (Object.keys(searchFilters).filter(k => k !== 'query').length > 0) {
+          // Use regular search for filter-only queries
+          searchResults = await businessDataService.searchBusinesses(
+            searchFilters,
+            page,
+            20
+          );
+        } else {
+          // No query and no filters - return empty result
+          searchResults = {
+            businesses: [],
+            total: 0,
+            page: 1,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPreviousPage: false,
+            filters: searchFilters,
+            analytics: await businessDataService.getAnalytics(),
+          };
+        }
         
         setResults(searchResults);
       } catch (error) {
         console.error("Search error:", error);
+        // Let exceptions bubble up per architecture principles - no fallback
+        throw error;
       } finally {
         setIsLoading(false);
       }

@@ -8,22 +8,22 @@ interface CommunityPromptsProps {
 const prompts = [
   {
     icon: Heart,
-    text: "What's the business sentiment?",
+    text: "Business sentiment",
     prompt: "What's the business sentiment in different neighborhoods?",
   },
   {
     icon: Network,
-    text: "How are businesses collaborating?",
+    text: "Business collaborations",
     prompt: "How are local businesses collaborating?",
   },
   {
     icon: TrendingUp,
-    text: "Which communities show growth?",
+    text: "Growing communities",
     prompt: "Which communities show strong economic growth?",
   },
   {
     icon: MapPin,
-    text: "Tell me about clustering patterns",
+    text: "Business clusters",
     prompt: "Tell me about business clustering patterns",
   },
 ];
@@ -44,6 +44,7 @@ export function CommunityPrompts({
             onClick={() => onPromptSelect(prompt.prompt)}
             className={`
               flex items-center gap-2 py-1.5 px-3
+              min-h-[32px] max-h-[32px]
               ${isDarkMode 
                 ? "bg-midnight-800/20 hover:bg-midnight-800/30 border-midnight-600/20 text-gray-500 hover:text-gray-400" 
                 : "bg-white hover:bg-gray-50 border-gray-200"
@@ -59,7 +60,7 @@ export function CommunityPrompts({
               } group-hover:scale-110 transition-transform`}
             />
             <span
-              className={`text-xs ${
+              className={`text-xs line-clamp-2 ${
                 isDarkMode ? "text-gray-500" : "text-gray-700"
               }`}
             >

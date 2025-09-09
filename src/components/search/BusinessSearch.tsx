@@ -19,7 +19,6 @@ interface SearchInputProps {
   activeFiltersCount: number;
   showFiltersPanel: boolean;
   setShowFiltersPanel: (show: boolean) => void;
-  isAISearch: boolean;
 }
 
 function SearchInput({
@@ -30,7 +29,6 @@ function SearchInput({
   activeFiltersCount,
   showFiltersPanel,
   setShowFiltersPanel,
-  isAISearch,
 }: SearchInputProps) {
   return (
     <div className="relative">
@@ -39,7 +37,7 @@ function SearchInput({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search businesses, industries, or neighborhoods..."
-        leftIcon={isAISearch ? <Sparkles className="h-4 w-4 text-sapphire-400" /> : <Search className="h-4 w-4" />}
+        leftIcon={<Sparkles className="h-4 w-4 text-sapphire-400" />}
         variant="search"
         className="pr-24"
       />
@@ -113,7 +111,6 @@ export function BusinessSearch({
         activeFiltersCount={activeFiltersCount}
         showFiltersPanel={showFiltersPanel}
         setShowFiltersPanel={setShowFiltersPanel}
-        isAISearch={results?.searchType === 'semantic' || results?.searchType === 'hybrid'}
       />
 
       {showFilters && showFiltersPanel && filterOptions && (

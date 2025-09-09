@@ -13,12 +13,12 @@ const prompts = [
   },
   {
     icon: MapPin,
-    text: "Highest revenue areas",
+    text: "Revenue hotspots",
     prompt: "Which neighborhoods have the highest business revenue?",
   },
   {
     icon: TrendingUp,
-    text: "High growth companies",
+    text: "Growth leaders",
     prompt: "Show me companies with high revenue growth",
   },
   {
@@ -44,6 +44,7 @@ export function SuggestedPrompts({
             onClick={() => onPromptSelect(prompt.prompt)}
             className={`
               flex items-center gap-2 py-1.5 px-3
+              min-h-[32px] max-h-[32px]
               ${isDarkMode 
                 ? "bg-midnight-800/20 hover:bg-midnight-800/30 border-midnight-600/20 text-gray-500 hover:text-gray-400" 
                 : "bg-white hover:bg-gray-50 border-gray-200"
@@ -59,7 +60,7 @@ export function SuggestedPrompts({
               } group-hover:scale-110 transition-transform`}
             />
             <span
-              className={`text-xs ${
+              className={`text-xs line-clamp-2 ${
                 isDarkMode ? "text-gray-500" : "text-gray-700"
               }`}
             >
