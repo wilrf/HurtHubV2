@@ -34,7 +34,7 @@ export function ChatInput({
           placeholder={module === "business-intelligence" ? "Ask about Charlotte businesses..." : "Ask about community trends..."}
           disabled={isLoading}
           variant={isDarkMode ? "midnight" : "default"}
-          className="w-full py-3 px-4 text-base bg-midnight-800/95 border-midnight-600/60 rounded-xl focus:bg-midnight-700/95 focus:border-midnight-500/80 transition-all duration-200 text-foreground placeholder:text-muted-foreground/80 shadow-[0_-8px_30px_-3px_rgba(0,0,0,0.3),0_4px_20px_-2px_rgba(0,0,0,0.2)] backdrop-blur-md"
+          className="w-full py-4 px-5 text-base bg-midnight-800 border border-midnight-500/70 rounded-xl focus:bg-midnight-700 focus:border-sapphire-500 focus:ring-2 focus:ring-sapphire-500/30 transition-all duration-200 text-foreground placeholder:text-muted-foreground/60 shadow-[0_-20px_50px_-5px_rgba(59,130,246,0.2),0_-10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl"
         />
       </div>
     </div>
