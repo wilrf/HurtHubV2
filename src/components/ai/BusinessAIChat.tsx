@@ -45,6 +45,14 @@ export function BusinessAIChat({
   // Check if we should use external props (they're provided) or internal hook
   const hasExternalProps = externalMessages !== undefined;
   
+  // Debug logging
+  console.log(`[BusinessAIChat - ${module}]`, {
+    hasExternalProps,
+    isWelcomeState,
+    externalMessagesCount: externalMessages?.length ?? 'undefined',
+    externalMessages,
+  });
+  
   // Always call the hook to satisfy React's rules of hooks
   // But skip data loading if we're using external props (prevents duplicate loading)
   const internalHook = useBusinessAIChat(module, hasExternalProps);
@@ -56,6 +64,12 @@ export function BusinessAIChat({
   const setInput = hasExternalProps ? (externalSetInput ?? (() => {})) : internalHook.setInput;
   const messagesEndRef = hasExternalProps ? (externalMessagesEndRef ?? null) : internalHook.messagesEndRef;
   const originalHandleSendMessage = hasExternalProps ? (externalHandleSendMessage ?? (() => {})) : internalHook.handleSendMessage;
+  
+  console.log(`[BusinessAIChat - ${module}] Final state:`, {
+    messagesUsed: messages.length,
+    usingExternal: hasExternalProps,
+    internalMessages: internalHook?.messages?.length ?? 0
+  });
 
   const handleSendMessage = () => {
     if (isWelcomeState && onFirstMessage) {

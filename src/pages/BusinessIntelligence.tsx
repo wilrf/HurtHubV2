@@ -47,10 +47,21 @@ export function BusinessIntelligence() {
 
   // Watch for when messages appear to exit welcome state
   useEffect(() => {
+    console.log('[BusinessIntelligence] Messages changed:', {
+      messageCount: messages.length,
+      messages: messages,
+      currentWelcomeState: isWelcomeState,
+      hookData: {
+        hasMessages: hookData.messages.length > 0,
+        isLoading: hookData.isLoading,
+        input: hookData.input
+      }
+    });
     if (messages.length > 0) {
+      console.log('[BusinessIntelligence] Setting welcome state to false');
       setIsWelcomeState(false);
     }
-  }, [messages]);
+  }, [messages, isWelcomeState, hookData]);
 
   const loadAnalyticsData = async () => {
     setIsLoading(true);

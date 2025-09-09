@@ -1,5 +1,5 @@
 import { Bot, User, CheckCircle2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 import type { Message } from "./BusinessAIChat";
 import { messageFormattingService } from "@/core/services/MessageFormattingService";
@@ -51,6 +51,9 @@ function AssistantMessage({
     x: number;
     y: number;
   } | null>(null);
+  
+  // Track business names found in the message for hover functionality
+  const [businessNamesInMessage, setBusinessNamesInMessage] = useState<Set<string>>(new Set());
 
   // Create service instance (in production, this would be injected)
   const previewService = useMemo(
@@ -63,19 +66,63 @@ function AssistantMessage({
     () => messageFormattingService.parseAIResponse(message.content),
     [message.content]
   );
+  
+  // Extract business names from the message for hover detection
+  useEffect(() => {
+    const businessNames = new Set<string>();
+    // Look for common business name patterns in the message
+    const patterns = [
+      /Safe Harbor Kings Point(?:\s*-\s*[^\n:,]+)?/g,
+      /([A-Z][A-Za-z0-9\s&'.-]*(?:Point|Park|Plaza|Center|Place|Company|Corp|Inc|LLC|Ltd))(?=\s*[-:]|\s*\(|$)/g
+    ];
+    
+    patterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(message.content)) !== null) {
+        if (match[0] || match[1]) {
+          const name = (match[0] || match[1]).trim().replace(/\s*[-:]\s*$/, '');
+          businessNames.add(name);
+        }
+      }
+    });
+    
+    setBusinessNamesInMessage(businessNames);
+  }, [message.content]);
 
-  // Render parsed segments
+  // Render parsed segments with proper line breaks
   const renderSegments = () => {
     // NO FALLBACKS - Let it fail if parsing fails (architectural principle)
     if (!parsedMessage.segments || parsedMessage.segments.length === 0) {
       throw new Error(`Message parsing failed: No segments found for content "${message.content.substring(0, 100)}"`);
     }
     
-    return parsedMessage.segments.map((segment, index) => {
+    // Group segments by lines for proper rendering
+    const lines: JSX.Element[][] = [];
+    let currentLine: JSX.Element[] = [];
+    
+    parsedMessage.segments.forEach((segment, index) => {
+      // Check if this segment contains a newline
+      if (segment.type === SegmentType.TEXT && segment.content.includes('\n')) {
+        const parts = segment.content.split('\n');
+        parts.forEach((part, partIndex) => {
+          if (partIndex > 0) {
+            // Start a new line
+            if (currentLine.length > 0) {
+              lines.push(currentLine);
+              currentLine = [];
+            }
+          }
+          if (part) {
+            currentLine.push(<span key={`${index}-${partIndex}`}>{part}</span>);
+          }
+        });
+        return;
+      }
+      
       switch (segment.type) {
         case SegmentType.DATABASE_INDICATOR: {
           const businessName = segment.getBusinessName();
-          return (
+          currentLine.push(
             <span
               key={index}
               className="inline-flex items-center ml-1 cursor-help relative group"
@@ -97,38 +144,110 @@ function AssistantMessage({
               </span>
             </span>
           );
+          break;
         }
         case SegmentType.BOLD:
-          return (
+          currentLine.push(
             <strong key={index} className="font-semibold text-foreground">
               {segment.content}
             </strong>
           );
+          break;
         case SegmentType.ITALIC:
-          return (
+          currentLine.push(
             <em key={index} className="italic">
               {segment.content}
             </em>
           );
+          break;
         case SegmentType.BULLET:
-          // New architecture: bullet markers have empty content
-          // Content follows in subsequent segments
-          return (
+          // Start new line for bullet points
+          if (currentLine.length > 0) {
+            lines.push(currentLine);
+            currentLine = [];
+          }
+          currentLine.push(
             <span key={index} className="text-muted-foreground">• </span>
           );
+          break;
         case SegmentType.NUMBERED_LIST:
-          // New architecture: numbered list markers have empty content
-          // Content follows in subsequent segments
-          return (
+          // Start new line for numbered lists
+          if (currentLine.length > 0) {
+            lines.push(currentLine);
+            currentLine = [];
+          }
+          currentLine.push(
             <span key={index} className="text-muted-foreground">
               {segment.getListNumber()}. 
             </span>
           );
+          break;
         case SegmentType.TEXT:
-        default:
-          return <span key={index}>{segment.content}</span>;
+        default: {
+          // Check if this text contains any business names we should make hoverable
+          let content = segment.content;
+          let hasBusinessName = false;
+          let businessNameFound = "";
+          
+          // Check if any known business name is in this segment
+          businessNamesInMessage.forEach(businessName => {
+            if (content.includes(businessName)) {
+              hasBusinessName = true;
+              businessNameFound = businessName;
+            }
+          });
+          
+          if (hasBusinessName && businessNameFound) {
+            // Split the content around the business name and make it hoverable
+            const parts = content.split(businessNameFound);
+            const elements: JSX.Element[] = [];
+            
+            parts.forEach((part, partIndex) => {
+              if (partIndex > 0) {
+                // Add the business name as a hoverable element
+                elements.push(
+                  <span
+                    key={`${index}-business-${partIndex}`}
+                    className="cursor-help underline decoration-dotted decoration-sapphire-400/50 hover:decoration-sapphire-400 transition-colors"
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredBusiness({
+                        name: businessNameFound,
+                        x: rect.left,
+                        y: rect.top,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredBusiness(null)}
+                  >
+                    {businessNameFound}
+                  </span>
+                );
+              }
+              if (part) {
+                elements.push(<span key={`${index}-text-${partIndex}`}>{part}</span>);
+              }
+            });
+            
+            currentLine.push(...elements);
+          } else {
+            currentLine.push(<span key={index}>{segment.content}</span>);
+          }
+          break;
+        }
       }
     });
+    
+    // Add the last line if it has content
+    if (currentLine.length > 0) {
+      lines.push(currentLine);
+    }
+    
+    // Render lines as separate divs
+    return lines.map((line, lineIndex) => (
+      <div key={lineIndex} className="min-h-[1.5rem]">
+        {line}
+      </div>
+    ));
   };
 
   return (
@@ -148,7 +267,7 @@ function AssistantMessage({
               : "bg-gray-50 border"
           }`}
         >
-          <div className="text-sm leading-relaxed space-y-1">
+          <div className="text-sm leading-relaxed">
             {renderSegments()}
           </div>
           <p className="text-xs opacity-70 mt-2">

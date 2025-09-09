@@ -26,6 +26,7 @@ export class MessageFormattingService {
    * Identify database references and replace with placeholders
    */
   private markDatabaseReferences(content: string): string {
+    // Look for "(from our database)" markers
     return content.replace(/\(from our database\)/g, this.DB_PLACEHOLDER);
   }
 
@@ -254,10 +255,34 @@ export class MessageFormattingService {
    * Extract business name from text (last complete phrase before indicator)
    */
   private extractBusinessName(text: string): string {
-    // Match the last complete business name before the indicator
-    // This regex captures multi-word business names
-    const match = text.match(/([A-Z][^,.:;!?]*?)(?:\s*$)/);
-    return match ? match[1].trim() : "";
+    // Look for business names that typically come before the database marker
+    // Business names often contain "Safe Harbor Kings Point" or similar patterns
+    // Try to match the last capitalized phrase before the end
+    const lines = text.split('\n');
+    const lastLine = lines[lines.length - 1] || text;
+    
+    // Match patterns like "Safe Harbor Kings Point - Location" or just "Business Name"
+    const patterns = [
+      // Pattern 1: "Name - Location" format
+      /([A-Z][^\n]*?(?:Point|Park|Plaza|Center|Place|Company|Corp|Inc|LLC|Ltd))(?:\s*-[^\n]*)?$/,
+      // Pattern 2: Simple business name at end
+      /([A-Z][A-Za-z0-9\s&'.-]+?)(?:\s*[-:].*)?$/,
+      // Pattern 3: Fallback to any capitalized phrase
+      /([A-Z][^,.:;!?\n]*?)(?:\s*$)/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = lastLine.match(pattern);
+      if (match && match[1]) {
+        // Clean up the match - remove trailing spaces and dashes
+        let name = match[1].trim();
+        // Remove trailing " -" if present
+        name = name.replace(/\s*-\s*$/, '');
+        return name;
+      }
+    }
+    
+    return "";
   }
 
   /**

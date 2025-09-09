@@ -126,6 +126,12 @@ export function useBusinessAIChat(
       timestamp: new Date(),
     };
 
+    console.log(`[useBusinessAIChat - ${module}] Sending message:`, {
+      input: input.trim(),
+      skipDataLoading,
+      currentMessagesCount: messages.length
+    });
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
