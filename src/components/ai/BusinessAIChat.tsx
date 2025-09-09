@@ -42,16 +42,20 @@ export function BusinessAIChat({
 }: BusinessAIChatProps) {
   const isDarkMode = true; // Dark mode only
   
-  // Use internal hook only if external props not provided
-  const internalHook = useBusinessAIChat(module);
+  // Check if we should use external props (they're provided) or internal hook
+  const hasExternalProps = externalMessages !== undefined;
   
-  // Use external props when provided (in welcome state from parent), otherwise use internal hook
-  const messages = externalMessages ?? internalHook.messages;
-  const input = externalInput ?? internalHook.input;
-  const isLoading = externalIsLoading ?? internalHook.isLoading;
-  const setInput = externalSetInput ?? internalHook.setInput;
-  const messagesEndRef = externalMessagesEndRef ?? internalHook.messagesEndRef;
-  const originalHandleSendMessage = externalHandleSendMessage ?? internalHook.handleSendMessage;
+  // Always call the hook to satisfy React's rules of hooks
+  // But skip data loading if we're using external props (prevents duplicate loading)
+  const internalHook = useBusinessAIChat(module, hasExternalProps);
+  
+  // Use external props when provided, otherwise use internal hook
+  const messages = hasExternalProps ? (externalMessages ?? []) : internalHook.messages;
+  const input = hasExternalProps ? (externalInput ?? "") : internalHook.input;
+  const isLoading = hasExternalProps ? (externalIsLoading ?? false) : internalHook.isLoading;
+  const setInput = hasExternalProps ? (externalSetInput ?? (() => {})) : internalHook.setInput;
+  const messagesEndRef = hasExternalProps ? (externalMessagesEndRef ?? null) : internalHook.messagesEndRef;
+  const originalHandleSendMessage = hasExternalProps ? (externalHandleSendMessage ?? (() => {})) : internalHook.handleSendMessage;
 
   const handleSendMessage = () => {
     if (isWelcomeState && onFirstMessage) {

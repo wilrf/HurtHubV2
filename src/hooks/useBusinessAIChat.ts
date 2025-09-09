@@ -15,6 +15,7 @@ interface Message {
 
 export function useBusinessAIChat(
   module: "business-intelligence" | "community-pulse",
+  skipDataLoading = false,
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -72,8 +73,11 @@ export function useBusinessAIChat(
   }, []);
 
   useEffect(() => {
-    loadDataAndInitialize();
-  }, [loadDataAndInitialize]);
+    // Only load data if not skipping (i.e., when hook is actually being used)
+    if (!skipDataLoading) {
+      loadDataAndInitialize();
+    }
+  }, [loadDataAndInitialize, skipDataLoading]);
 
   useEffect(() => {
     // Only scroll if there are actual messages and not on initial load

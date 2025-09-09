@@ -275,6 +275,12 @@ export function CommunityPulse() {
                 className="min-h-[500px] max-h-[60vh]"
                 isWelcomeState={false}
                 onFirstMessage={() => setIsWelcomeState(false)}
+                externalMessages={hookData.messages}
+                externalInput={hookData.input}
+                externalIsLoading={hookData.isLoading}
+                externalSetInput={hookData.setInput}
+                externalHandleSendMessage={hookData.handleSendMessage}
+                externalMessagesEndRef={hookData.messagesEndRef}
               />
             </CardContent>
           </Card>
