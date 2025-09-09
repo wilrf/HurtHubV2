@@ -73,8 +73,8 @@ export function BusinessAIChat({
     if (messages.length > 0) {
       // Messages exist, show them with input below
       return (
-        <div className={`flex flex-col ${className}`}>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className={`relative flex flex-col ${className}`}>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -108,16 +108,19 @@ export function BusinessAIChat({
             <div ref={messagesEndRef} />
           </div>
           
-          {/* Input at bottom */}
-          <div className="border-t border-midnight-700 bg-midnight-900/95 backdrop-blur-sm p-4">
-            <ChatInput
-              input={input}
-              setInput={setInput}
-              handleSendMessage={handleSendMessage}
-              isLoading={isLoading}
-              isDarkMode={isDarkMode}
-              module={module}
-            />
+          {/* Floating input at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+            <div className="bg-gradient-to-t from-midnight-900 via-midnight-900/90 to-transparent h-20 pointer-events-none" />
+            <div className="bg-midnight-900/95 backdrop-blur-lg p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-20px_40px_-10px_rgba(0,0,0,0.5)]">
+              <ChatInput
+                input={input}
+                setInput={setInput}
+                handleSendMessage={handleSendMessage}
+                isLoading={isLoading}
+                isDarkMode={isDarkMode}
+                module={module}
+              />
+            </div>
           </div>
         </div>
       );
@@ -138,8 +141,8 @@ export function BusinessAIChat({
 
   // Chat state - full interface
   return (
-    <div className={`flex flex-col ${className}`}>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className={`relative flex flex-col ${className}`}>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
         {messages.map((message) => (
           <ChatMessage
             key={message.id}
@@ -173,16 +176,19 @@ export function BusinessAIChat({
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Input at bottom */}
-      <div className="border-t border-midnight-700 bg-midnight-900/95 backdrop-blur-sm p-4">
-        <ChatInput
-          input={input}
-          setInput={setInput}
-          handleSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          isDarkMode={isDarkMode}
-          module={module}
-        />
+      {/* Floating input at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+        <div className="bg-gradient-to-t from-midnight-900 via-midnight-900/90 to-transparent h-20 pointer-events-none" />
+        <div className="bg-midnight-900/95 backdrop-blur-lg p-4 pt-2 pb-6 pointer-events-auto shadow-[0_-20px_40px_-10px_rgba(0,0,0,0.5)]">
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            handleSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            isDarkMode={isDarkMode}
+            module={module}
+          />
+        </div>
       </div>
     </div>
   );
