@@ -39,8 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const systemPrompt = getAnalysisPrompt(type, depth);
     const userPrompt = formatDataForAnalysis(type, data, context);
 
-    // Use GPT-5 with extended reasoning for deep analysis
-    const model = depth === "deep" ? "gpt-5-pro" : "gpt-5";
+    // Use GPT-4o with extended reasoning for deep analysis
+    const model = depth === "deep" ? "gpt-4o" : "gpt-4o-mini";
 
     const completion = await openai.chat.completions.create({
       model,
@@ -49,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         { role: "user", content: userPrompt },
       ],
       temperature: depth === "deep" ? 0.3 : 0.5, // Lower temperature for deeper analysis
-      max_tokens: depth === "deep" ? 12000 : 6000,
+      max_completion_tokens: depth === "deep" ? 12000 : 6000,
       presence_penalty: 0.1,
       frequency_penalty: 0.1,
     });

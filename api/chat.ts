@@ -66,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         messages: contextualMessages,
         temperature,
         stream: true,
-        max_tokens: 8000,
+        max_completion_tokens: 8000,
       });
 
       for await (const chunk of stream) {
@@ -84,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         model,
         messages: contextualMessages,
         temperature,
-        max_tokens: 8000,
+        max_completion_tokens: 8000,
       });
 
       const responseContent = completion.choices[0]?.message?.content || "";
