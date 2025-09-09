@@ -3,8 +3,7 @@
 **Source Documentation:**
 
 - Vite: https://vite.dev/guide/env-and-mode.html
-- Supabase Next.js: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs
-- Supabase JS Client: https://supabase.com/docs/reference/javascript/initializing
+- https://supabase.com/docs/guides/api/api-keys
 
 ## 🎯 Framework-Specific Patterns
 

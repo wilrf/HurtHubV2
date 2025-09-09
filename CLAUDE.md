@@ -13,7 +13,36 @@
 - **If Unix commands absolutely needed**: Request user switch to Git Bash or WSL
 - **Avoid Unix commands on Windows**: They will fail with path/encoding errors
 
+### BEFORE WRITING CODE
+
+Before you write code AND at the beginning of any new chat session, you MUST READ the Code-Based Navigation and Documentation section below and the documents it references. 
+
+### Codebase Navigation & Documentation
+
+**ALWAYS consult `.claude/` directory for comprehensive codebase documentation:**
+
+- **`.claude/ARCHITECTURE_PRINCIPLES.md`**: 🏛️ Core architectural principles and patterns
+- **`.claude/PATTERNS_ANTIPATTERNS.md`**: ⚠️ Specific patterns to follow and avoid
+- **`.claude/PROJECT_OVERVIEW.md`**: Complete architecture overview and tech stack
+- **`.claude/API_INDEX.md`**: All API endpoints with request/response formats
+- **`.claude/FRONTEND_INDEX.md`**: React components, hooks, and state management
+- **`.claude/DATABASE_INDEX.md`**: Database schema, relationships, and queries
+- **`.claude/DEVELOPMENT.md`**: Development setup, testing, and deployment guides
+- **`.claude/ARCHITECTURE_CICD.md`**: Architecture patterns, CI/CD pipeline, deployment flows
+- **`.claude/DOCUMENTATION_MAINTENANCE.md`**: 🆕 Guide for keeping docs updated over time
+
+**Use this documentation to:**
+
+- ✅ **Navigate the codebase**: Find the right files for specific functionality
+- ✅ **Assess change locations**: Identify likely places to implement features/fixes
+- ✅ **Understand relationships**: See how components, APIs, and data interact
+- ✅ **Verify implementations**: Cross-reference with documentation before changes
+
 ## 🚨 CRITICAL REQUIREMENTS
+
+### **NEVER DELETE KEYS WITHOUT EXPLICIT PERMISSION**
+
+**When managing MCPs, APIs and other interfaces for the user and just in general, NEVER DELETE KEYS unless you explicitly ask the user for permission to do so.**
 
 ### 📝 **REVIEW AGENT ROLE BOUNDARIES**
 
@@ -190,27 +219,6 @@ try {
 
 **📖 MANDATORY READING**: See `.claude/ARCHITECTURE_PRINCIPLES.md` for complete details.
 **⚠️ PATTERNS GUIDE**: See `.claude/PATTERNS_ANTIPATTERNS.md` for specific examples.
-
-### Codebase Navigation & Documentation
-
-**ALWAYS consult `.claude/` directory for comprehensive codebase documentation:**
-
-- **`.claude/ARCHITECTURE_PRINCIPLES.md`**: 🏛️ Core architectural principles and patterns
-- **`.claude/PATTERNS_ANTIPATTERNS.md`**: ⚠️ Specific patterns to follow and avoid
-- **`.claude/PROJECT_OVERVIEW.md`**: Complete architecture overview and tech stack
-- **`.claude/API_INDEX.md`**: All API endpoints with request/response formats
-- **`.claude/FRONTEND_INDEX.md`**: React components, hooks, and state management
-- **`.claude/DATABASE_INDEX.md`**: Database schema, relationships, and queries
-- **`.claude/DEVELOPMENT.md`**: Development setup, testing, and deployment guides
-- **`.claude/ARCHITECTURE_CICD.md`**: Architecture patterns, CI/CD pipeline, deployment flows
-- **`.claude/DOCUMENTATION_MAINTENANCE.md`**: 🆕 Guide for keeping docs updated over time
-
-**Use this documentation to:**
-
-- ✅ **Navigate the codebase**: Find the right files for specific functionality
-- ✅ **Assess change locations**: Identify likely places to implement features/fixes
-- ✅ **Understand relationships**: See how components, APIs, and data interact
-- ✅ **Verify implementations**: Cross-reference with documentation before changes
 
 ### Documentation Maintenance
 
