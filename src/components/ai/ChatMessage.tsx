@@ -237,7 +237,7 @@ function AssistantMessage({
               : "bg-gray-50 border"
           }`}
         >
-          <div className="text-sm leading-7 space-y-1">
+          <div className="text-sm leading-relaxed">
             {renderSegments()}
           </div>
           <p className="text-xs opacity-70 mt-2">
