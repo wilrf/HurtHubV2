@@ -29,7 +29,7 @@ function UserMessage({
           />
         </div>
         <div
-          className={`p-3 rounded-lg ${isDarkMode ? "bg-sapphire-600 text-white" : "bg-sapphire-500 text-white"}`}
+          className={`p-3 rounded-lg shadow-md ${isDarkMode ? "bg-sapphire-600/90 text-white" : "bg-sapphire-500 text-white"}`}
         >
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
           <p className="text-xs opacity-70 mt-2">
@@ -237,7 +237,7 @@ function AssistantMessage({
       <div className="flex items-start gap-3 max-w-[85%] flex-row">
         <div
           className={`p-2 rounded-full flex-shrink-0 ${
-            isDarkMode ? "bg-midnight-700" : "bg-gray-100"
+            isDarkMode ? "bg-slate-700/80 ring-1 ring-slate-600/30" : "bg-gray-100"
           }`}
         >
           <Bot className="h-4 w-4 text-sapphire-400" />
@@ -245,8 +245,8 @@ function AssistantMessage({
         <div
           className={`p-4 rounded-lg ${
             isDarkMode
-              ? "bg-sapphire-900/20 border border-midnight-700"
-              : "bg-gray-50 border"
+              ? "bg-slate-800/60 border border-slate-700/50 shadow-lg"
+              : "bg-white border border-gray-200 shadow-sm"
           }`}
         >
           <div className="text-sm leading-relaxed">
