@@ -21,8 +21,10 @@ interface BusinessHoverCardProps {
 export function BusinessHoverCard({
   businessName,
   isDarkMode,
-  x,
-  y,
+  // x and y are passed for future positioning but not currently used
+  // Prefix with underscore to satisfy linter while preserving API
+  x: _x,
+  y: _y,
   previewService,
 }: BusinessHoverCardProps) {
   const [preview, setPreview] = useState<BusinessPreview | null>(null);

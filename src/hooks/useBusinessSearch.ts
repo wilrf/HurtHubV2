@@ -79,7 +79,7 @@ export function useBusinessSearch() {
           hasNextPage: false,
           hasPreviousPage: false,
           filters: searchFilters,
-          searchType: 'error',
+          searchType: 'semantic',
           analytics: await businessDataService.getAnalytics(),
         });
       } finally {

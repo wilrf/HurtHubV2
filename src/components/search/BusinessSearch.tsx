@@ -1,4 +1,4 @@
-import { Search, Filter, Sparkles } from "lucide-react";
+import { Filter, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import { Badge } from "@/components/ui/Badge";
@@ -24,7 +24,8 @@ interface SearchInputProps {
 function SearchInput({
   query,
   setQuery,
-  placeholder,
+  // placeholder param preserved for API compatibility but using hardcoded value
+  placeholder: _placeholder,
   showFilters,
   activeFiltersCount,
   showFiltersPanel,
