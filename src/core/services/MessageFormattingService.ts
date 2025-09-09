@@ -13,49 +13,91 @@ export class MessageFormattingService {
    * This is business logic - how we identify and structure message components
    */
   parseAIResponse(content: string): ParsedMessage {
-    // First, identify and mark database references
-    const processedContent = this.markDatabaseReferences(content);
+    // First, identify and mark database references with business names
+    const { processedContent, businessNameMap } = this.markDatabaseReferences(content);
     
     // Then parse the content into segments
-    const segments = this.parseIntoSegments(processedContent);
+    const segments = this.parseIntoSegments(processedContent, businessNameMap);
     
     return new ParsedMessage(segments);
   }
 
   /**
    * Identify database references and replace with placeholders
+   * Also extracts business names for chain of custody
    */
-  private markDatabaseReferences(content: string): string {
-    // Look for "(from our database)" markers
-    return content.replace(/\(from our database\)/g, this.DB_PLACEHOLDER);
+  private markDatabaseReferences(content: string): { processedContent: string, businessNameMap: Map<number, string> } {
+    const businessNameMap = new Map<number, string>();
+    let placeholderIndex = 0;
+    
+    // Pattern to match business name followed by "(from our database)"
+    // Captures: [full match, business name]
+    const pattern = /([A-Z][^(]*?)\s*\(from our database\)/g;
+    
+    const processedContent = content.replace(pattern, (match, businessName) => {
+      // Clean up the business name
+      const cleanName = businessName.trim();
+      const currentIndex = placeholderIndex++;
+      businessNameMap.set(currentIndex, cleanName);
+      
+      // Replace with business name + placeholder (placeholder will be parsed out)
+      return `${cleanName}${this.DB_PLACEHOLDER}_${currentIndex}`;
+    });
+    
+    return { processedContent, businessNameMap };
   }
 
   /**
    * Parse content into structured segments with formatting information
    */
-  private parseIntoSegments(content: string): MessageSegment[] {
+  private parseIntoSegments(content: string, businessNameMap: Map<number, string>): MessageSegment[] {
     const segments: MessageSegment[] = [];
-    const parts = content.split(this.DB_PLACEHOLDER);
-
-    parts.forEach((part, index) => {
-      if (part) {
-        // Parse markdown formatting within this part
-        const formattedSegments = this.parseMarkdown(part);
+    
+    // Split by our placeholder pattern (includes index)
+    const placeholderPattern = new RegExp(`${this.DB_PLACEHOLDER}_(\\d+)`, 'g');
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = placeholderPattern.exec(content)) !== null) {
+      const matchStart = match.index;
+      const matchEnd = matchStart + match[0].length;
+      const placeholderIndex = parseInt(match[1]);
+      
+      // Add content before the placeholder
+      if (matchStart > lastIndex) {
+        const beforeContent = content.substring(lastIndex, matchStart);
+        if (beforeContent) {
+          const formattedSegments = this.parseMarkdown(beforeContent);
+          segments.push(...formattedSegments);
+        }
+      }
+      
+      // Add database indicator with the business name
+      const businessName = businessNameMap.get(placeholderIndex) || "";
+      segments.push(new MessageSegment(
+        SegmentType.DATABASE_INDICATOR,
+        "",
+        { businessName }
+      ));
+      
+      lastIndex = matchEnd;
+    }
+    
+    // Add any remaining content after the last placeholder
+    if (lastIndex < content.length) {
+      const remainingContent = content.substring(lastIndex);
+      if (remainingContent) {
+        const formattedSegments = this.parseMarkdown(remainingContent);
         segments.push(...formattedSegments);
       }
-
-      // Add database indicator after each part except the last
-      if (index < parts.length - 1) {
-        // Extract the business name (text immediately before the indicator)
-        const businessName = this.extractBusinessName(part);
-        segments.push(new MessageSegment(
-          SegmentType.DATABASE_INDICATOR,
-          "",
-          { businessName }
-        ));
-      }
-    });
-
+    }
+    
+    // If no placeholders were found, just parse the entire content
+    if (segments.length === 0 && content) {
+      const formattedSegments = this.parseMarkdown(content);
+      segments.push(...formattedSegments);
+    }
+    
     return segments;
   }
 

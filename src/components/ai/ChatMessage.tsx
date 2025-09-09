@@ -1,5 +1,5 @@
 import { Bot, User, CheckCircle2 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 
 import type { Message } from "./BusinessAIChat";
 import { messageFormattingService } from "@/core/services/MessageFormattingService";
@@ -51,9 +51,6 @@ function AssistantMessage({
     x: number;
     y: number;
   } | null>(null);
-  
-  // Track business names found in the message for hover functionality
-  const [businessNamesInMessage, setBusinessNamesInMessage] = useState<Set<string>>(new Set());
 
   // Create service instance (in production, this would be injected)
   const previewService = useMemo(
@@ -66,28 +63,6 @@ function AssistantMessage({
     () => messageFormattingService.parseAIResponse(message.content),
     [message.content]
   );
-  
-  // Extract business names from the message for hover detection
-  useEffect(() => {
-    const businessNames = new Set<string>();
-    // Look for common business name patterns in the message
-    const patterns = [
-      /Safe Harbor Kings Point(?:\s*-\s*[^\n:,]+)?/g,
-      /([A-Z][A-Za-z0-9\s&'.-]*(?:Point|Park|Plaza|Center|Place|Company|Corp|Inc|LLC|Ltd))(?=\s*[-:]|\s*\(|$)/g
-    ];
-    
-    patterns.forEach(pattern => {
-      let match;
-      while ((match = pattern.exec(message.content)) !== null) {
-        if (match[0] || match[1]) {
-          const name = (match[0] || match[1]).trim().replace(/\s*[-:]\s*$/, '');
-          businessNames.add(name);
-        }
-      }
-    });
-    
-    setBusinessNamesInMessage(businessNames);
-  }, [message.content]);
 
   // Render parsed segments with proper line breaks
   const renderSegments = () => {
@@ -122,28 +97,28 @@ function AssistantMessage({
       switch (segment.type) {
         case SegmentType.DATABASE_INDICATOR: {
           const businessName = segment.getBusinessName();
-          currentLine.push(
-            <span
-              key={index}
-              className="inline-flex items-center ml-1 cursor-help relative group"
-              onMouseEnter={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                setHoveredBusiness({
-                  name: businessName || "",
-                  x: rect.left,
-                  y: rect.top,
-                });
-              }}
-              onMouseLeave={() => setHoveredBusiness(null)}
-              data-testid="db-indicator"
-            >
-              <span title="Verified in our database">
-                <CheckCircle2
-                  className="h-3.5 w-3.5 text-sapphire-400 hover:text-sapphire-300 transition-colors"
-                />
+          // Render the business name as hoverable with dotted underline
+          // The database indicator now represents the business name itself
+          if (businessName) {
+            currentLine.push(
+              <span
+                key={index}
+                className="cursor-help underline decoration-dotted decoration-sapphire-400/50 hover:decoration-sapphire-400 transition-colors"
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredBusiness({
+                    name: businessName,
+                    x: rect.left,
+                    y: rect.top,
+                  });
+                }}
+                onMouseLeave={() => setHoveredBusiness(null)}
+                data-testid="db-business-name"
+              >
+                {businessName}
               </span>
-            </span>
-          );
+            );
+          }
           break;
         }
         case SegmentType.BOLD:
@@ -183,57 +158,9 @@ function AssistantMessage({
           );
           break;
         case SegmentType.TEXT:
-        default: {
-          // Check if this text contains any business names we should make hoverable
-          let content = segment.content;
-          let hasBusinessName = false;
-          let businessNameFound = "";
-          
-          // Check if any known business name is in this segment
-          businessNamesInMessage.forEach(businessName => {
-            if (content.includes(businessName)) {
-              hasBusinessName = true;
-              businessNameFound = businessName;
-            }
-          });
-          
-          if (hasBusinessName && businessNameFound) {
-            // Split the content around the business name and make it hoverable
-            const parts = content.split(businessNameFound);
-            const elements: JSX.Element[] = [];
-            
-            parts.forEach((part, partIndex) => {
-              if (partIndex > 0) {
-                // Add the business name as a hoverable element
-                elements.push(
-                  <span
-                    key={`${index}-business-${partIndex}`}
-                    className="cursor-help underline decoration-dotted decoration-sapphire-400/50 hover:decoration-sapphire-400 transition-colors"
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setHoveredBusiness({
-                        name: businessNameFound,
-                        x: rect.left,
-                        y: rect.top,
-                      });
-                    }}
-                    onMouseLeave={() => setHoveredBusiness(null)}
-                  >
-                    {businessNameFound}
-                  </span>
-                );
-              }
-              if (part) {
-                elements.push(<span key={`${index}-text-${partIndex}`}>{part}</span>);
-              }
-            });
-            
-            currentLine.push(...elements);
-          } else {
-            currentLine.push(<span key={index}>{segment.content}</span>);
-          }
+        default:
+          currentLine.push(<span key={index}>{segment.content}</span>);
           break;
-        }
       }
     });
     

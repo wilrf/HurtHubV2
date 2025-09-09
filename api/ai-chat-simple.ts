@@ -62,6 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let totalRevenue = 0;
     let totalEmployees = 0;
     let searchLatency = 0;
+    let databaseBusinessNames: string[] = [];
     
     // ALWAYS search - it's only 294 records, performance is fine!
     const searchStart = Date.now();
@@ -87,8 +88,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Take top 10 for context - AI will decide what's relevant
       const contextBusinesses = semanticResults.slice(0, 10);
       
+      // Store business names for chain of custody
+      databaseBusinessNames = contextBusinesses.map(b => b.name);
+      
       businessContext = `SEMANTIC SEARCH RESULTS from Charlotte business database:
-(AI: Use these businesses in your response ONLY if they're relevant to the user's query)
+(AI: You MUST add "(from our database)" after each of these business names when you mention them)
 
 `;
       businessContext += contextBusinesses.map((b, i) => 
@@ -165,6 +169,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: {
         dataSource: businessCount > 0 ? 'nuclear-nuclear-semantic' : 'semantic-no-results',
         businessesProvided: businessCount,
+        databaseBusinessNames, // Chain of custody: which businesses came from our database
         searchMethod: 'always-on-vector-similarity',
         searchLatency: searchLatency > 0 ? `${Math.round(searchLatency)}ms` : null,
         totalRevenue,
@@ -194,26 +199,39 @@ function buildSystemMessage(module: string, businessContext: string, summary: an
 
 IMPORTANT: A semantic search has been performed on our business database using the user's exact query. The results are provided below.
 
-RESPONSE GUIDELINES - INTELLIGENT RELEVANCE FILTERING:
+CRITICAL REQUIREMENT - DATABASE ATTRIBUTION:
 
-1. RELEVANCE FIRST: The businesses listed below were found via semantic similarity to the user's query.
-   - If they're relevant to what the user is asking, incorporate them naturally
-   - If they're not relevant, simply ignore them and answer the question normally
-   - Never mention "semantic search" or explain the search process to the user
+**MANDATORY**: Every time you mention a business name from the database list below, you MUST add "(from our database)" immediately after the business name.
 
-2. NATURAL ATTRIBUTION: When using database businesses:
-   - "(from our database)" for local businesses
-   - "(general market knowledge)" for industry insights not in our data
-   - "(not in our database)" when acknowledging businesses we don't track
+EXAMPLES OF CORRECT FORMAT:
+✅ "Safe Harbor Kings Point (from our database) has shown strong growth with 15 employees..."
+✅ "The top performers include Safe Harbor Kings Point - SouthEnd (from our database) with $2.6M revenue..."
+✅ "Companies like Safe Harbor Kings Point - Matthews (from our database) demonstrate the trend..."
 
-3. CONVERSATIONAL APPROACH:
-   - Be helpful and informative, never refuse reasonable business discussions
-   - Discuss any businesses mentioned by the user, whether in our database or not
-   - Just be clear about what's from our database vs. general knowledge
-   
-4. DATA ACCURACY:
-   - All specific numbers, revenue figures, and employee counts MUST come from the database below
-   - Industry insights and comparisons can use general knowledge but must be labeled as such`;
+EXAMPLES OF INCORRECT FORMAT:
+❌ "Safe Harbor Kings Point has shown strong growth..." [MISSING MARKER]
+❌ "The top performers include Safe Harbor Kings Point..." [MISSING MARKER]
+
+RESPONSE GUIDELINES:
+
+1. DATABASE BUSINESSES - MANDATORY MARKING:
+   - ALWAYS add "(from our database)" after any business name from the list below
+   - This applies EVERY TIME you mention the business, not just the first time
+   - Include the marker even in numbered lists: "1. Safe Harbor Kings Point (from our database): 15 employees"
+
+2. NON-DATABASE BUSINESSES:
+   - For businesses NOT in the database below, add "(not in our database)" if relevant
+   - For general industry knowledge, add "(general market knowledge)"
+
+3. DATA ACCURACY:
+   - Specific numbers (revenue, employees) MUST only come from the database below
+   - Never guess or estimate numbers for database businesses
+   - Use exact figures provided in the database list
+
+4. NATURAL LANGUAGE:
+   - Write naturally and conversationally
+   - The markers are for data tracking, they'll be processed by the frontend
+   - Focus on providing helpful, accurate information`;
 
   // Add business context (always present now with nuclear-nuclear approach)
   if (businessContext) {
