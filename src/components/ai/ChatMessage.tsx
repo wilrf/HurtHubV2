@@ -46,11 +46,7 @@ function AssistantMessage({
   isDarkMode,
   onSuggestionClick,
 }: ChatMessageProps) {
-  const [hoveredBusiness, setHoveredBusiness] = useState<{
-    name: string;
-    x: number;
-    y: number;
-  } | null>(null);
+  const [hoveredBusinessName, setHoveredBusinessName] = useState<string | null>(null);
 
   // Create service instance (in production, this would be injected)
   const previewService = useMemo(
@@ -118,22 +114,26 @@ function AssistantMessage({
                 itemContent.push(
                   <span
                     key={`business-${nextIndex}`}
-                    className="relative inline-block group"
+                    className="relative inline-block"
                   >
                     <span 
                       className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setHoveredBusiness({
-                          name: businessName,
-                          x: e.clientX,
-                          y: rect.bottom + 8,
-                        });
-                      }}
-                      onMouseLeave={() => setHoveredBusiness(null)}
+                      onMouseEnter={() => setHoveredBusinessName(businessName)}
+                      onMouseLeave={() => setHoveredBusinessName(null)}
                     >
                       {businessName}
                     </span>
+                    {hoveredBusinessName === businessName && (
+                      <div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-2">
+                        <BusinessHoverCard
+                          businessName={businessName}
+                          isDarkMode={isDarkMode}
+                          x={0}
+                          y={0}
+                          previewService={previewService}
+                        />
+                      </div>
+                    )}
                   </span>
                 );
               }
@@ -172,22 +172,26 @@ function AssistantMessage({
               elements.push(
                 <span
                   key={index}
-                  className="relative inline-block group"
+                  className="relative inline-block"
                 >
                   <span
                     className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setHoveredBusiness({
-                        name: businessName,
-                        x: e.clientX,
-                        y: rect.bottom + 8,
-                      });
-                    }}
-                    onMouseLeave={() => setHoveredBusiness(null)}
+                    onMouseEnter={() => setHoveredBusinessName(businessName)}
+                    onMouseLeave={() => setHoveredBusinessName(null)}
                   >
                     {businessName}
                   </span>
+                  {hoveredBusinessName === businessName && (
+                    <div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-2">
+                      <BusinessHoverCard
+                        businessName={businessName}
+                        isDarkMode={isDarkMode}
+                        x={0}
+                        y={0}
+                        previewService={previewService}
+                      />
+                    </div>
+                  )}
                 </span>
               );
             }
@@ -271,24 +275,6 @@ function AssistantMessage({
           )}
         </div>
       </div>
-      {hoveredBusiness && (
-        <div
-          className="fixed z-50"
-          style={{
-            left: `${hoveredBusiness.x}px`,
-            top: `${hoveredBusiness.y}px`,
-            transform: 'translateX(-50%)'
-          }}
-        >
-          <BusinessHoverCard
-            businessName={hoveredBusiness.name}
-            isDarkMode={isDarkMode}
-            x={0}
-            y={0}
-            previewService={previewService}
-          />
-        </div>
-      )}
     </div>
   );
 }
