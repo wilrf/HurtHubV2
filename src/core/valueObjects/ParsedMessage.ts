@@ -114,7 +114,15 @@ export class ParsedMessage {
    * Check if the message is empty
    */
   isEmpty(): boolean {
-    return this.segments.length === 0 || 
-           this.segments.every(segment => !segment.content.trim());
+    if (this.segments.length === 0) return true;
+    
+    // New architecture: NUMBERED_LIST and BULLET segments have empty content by design
+    // Check if we have ANY segments with actual content or any list markers
+    return !this.segments.some(segment => 
+      segment.content.trim() || 
+      segment.type === SegmentType.NUMBERED_LIST || 
+      segment.type === SegmentType.BULLET ||
+      segment.type === SegmentType.DATABASE_INDICATOR
+    );
   }
 }

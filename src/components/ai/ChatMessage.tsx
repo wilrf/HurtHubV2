@@ -66,6 +66,11 @@ function AssistantMessage({
 
   // Render parsed segments
   const renderSegments = () => {
+    // NO FALLBACKS - Let it fail if parsing fails (architectural principle)
+    if (!parsedMessage.segments || parsedMessage.segments.length === 0) {
+      throw new Error(`Message parsing failed: No segments found for content "${message.content.substring(0, 100)}"`);
+    }
+    
     return parsedMessage.segments.map((segment, index) => {
       switch (segment.type) {
         case SegmentType.DATABASE_INDICATOR: {
@@ -106,20 +111,18 @@ function AssistantMessage({
             </em>
           );
         case SegmentType.BULLET:
+          // New architecture: bullet markers have empty content
+          // Content follows in subsequent segments
           return (
-            <div key={index} className="flex items-start gap-2">
-              <span className="text-muted-foreground">•</span>
-              <span>{segment.content}</span>
-            </div>
+            <span key={index} className="text-muted-foreground">• </span>
           );
         case SegmentType.NUMBERED_LIST:
+          // New architecture: numbered list markers have empty content
+          // Content follows in subsequent segments
           return (
-            <div key={index} className="flex items-start gap-2">
-              <span className="text-muted-foreground">
-                {segment.getListNumber()}.
-              </span>
-              <span>{segment.content}</span>
-            </div>
+            <span key={index} className="text-muted-foreground">
+              {segment.getListNumber()}. 
+            </span>
           );
         case SegmentType.TEXT:
         default:
