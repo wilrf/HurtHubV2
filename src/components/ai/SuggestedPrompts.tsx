@@ -8,22 +8,22 @@ interface SuggestedPromptsProps {
 const prompts = [
   {
     icon: BarChart3,
-    text: "What are the top performing industries?",
+    text: "Top industries",
     prompt: "What are the top performing industries in Charlotte?",
   },
   {
     icon: MapPin,
-    text: "Which neighborhoods have highest revenue?",
+    text: "Highest revenue areas",
     prompt: "Which neighborhoods have the highest business revenue?",
   },
   {
     icon: TrendingUp,
-    text: "Show companies with high growth",
+    text: "High growth companies",
     prompt: "Show me companies with high revenue growth",
   },
   {
     icon: Users,
-    text: "Compare employees by industry",
+    text: "Industry comparison",
     prompt: "Compare average employees by industry",
   },
 ];
@@ -43,15 +43,14 @@ export function SuggestedPrompts({
             key={index}
             onClick={() => onPromptSelect(prompt.prompt)}
             className={`
-              flex items-center gap-2 p-2.5 
+              flex items-center gap-2 py-2 px-4
               ${isDarkMode 
-                ? "bg-midnight-800/40 hover:bg-midnight-700/50 border-midnight-700" 
+                ? "bg-midnight-800/30 hover:bg-midnight-800/50 border-midnight-600/30 text-gray-400 hover:text-gray-300" 
                 : "bg-white hover:bg-gray-50 border-gray-200"
               }
               border rounded-lg
               transition-all duration-200 
-              hover:scale-[1.02] hover:shadow-sm
-              text-left group cursor-pointer
+              text-left group cursor-pointer text-sm
             `}
           >
             <Icon

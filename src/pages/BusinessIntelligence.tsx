@@ -39,7 +39,7 @@ export function BusinessIntelligence() {
   
   // Get all data from the chat hook - starts with no messages
   const hookData = useBusinessAIChat("business-intelligence");
-  const { messages, setInput, handleSendMessage: originalHandleSendMessage } = hookData;
+  const { messages, setInput } = hookData;
 
   useEffect(() => {
     loadAnalyticsData();
@@ -214,11 +214,11 @@ export function BusinessIntelligence() {
         </div>
       </div>
 
-      {/* Main Chat Section */}
-      <div className="space-y-6">
+      {/* Main Chat Section - Added more spacing from header */}
+      <div className="space-y-6 mt-12 pt-8">
         {isWelcomeState ? (
           /* Welcome State - Above the fold, visible immediately */
-          <div className="flex flex-col items-center justify-start pt-8">
+          <div className="flex flex-col items-center justify-start">
             <div className="max-w-2xl w-full space-y-6">
               {/* Welcome message */}
               <div className="text-center">
@@ -227,8 +227,10 @@ export function BusinessIntelligence() {
                 </h2>
               </div>
               
-              {/* Chat input - prominent and accessible */}
-              <BusinessAIChat
+              {/* Chat input container with subtle background */}
+              <div className="bg-midnight-800/20 rounded-2xl p-6 mb-8">
+                {/* Chat input - prominent and accessible */}
+                <BusinessAIChat
                 key="business-ai-chat"
                 module="business-intelligence"
                 className="min-h-0"
@@ -244,6 +246,7 @@ export function BusinessIntelligence() {
               
               {/* Suggested prompts - accessible without scrolling */}
               <SuggestedPrompts onPromptSelect={handlePromptSelect} />
+              </div>
             </div>
           </div>
         ) : (
@@ -270,7 +273,7 @@ export function BusinessIntelligence() {
 
       {/* Key Performance Indicators */}
       {analytics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">

@@ -1,4 +1,4 @@
-import { Bot, User, CheckCircle2 } from "lucide-react";
+import { Bot, User } from "lucide-react";
 import { useState, useMemo } from "react";
 
 import type { Message } from "./BusinessAIChat";
