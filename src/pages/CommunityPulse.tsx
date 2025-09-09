@@ -295,8 +295,9 @@ export function CommunityPulse() {
 
 
       {/* Community Health Metrics */}
-      {communityMetrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
+      <div className="mt-24">
+        {communityMetrics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
@@ -368,7 +369,8 @@ export function CommunityPulse() {
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Community Highlights */}
       <Card variant={isDarkMode ? "glass" : "elevated"}>

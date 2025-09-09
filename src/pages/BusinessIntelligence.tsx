@@ -273,8 +273,9 @@ export function BusinessIntelligence() {
       </div>
 
       {/* Key Performance Indicators */}
-      {analytics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90 mt-16">
+      <div className="mt-24">
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-90">
           <Card variant={isDarkMode ? "glass" : "elevated"}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-2">
@@ -344,7 +345,8 @@ export function BusinessIntelligence() {
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Performance Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
