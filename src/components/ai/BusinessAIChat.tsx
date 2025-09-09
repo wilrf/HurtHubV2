@@ -117,6 +117,7 @@ export function BusinessAIChat({
                 isLoading={isLoading}
                 isDarkMode={isDarkMode}
                 module={module}
+                isWelcomeState={true}
               />
           </div>
         </div>
@@ -132,6 +133,7 @@ export function BusinessAIChat({
         isLoading={isLoading}
         isDarkMode={isDarkMode}
         module={module}
+        isWelcomeState={true}
       />
     );
   }
@@ -182,6 +184,7 @@ export function BusinessAIChat({
             isLoading={isLoading}
             isDarkMode={isDarkMode}
             module={module}
+            isWelcomeState={false}
           />
       </div>
     </div>
