@@ -202,7 +202,7 @@ RESPONSE GUIDELINES - INTELLIGENT RELEVANCE FILTERING:
    - Never mention "semantic search" or explain the search process to the user
 
 2. NATURAL ATTRIBUTION: When using database businesses:
-   - "(from our database)" or "(in our database)" for local businesses
+   - "(from our database)" for local businesses
    - "(general market knowledge)" for industry insights not in our data
    - "(not in our database)" when acknowledging businesses we don't track
 
