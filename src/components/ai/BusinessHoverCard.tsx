@@ -75,15 +75,11 @@ export function BusinessHoverCard({
   if (isLoading) {
     return (
       <div
-        className={`absolute z-50 p-4 rounded-lg shadow-xl border backdrop-blur-sm min-w-[280px] ${
+        className={`p-4 rounded-lg shadow-xl border backdrop-blur-sm min-w-[280px] animate-in fade-in-0 zoom-in-95 ${
           isDarkMode
             ? "bg-midnight-800/95 border-midnight-600"
             : "bg-white/95 border-gray-200"
         }`}
-        style={{
-          left: `${x}px`,
-          top: `${y - 150}px`,
-        }}
       >
         <div className="animate-pulse space-y-3">
           <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
@@ -121,15 +117,11 @@ export function BusinessHoverCard({
       `}</style>
       
       <div
-        className={`absolute z-50 p-4 rounded-lg shadow-xl border backdrop-blur-sm hover-card-animation min-w-[280px] ${
+        className={`p-4 rounded-lg shadow-xl border backdrop-blur-sm hover-card-animation min-w-[280px] ${
           isDarkMode
             ? "bg-midnight-800/95 border-midnight-600"
             : "bg-white/95 border-gray-200"
         }`}
-        style={{
-          left: `${x}px`,
-          top: `${y - 150}px`,
-        }}
         data-testid="hover-card"
       >
         <div className="space-y-3">

@@ -118,18 +118,22 @@ function AssistantMessage({
                 itemContent.push(
                   <span
                     key={`business-${nextIndex}`}
-                    className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setHoveredBusiness({
-                        name: businessName,
-                        x: rect.left,
-                        y: rect.top,
-                      });
-                    }}
-                    onMouseLeave={() => setHoveredBusiness(null)}
+                    className="relative inline-block group"
                   >
-                    {businessName}
+                    <span 
+                      className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setHoveredBusiness({
+                          name: businessName,
+                          x: e.clientX,
+                          y: rect.bottom + 8,
+                        });
+                      }}
+                      onMouseLeave={() => setHoveredBusiness(null)}
+                    >
+                      {businessName}
+                    </span>
                   </span>
                 );
               }
@@ -168,18 +172,22 @@ function AssistantMessage({
               elements.push(
                 <span
                   key={index}
-                  className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
-                  onMouseEnter={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    setHoveredBusiness({
-                      name: businessName,
-                      x: rect.left,
-                      y: rect.top,
-                    });
-                  }}
-                  onMouseLeave={() => setHoveredBusiness(null)}
+                  className="relative inline-block group"
                 >
-                  {businessName}
+                  <span
+                    className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredBusiness({
+                        name: businessName,
+                        x: e.clientX,
+                        y: rect.bottom + 8,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredBusiness(null)}
+                  >
+                    {businessName}
+                  </span>
                 </span>
               );
             }
@@ -264,13 +272,22 @@ function AssistantMessage({
         </div>
       </div>
       {hoveredBusiness && (
-        <BusinessHoverCard
-          businessName={hoveredBusiness.name}
-          isDarkMode={isDarkMode}
-          x={hoveredBusiness.x}
-          y={hoveredBusiness.y}
-          previewService={previewService}
-        />
+        <div
+          className="fixed z-50"
+          style={{
+            left: `${hoveredBusiness.x}px`,
+            top: `${hoveredBusiness.y}px`,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <BusinessHoverCard
+            businessName={hoveredBusiness.name}
+            isDarkMode={isDarkMode}
+            x={0}
+            y={0}
+            previewService={previewService}
+          />
+        </div>
       )}
     </div>
   );
