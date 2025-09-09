@@ -236,7 +236,7 @@ function AssistantMessage({
     <div className="flex items-start gap-3 justify-start relative">
       <div className="flex items-start gap-3 max-w-[85%] flex-row">
         <div
-          className={`p-2 rounded-full flex-shrink-0 ${
+          className={`p-2 rounded-full flex-shrink-0 mt-0.5 ${
             isDarkMode ? "bg-slate-700/80 ring-1 ring-slate-600/30" : "bg-gray-100"
           }`}
         >
