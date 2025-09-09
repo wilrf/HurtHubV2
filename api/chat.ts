@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getOpenAIClient } from "../lib/openai-singleton";
+import { getOpenAIClient } from "../lib/openai-singleton.js";
 
 export const config = {
   maxDuration: 60,

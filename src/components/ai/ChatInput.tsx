@@ -1,6 +1,3 @@
-import { Send } from "lucide-react";
-
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 interface ChatInputProps {
@@ -37,17 +34,8 @@ export function ChatInput({
           placeholder={module === "business-intelligence" ? "Ask about Charlotte businesses..." : "Ask about community trends..."}
           disabled={isLoading}
           variant={isDarkMode ? "midnight" : "default"}
-          className="w-full pr-10 py-2.5 text-base bg-midnight-800/50 border-midnight-700 rounded-xl"
+          className="w-full py-3 px-4 text-base bg-sapphire-800/40 border-sapphire-600/50 rounded-xl ring-2 ring-sapphire-500/20 focus:ring-sapphire-400/40 focus:border-sapphire-400/60 transition-all duration-200 placeholder:text-sapphire-300/60"
         />
-        <Button
-          onClick={handleSendMessage}
-          disabled={!input.trim() || isLoading}
-          size="sm"
-          variant="ghost"
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-sapphire-600/20 rounded-lg"
-        >
-          <Send className="h-4 w-4 text-midnight-400 hover:text-sapphire-400 transition-colors" />
-        </Button>
       </div>
     </div>
   );
