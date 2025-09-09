@@ -118,7 +118,7 @@ function AssistantMessage({
                 itemContent.push(
                   <span
                     key={`business-${nextIndex}`}
-                    className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                    className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
                     onMouseEnter={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       setHoveredBusiness({
@@ -168,7 +168,7 @@ function AssistantMessage({
               elements.push(
                 <span
                   key={index}
-                  className="cursor-help text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
+                  className="cursor-pointer text-sapphire-600 dark:text-sapphire-400 font-medium underline decoration-dotted decoration-2 decoration-sapphire-400/50 hover:decoration-sapphire-400 hover:bg-sapphire-50 dark:hover:bg-sapphire-900/20 px-0.5 rounded transition-all duration-200"
                   onMouseEnter={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     setHoveredBusiness({
